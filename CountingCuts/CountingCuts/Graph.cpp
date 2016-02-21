@@ -67,7 +67,7 @@ void Graph::insertVertexInGraph( int idOfVertex ){
  *  Function that takes vertex1 and 2 of the edge, creates those
  *  vertices and inserts it into the graph.
  */
-void Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight){
+Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight){
   
   Edge *edge = new Edge();
   edge->vertex1ID = idOfVertex1;
@@ -88,6 +88,7 @@ void Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weig
   /********** Analyse this *******************************/
   verticesArray[idOfvertex2]->addEdge(edge);
   edgesArray[currentNumberOfEdges++] = edge;
+  return edge;
 }
 
 /**
@@ -500,13 +501,14 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
  *  Function finds Strongly connected Components, stores them 
  *  then process ( contracts them )
  */
-void Graph::findAndContractSCC (){
+Graph* Graph::findAndContractSCC (){
   
   // Run DFS On residual graph
   bool *seen = new bool [totalVertices];
   int *finishTime =  new int[totalVertices];
   int *verticesOrder = new int[totalVertices];// this array is to store sorted
                                               // order of vertices during DFS
+  int numberOfSCCFound = 0;
   int time =  0 ;
   for (int i = 0 ; i < totalVertices ; ++i){
     
@@ -542,29 +544,65 @@ void Graph::findAndContractSCC (){
 
       DFSTime( verticesArray[verticesOrder[i]], seen, NULL, dummy , verticesCollected);
       
+      ++numberOfSCCFound;
       // do something with collcted vertices
       // right now just printing
       cout << "Strongly connected Component: " ;
 
+      // settting boss for each component
+      // this will be useful while creating new graph
       for (int k = 0 ; k < dummy ; ++k){
         
         cout << verticesCollected[k] << " ";
+        verticesArray[verticesCollected[k]]->boss = verticesCollected[0];
       }
       
       cout << endl;
-      
       delete verticesCollected;
     }
   }
 
   // reverse again to make it normal
   Graph::reverseEdges(this);
+
+  // create new graph here
+  // while creating a new graph make sure that vertex ID of
+  // all vertices in strongly connected component is same as
+  // boss
+  
+  // using currentNumberOfvertices as vertices count as
+  // there is a flaw that I am creating edges between "OLD"
+  // ids. SO Graph should allocate exta space for that
+  // 1____5____12 can be a case
+  Graph *newGraph = new Graph(currentNumberOfVertices, currentNumberOfEdges);
+  
+  for ( int i = 0 ; i < currentNumberOfEdges ; ++i ){
+
+    Edge* edge = edgesArray[i];
+    cout << "Bosses:  " << verticesArray[edge->vertex1ID]->boss << "  "<< verticesArray[edge->vertex2ID]->boss<<endl;
+    // see if their boss is same if yes then skip that edge
+    if ( verticesArray[edge->vertex1ID]->boss == verticesArray[edge->vertex2ID]->boss ){
+      
+      continue;
+    }else{
+    
+      // we can edge between two vertices. with vertex id as boss
+      Edge* newEdge = newGraph->insertEdgeInGraph( verticesArray[edge->vertex1ID]->boss, verticesArray[edge->vertex2ID]->boss, edge->getWeight());
+      newEdge->setResidualWeight(edge->getResidualWeight());
+    }
+  }
+
+  cout << "******************************************" << endl;
+  cout << " New graph edges" << endl;
+  newGraph->printEdges();
+  cout << "******************************************" << endl;
   
   // clearing memory
   delete seen;
   seen = NULL;
   delete finishTime;
   delete verticesOrder;
+  return newGraph;
 }
 
 /**
@@ -602,6 +640,17 @@ void Graph::DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time,
   verticesOrder[time] = ver->id;
   ++time;
 }
+
+
+/**
+ * Function to delete edge in the graph
+ * Use only for planar graphs. (For images max number of edges is 8).
+ */
+void Graph::deleteEdge(int id1, int id2){
+
+  
+}
+
 
 /**
  * Function to reverse edges

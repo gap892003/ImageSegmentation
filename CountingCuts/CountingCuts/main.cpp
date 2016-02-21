@@ -164,7 +164,8 @@ void readImageAndCreateGraph ( Graph *graph ){
   graph->getMinCut( 2, floor(xResolution * yResolution/2));
   
   // contract strongly connected components here
-  graph->findAndContractSCC();
+  Graph *graphDash = graph->findAndContractSCC();
+  delete graphDash;
 }
 
 int main(int argc, const char * argv[]) {

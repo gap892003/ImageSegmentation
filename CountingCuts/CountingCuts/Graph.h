@@ -46,8 +46,9 @@ public:
   /**
    *  Function that takes vertex1 and 2 of the edge, creates those
    *  vertices and inserts it into the graph.
+   *  returns created edge
    */
-  void insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight);
+  Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight);
   
   /**
    * Function to be used after max flow is found
@@ -83,10 +84,11 @@ public:
    *  Function that finds and contracts a strongly connected 
    *  component
    */
-  void findAndContractSCC();
+  Graph* findAndContractSCC();
   
   static void reverseEdges( Graph* graph );
 
+  void deleteEdge(int id1, int id2);
 private:
   
   Edge** DFS( int& edgesInPath, int startIndex, int endIndex );
