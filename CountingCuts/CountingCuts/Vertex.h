@@ -4,7 +4,6 @@
 //
 //  Created by Gaurav Joshi on 12/02/16.
 //  Copyright © 2016 Gj. All rights reserved.
-//
 
 #ifndef Vertex_h
 #define Vertex_h

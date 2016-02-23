@@ -72,7 +72,7 @@ public:
    *  Ford Fulkerson algorithm implementation
    * @return Max flow value
    */
-  int findMaxFlow(int s, int t);
+  WEIGHT_TYPE findMaxFlow(int s, int t);
 
   /**
    *  Ford Fulkerson algorithm implementation

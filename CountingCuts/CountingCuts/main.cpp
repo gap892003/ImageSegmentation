@@ -23,13 +23,20 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 
 //  WEIGHT_TYPE newValue = 256 - luminance;
 //  WEIGHT_TYPE newValue = 100000000 - luminance*1000;
-  
   //  should be inverse
 //  WEIGHT_TYPE newValue = pow (2, luminance+1);
 //  WEIGHT_TYPE newValue = exp (luminance+1);
+//  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
+//  WEIGHT_TYPE newValue = temp + 1;
+
   
-  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
+  double temp  = pow ( 255-luminance, 4);// x+2 as Dont want to deal with zeroes
   WEIGHT_TYPE newValue = temp + 1;
+
+  
+//  double temp  = 10000000000 - pow(luminance,4);
+//  WEIGHT_TYPE newValue = temp + 1;
+
   return newValue;
 }
 
@@ -39,10 +46,10 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 void readImageAndCreateGraph ( Graph *graph ){
   
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
 
   if (!imageFile){
     
@@ -161,7 +168,7 @@ void readImageAndCreateGraph ( Graph *graph ){
   ImageInput::destroy (imageFile);
   
   // find min cut value
-  graph->getMinCut( 2, floor(xResolution * yResolution/2));
+  graph->getMinCut( 0, floor(xResolution * yResolution/2));
   
   // contract strongly connected components here
   Graph *graphDash = graph->findAndContractSCC();

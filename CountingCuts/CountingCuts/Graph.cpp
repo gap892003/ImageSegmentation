@@ -216,7 +216,7 @@ bool Graph::DFSRec( Vertex *ver, bool* seen , Edge** path, int &edgesInPath
  *  t - Index of endPoint point
  * @return Max flow value
  */
-int Graph::findMaxFlow(int s, int t){
+WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
   
   int edgesInPath = 0;
   Edge **path = NULL;
@@ -230,7 +230,7 @@ int Graph::findMaxFlow(int s, int t){
 
   
   // edges that we get are in reverse order
-  int maxFlow = 0 ;
+  WEIGHT_TYPE maxFlow = 0 ;
   
   while ( edgesInPath != 0 ) {
     
@@ -245,12 +245,12 @@ int Graph::findMaxFlow(int s, int t){
     /***********REMOVE THIS************************************/
     
     int localLastVertex = t;
-    int bottleNeckWeight = -1;
+    WEIGHT_TYPE bottleNeckWeight = -1;
     
     // find out minimum weight in the path
     for ( int i = 0 ; i < edgesInPath ; ++i ){
       
-      int weightToCompare = 0;
+      WEIGHT_TYPE weightToCompare = 0;
       
       // this means we have considered normal weight (forward edge)
       if (path[i]->vertex2ID == localLastVertex ){
@@ -314,7 +314,7 @@ int Graph::findMaxFlow(int s, int t){
  */
 Vertex** Graph::getMinCut(int s, int t){
   
-  int maxFlow =  findMaxFlow(s, t);
+  WEIGHT_TYPE maxFlow =  findMaxFlow(s, t);
   std::cout << "Max flow is : "<< maxFlow << std::endl;
   bool *seen = new bool [totalVertices];
   Vertex** minCut = new Vertex* [totalVertices];
