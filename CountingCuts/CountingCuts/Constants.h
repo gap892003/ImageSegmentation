@@ -17,6 +17,6 @@
 //#define TRY_DIAGONAL_EDGES
 
 #define WEIGHT_TYPE  long long
-//#define USE_EDMONDS_KARP
+#define USE_EDMONDS_KARP
 
 #endif /* Constants_h */

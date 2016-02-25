@@ -11,9 +11,10 @@
 #include "Vertex.h"
 #include "Graph.h"
 #include "Constants.h"
+#include "PlanarGraph.h"
 #include <iostream>
 #include <list>
-
+#include <vector>
 using namespace std;
 
 // Constructor
@@ -66,8 +67,9 @@ void Graph::insertVertexInGraph( int idOfVertex ){
 /**
  *  Function that takes vertex1 and 2 of the edge, creates those
  *  vertices and inserts it into the graph.
+ *  Default is false for one way operation
  */
-Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight){
+Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay){
   
   Edge *edge = new Edge();
   edge->vertex1ID = idOfVertex1;
@@ -86,7 +88,12 @@ Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE wei
   verticesArray[idOfVertex1]->addEdge(edge);
   
   /********** Analyse this *******************************/
-  verticesArray[idOfvertex2]->addEdge(edge);
+  if (!oneWay){
+  
+    verticesArray[idOfvertex2]->addEdge(edge);
+  
+  }
+  
   edgesArray[currentNumberOfEdges++] = edge;
   return edge;
 }
@@ -501,7 +508,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
  *  Function finds Strongly connected Components, stores them 
  *  then process ( contracts them )
  */
-Graph* Graph::findAndContractSCC (){
+Graph* Graph::findAndContractSCC ( int source, int sink ){
   
   // Run DFS On residual graph
   bool *seen = new bool [totalVertices];
@@ -509,6 +516,8 @@ Graph* Graph::findAndContractSCC (){
   int *verticesOrder = new int[totalVertices];// this array is to store sorted
                                               // order of vertices during DFS
   int numberOfSCCFound = 0;
+  vector<int*> collectedVerticesList;
+  
   int time =  0 ;
   for (int i = 0 ; i < totalVertices ; ++i){
     
@@ -540,6 +549,10 @@ Graph* Graph::findAndContractSCC (){
     if (! seen[verticesOrder[i]]){
 
       int dummy = 0;
+      
+      // using int array here
+      // dont want to use vector as , it can hamper
+      // time complexity
       int *verticesCollected = new int[totalVertices];
 
       DFSTime( verticesArray[verticesOrder[i]], seen, NULL, dummy , verticesCollected);
@@ -558,13 +571,15 @@ Graph* Graph::findAndContractSCC (){
       }
       
       cout << endl;
-      delete verticesCollected;
+      collectedVerticesList.push_back(verticesCollected);
+//      delete verticesCollected;
     }
   }
 
   // reverse again to make it normal
   Graph::reverseEdges(this);
 
+  /*
   // create new graph here
   // while creating a new graph make sure that vertex ID of
   // all vertices in strongly connected component is same as
@@ -591,11 +606,84 @@ Graph* Graph::findAndContractSCC (){
       newEdge->setResidualWeight(edge->getResidualWeight());
     }
   }
+ */
+  
+  
+  // create new replica of the graph with exact same bosses
+  // vertices, then use edge contraction
+  // IMP: while creating new graph, dont worry about residual graphs
+  PlanarGraph *newGraph = new PlanarGraph (currentNumberOfVertices, currentNumberOfEdges*2);
 
+  //currentNumberOfEdges*2 safer side to account for residual edges
+  
+  for ( int i = 0 ; i < currentNumberOfEdges ; ++i ){
+    
+    Edge* edge = edgesArray[i];
+    
+    //*****************Analyse this
+    // We need double way adjacency list to find out faces of the graph
+    Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight(),true);
+    newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
+    newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
+    
+    // if there is residual edge add actual edge
+    if (edge->getResidualWeight() > 0){
+    
+      Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight(),true);
+      newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex2ID]->boss;
+      newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex1ID]->boss;
+
+    }
+  }
+  
   cout << "******************************************" << endl;
   cout << " New graph edges" << endl;
   newGraph->printEdges();
   cout << "******************************************" << endl;
+  
+  // Do edge contraction here,
+  // go through graph one vertex at a time and then contract an
+  // edge
+  // this is poor version of this I will imporve on it later
+  // IMP: Dont care about residual edges here
+
+  // iterate through each all strongly connected components collected above
+
+//  for ( int i = 0 ; i < newGraph->currentNumberOfEdges ; ++i ){
+  
+  for ( int i = 0 ; i < collectedVerticesList.size() ; ++i ){
+    
+    int *verticesWithSameBoss = collectedVerticesList[i];
+    
+    int verticesCount = (sizeof((verticesWithSameBoss))/sizeof((verticesWithSameBoss[0])));
+
+    // take vertex 1 and contract every vertex
+    Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss[0]];
+    
+    for ( int j = 1 ; j < verticesCount ; ++j ){
+      
+      Vertex* ver2 = newGraph->verticesArray[verticesWithSameBoss[0]];
+      
+      // find edge with these two vertices and contract that
+      // while contracting just change the pointer at
+      // the location of vertexID, that would change pointers
+      // of all other edges
+      // so verticesArray[VertexID] will give a different vertex now
+      // And we don't need to change pointers in incoming edges to that
+      // vertex
+      // IMP: Identify vertices by their boss names now
+      // Awesome ! Right ?
+      newGraph->verticesArray[ver2->id] = ver1;
+      
+      // now add all edges from ver2 to ver1's list
+      // make sure the sequence of edges is same
+      // TODO: writing it in a bad way, improve this
+      int index = ver1->indexOfEdgeInList(ver2->id);
+      
+      // get edges array in order and then add it to the vertex
+      ver1->insertEdgesInList( index , NULL);
+    }
+  }
   
   // clearing memory
   delete seen;

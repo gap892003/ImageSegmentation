@@ -134,26 +134,32 @@ void readImageAndCreateGraph ( Graph *graph ){
       // care by following two cases.
       // if right side exists
       
+      // storing edges in a sequence where it will be useful for
+      // finding faces 
+      // add a check for bottom pixel
+      if (i != xResolution - 1 ){
+        
+        // if there is a pixel at bottom
+        int bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
+        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight );
+        
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
+        newEdge->setEdgeDirection(EdgeDirection::BOTTOM);
+        newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
+        newEdge->setEdgeDirection(EdgeDirection::TOP);
+      }
+      
       // add a check for right side
       if ( j != yResolution-1 ){
         
         int rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight );
         
-        graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
-        graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
-      }
-      
-      
-      // add a check for bottom pixel
-      if (i != xResolution - 1 ){
-      
-        // if there is a pixel at bottom
-        int bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
-        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight );
-        
-        graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
-        graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
+       Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
+        newEdge->setEdgeDirection(EdgeDirection::RIGHT);
+ 
+       newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
+        newEdge->setEdgeDirection(EdgeDirection::LEFT);
 
       }
     }
@@ -168,10 +174,10 @@ void readImageAndCreateGraph ( Graph *graph ){
   ImageInput::destroy (imageFile);
   
   // find min cut value
-  graph->getMinCut( 0, floor(xResolution * yResolution/2));
+  graph->getMinCut( 2, floor(xResolution * yResolution/2));
   
   // contract strongly connected components here
-  Graph *graphDash = graph->findAndContractSCC();
+  Graph *graphDash = graph->findAndContractSCC(2, floor(xResolution * yResolution/2));
   delete graphDash;
 }
 

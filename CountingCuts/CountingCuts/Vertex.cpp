@@ -10,23 +10,45 @@
 #include "Edge.h"
 
 Vertex::Vertex(int totalVertices,int _id){
+  
+  adjacencyList = new Edge* [totalVertices];// since it can connect to all n-1 edges at max
+  numberOfEdges = 0;
+  id = _id;
+  set = new int[totalVertices];
+  size = 0;
+  set[size++] = id;
+  boss = id;
+}
+
+void Vertex::addEdge(Edge *e){
+  
+  adjacencyList[numberOfEdges++] = e;
+}
+
+// This function will be removed after introducting linkedLists
+int Vertex::indexOfEdgeInList (int vertexID){
+  
+  for ( int i = 0 ; i < numberOfEdges ; ++i ){
     
-    adjacencyList = new Edge* [totalVertices];// since it can connect to all n-1 edges at max
-    numberOfEdges = 0;
-    id = _id;
-    set = new int[totalVertices];
-    size = 0;
-    set[size++] = id;
-    boss = id;
+    Edge* edge = adjacencyList[i];
+    
+    if (( ( (edge->vertex2ID == vertexID) && ( edge->vertex1ID == this->id ) ) )
+      || (( (edge->vertex1ID == vertexID) && ( edge->vertex2ID == this->id ) ) )){
+      
+        return i;
+    }
   }
   
-  void Vertex::addEdge(Edge *e){
-    
-    adjacencyList[numberOfEdges++] = e;
-  }
+  return -1;
+}
+
+void insertEdgesInList(int index, Edge** edgesToAdd){
+
+
+}
+
+Vertex::~Vertex(){
   
- Vertex::~Vertex(){
-    
-    //delete adjacencyList;
-  }
+  //delete adjacencyList;
+}
 

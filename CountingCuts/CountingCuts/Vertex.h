@@ -31,6 +31,8 @@ public:
   public:
   Vertex(int totalVertices,int _id);
   void addEdge(Edge *e);
+  int indexOfEdgeInList (int vertexID);
+  void insertEdgesInList(int index, Edge** edgesToAdd);
   ~Vertex();
 };
 

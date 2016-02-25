@@ -20,7 +20,7 @@ class Graph{
 public:
   Vertex **verticesArray;
   
-private:
+protected:
   int totalVertices;
   int totalEdges;
   Edge **edgesArray;
@@ -48,7 +48,7 @@ public:
    *  vertices and inserts it into the graph.
    *  returns created edge
    */
-  Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight);
+  Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay = false);
   
   /**
    * Function to be used after max flow is found
@@ -84,7 +84,7 @@ public:
    *  Function that finds and contracts a strongly connected 
    *  component
    */
-  Graph* findAndContractSCC();
+  Graph* findAndContractSCC( int source, int sink );
   
   static void reverseEdges( Graph* graph );
 
