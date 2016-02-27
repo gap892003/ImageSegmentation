@@ -622,14 +622,14 @@ Graph* Graph::findAndContractSCC ( int source, int sink ){
     
     //*****************Analyse this
     // We need double way adjacency list to find out faces of the graph
-    Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight(),true);
+    Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight() );
     newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
     newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
     
     // if there is residual edge add actual edge
     if (edge->getResidualWeight() > 0){
     
-      Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight(),true);
+      Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight());
       newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex2ID]->boss;
       newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex1ID]->boss;
 

@@ -7,12 +7,14 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <imageio.h>
 #include "Graph.h"
 #include "Vertex.h"
 #include "Edge.h"
 #include <math.h>
 #include "Constants.h"
+#include "PlanarGraph.h"
 
 using namespace OpenImageIO;
 
@@ -144,9 +146,9 @@ void readImageAndCreateGraph ( Graph *graph ){
         WEIGHT_TYPE newWeight = weightFunction ( bottomWeight );
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
-        newEdge->setEdgeDirection(EdgeDirection::BOTTOM);
+//        newEdge->setEdgeDirection(EdgeDirection::BOTTOM);
         newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
-        newEdge->setEdgeDirection(EdgeDirection::TOP);
+//        newEdge->setEdgeDirection(EdgeDirection::TOP);
       }
       
       // add a check for right side
@@ -156,10 +158,10 @@ void readImageAndCreateGraph ( Graph *graph ){
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight );
         
        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
-        newEdge->setEdgeDirection(EdgeDirection::RIGHT);
+//        newEdge->setEdgeDirection(EdgeDirection::RIGHT);
  
        newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
-        newEdge->setEdgeDirection(EdgeDirection::LEFT);
+//        newEdge->setEdgeDirection(EdgeDirection::LEFT);
 
       }
     }
@@ -181,14 +183,44 @@ void readImageAndCreateGraph ( Graph *graph ){
   delete graphDash;
 }
 
-int main(int argc, const char * argv[]) {
+/*
+void testCountingCuts (){
   
   // reading image and creating a planar graph
   Graph *planarGraph;
   readImageAndCreateGraph( planarGraph );
-
-  // delete graph after done
+  
+//   delete graph after done
   delete planarGraph;
   planarGraph = NULL;
-  return 0;
+}
+*/
+
+void testPlanarGraphs(){
+
+  std::ifstream arq(getenv("GRAPH"));
+  std::cin.rdbuf(arq.rdbuf());
+  
+  int numberOfVertices = 0 ;
+  std::cin >> numberOfVertices;
+  PlanarGraph *planarGraph = new PlanarGraph(numberOfVertices,numberOfVertices);
+  int id1;
+  std::cin >> id1;
+  
+  while ( id1 != -1) {
+    
+    int id2;
+    std::cin >> id2;
+    planarGraph->insertEdgeInGraph(id1, id2, 1);
+    std::cin >> id1;
+  }
+  
+  planarGraph->findFaces();
+  planarGraph->printFaces();
+  delete planarGraph;
+}
+
+int main(int argc, const char * argv[]) {
+  
+  testPlanarGraphs();
 }

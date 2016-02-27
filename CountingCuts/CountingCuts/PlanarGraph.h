@@ -14,16 +14,21 @@
 #include <list>
 
 class Vertex;
+class Faces;
 class PlanarGraph : public Graph{
 
 private:
-  int numberOfFaces;
+  std::list <Faces*> *faces;
   
 public:
+  
+  PlanarGraph ( int numberOfVertices );
   PlanarGraph (int numberOfVertices, int numberOfEdges);
   void findFaces();
-  void findFacesRec( std::list<Edge*> *path, Vertex* startVertex );
+  bool findFacesRec( std::list<Edge*> *path, Vertex* startVertex,Vertex *lastVertex);
   Graph *calculateDual();
+  void printFaces();
+  virtual  ~PlanarGraph();
 };
 
 

@@ -61,10 +61,21 @@
             ReferencedContainer = "container:CountingCuts.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = " &lt; /Users/Gaurav/Documents/STudies/Capstone/Test"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "DYLD_LIBRARY_PATH"
             value = "/usr/local/lib"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "GRAPH"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/Test.txt"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

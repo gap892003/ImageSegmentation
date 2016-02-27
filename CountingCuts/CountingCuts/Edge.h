@@ -13,13 +13,13 @@
 #include "Constants.h"
 
 
-typedef enum {
-
-  BOTTOM = 0,
-  RIGHT = 1,
-  TOP = 2,
-  LEFT = 3,
-}EdgeDirection;
+//typedef enum {
+//
+//  BOTTOM = 0,
+//  RIGHT = 1,
+//  TOP = 2,
+//  LEFT = 3,
+//}EdgeDirection;
 
 
 class Edge{
@@ -27,11 +27,11 @@ class Edge{
 public:
   int vertex1ID;
   int vertex2ID;
-  EdgeDirection direction;
+//  EdgeDirection direction; // dont need this 
   // specifically for planar graphs
   // to check whether the edge is done
-  bool done;
-  
+  bool doneFwd = false ;
+  bool doneBakWd = false ;
 private:
   
   WEIGHT_TYPE weight; // Forward weight
@@ -41,16 +41,16 @@ public:
   
   void setWeight( WEIGHT_TYPE weight );
 
-  inline EdgeDirection getEdgeDirection( ){
-    
-    return direction;
-  }
-  
-  // method to subtract weight
-  inline void setEdgeDirection( EdgeDirection _direction ){
-    
-    this->direction = _direction;
-  }
+//  inline EdgeDirection getEdgeDirection( ){
+//    
+//    return direction;
+//  }
+//  
+//  // method to subtract weight
+//  inline void setEdgeDirection( EdgeDirection _direction ){
+//    
+//    this->direction = _direction;
+//  }
   
   // getters and setters
   inline WEIGHT_TYPE getWeight( ){

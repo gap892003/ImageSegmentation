@@ -42,7 +42,7 @@ int Vertex::indexOfEdgeInList (int vertexID){
   return -1;
 }
 
-void insertEdgesInList(int index, Edge** edgesToAdd){
+void Vertex::insertEdgesInList(int index, Edge** edgesToAdd){
 
 
 }
