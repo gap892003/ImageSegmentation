@@ -11,7 +11,7 @@
 #include "Vertex.h"
 #include <iostream>
 #include "Faces.h"
-
+#include "PlanarEdge.h"
 
 PlanarGraph::PlanarGraph ( int numberOfVertices ):Graph(numberOfVertices){
 
@@ -29,7 +29,7 @@ PlanarGraph :: PlanarGraph (int numberOfVertices, int numberOfEdges)
 void PlanarGraph::findFaces(){
 
   // initialise list
-  faces = new std::list<Faces*> ();
+  faces = new std::vector<Faces*> ();
   
   // pick a vertex
   // go through its adjacency list
@@ -43,8 +43,8 @@ void PlanarGraph::findFaces(){
   
   for (int i = 0; i < currentNumberOfEdges; ++i ){
     
-    edgesArray[i]->doneFwd = false;
-    edgesArray[i]->doneBakWd = false;
+    ((PlanarEdge*)edgesArray[i])->doneFwd = false;
+    ((PlanarEdge*)edgesArray[i])->doneBakWd = false;
   }
   
   for (int i = 0; i < currentNumberOfVertices; ++i ){
@@ -71,16 +71,28 @@ void PlanarGraph::findFaces(){
       
       for (int edgeNumber = 0 ; edgeNumber < totalEdgesInAdj; ++edgeNumber){
       
-        Edge *edge = edgesArray[edgeNumber];
+        PlanarEdge *edge = (PlanarEdge*)edgesArray[edgeNumber];
         
         if ( !edge->doneBakWd || !edge->doneFwd )// I dont think I need this
         {
           // recursively find all the faces that the edge is assosciated with
-          std::list<Edge*> *path =  new std::list<Edge*>();
+          std::vector<Edge*> *path =  new std::vector<Edge*>();
           path->push_back(edge);
-          if (findFacesRec( path,  verticesArray[i],  verticesArray[i] )){
+          int faceIDNew = findFacesRec( path,  verticesArray[i],  verticesArray[i] );
+          bool fwdEdge = verticesArray[i]->id == edge->vertex1ID;
+          
+          if (faceIDNew !=-1){
             
-            edge->doneFwd = true;
+            // add a check here
+            if (fwdEdge){
+            
+              edge->doneFwd = true;
+            }else{
+            
+              edge->doneBakWd = true;
+            }
+            
+            edge->addFace(faceIDNew, fwdEdge);
           }
 //          delete path; // path will be deleted
         }
@@ -93,7 +105,12 @@ void PlanarGraph::findFaces(){
   delete seen;
 }
 
-bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *lastVertex ){
+
+/**
+ *  Faces are found out by traversing edges in anticlockwise direction
+ *  (We get Outer plane anticlockwise, inner faces clockwise)
+ */
+int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *lastVertex ){
 
   // add all edges in same direction (or opposite if vertices are reversed)
   // in the face
@@ -108,15 +125,16 @@ bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *l
   // while adding add all edges that are between same vertices
   
   Edge *lastEdgeAdded = path->back();
-  Edge *nextEdge = NULL;
+  PlanarEdge *nextEdge = NULL;
   bool lastEdgeWasFwd = lastEdgeAdded->vertex1ID == lastVertex->id;
   if ( (lastEdgeWasFwd && lastEdgeAdded->vertex2ID == start->id) ||
       ( !lastEdgeWasFwd && lastEdgeAdded->vertex1ID == start->id)){
     
+    int newFaceID = (int)this->faces->size();
     // create face here and move back
-    Faces *newFace = new Faces(path);
+    Faces *newFace = new Faces(path, newFaceID);// this can cause precision loss, but wont happen in our case I guess as number of faces is unlikely to be greater than 2^32 (for bit machine)
     this->faces->push_back(newFace);
-    return true;
+    return newFaceID;
   }else{
     
     int currentVertexID = lastEdgeWasFwd?lastEdgeAdded->vertex2ID:lastEdgeAdded->vertex1ID;
@@ -134,7 +152,7 @@ bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *l
       
       Edge *edgeUnderQ = adj[i];
       
-      // thsi will find all edges between 1 and 2 and set index to last
+      // this will find all edges between 1 and 2 and set index to last
       // matching edge
 //      if (((lastEdgeWasFwd && (edgeUnderQ->vertex1ID == lastVertex->id && edgeUnderQ->vertex2ID == currentVertexID))
 //          ||
@@ -146,7 +164,7 @@ bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *l
            (!lastEdgeWasFwd && (edgeUnderQ->vertex2ID == lastVertex->id && edgeUnderQ->vertex1ID == currentVertexID))){
       
         indexOfEdge = i;
-        nextEdge = adj[ (i+1) % totalEdgesInList ]; // id dont know if I need cyclic,
+        nextEdge = (PlanarEdge*)adj[ (i+1) % totalEdgesInList ]; // id dont know if I need cyclic,
       }
       
       // this means we have skipped all similar edges and next edge is
@@ -170,19 +188,30 @@ bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *l
         ) {
       
       delete path; // to avoid leak
-      return false;
+      return -1;
     }
     
     path->push_back(nextEdge);
-    if (findFacesRec(path, start ,currentVertex )){
+    
+    int faceID = findFacesRec(path, start ,currentVertex );
+    
+    if ( faceID != -1){
     
       // mark that edge as done iff face was found
-      nextEdge->doneFwd = lastEdgeWasFwd;
-      nextEdge->doneBakWd = !lastEdgeWasFwd;
-      return true;
+      if (nextEdgeFwd){
+        
+        nextEdge->doneFwd = nextEdgeFwd;
+      }else{
+        
+        nextEdge->doneBakWd = !nextEdgeFwd;
+      }
+//      nextEdge->doneFwd = lastEdgeWasFwd;
+//      nextEdge->doneBakWd = !lastEdgeWasFwd;
+      nextEdge->addFace(faceID, nextEdgeFwd);
+      return faceID;
     }else{
       
-      return false;
+      return -1;
     }
         
 //    // move ahead
@@ -195,20 +224,52 @@ bool PlanarGraph::findFacesRec( std::list<Edge*> *path, Vertex *start, Vertex *l
 //    }
   }
   
-  return false;
+  return -1;
+}
+
+Edge* PlanarGraph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay){
+
+  PlanarEdge *edge = new PlanarEdge();
+  return insertEdge (edge, idOfVertex1, idOfvertex2, weight, oneWay);
 }
 
 void PlanarGraph::printFaces(){
 
-  for ( std::list<Faces*>::iterator it = faces->begin(); it != faces->end(); ++it ){
+  for ( std::vector<Faces*>::iterator it = faces->begin(); it != faces->end(); ++it ){
     
       ((Faces*)*it)->printEdges();
   }
 }
 
+/**
+ * This calculates dual in linear time 
+ * But it does have extra edges which needs to be removed 
+ * The edges which are to be excluded as a part of path finding 
+ * from t to s
+ */
 Graph* PlanarGraph::calculateDual(){
 
-  Graph *dualGraph = new Graph( this->faces->size(),this->currentNumberOfEdges);
+  // go through all faces one by one
+  // for each face go through all edges
+  // vertex will be represented by same faceID
+  // If this face id is same face1ID connect with Face2
+  Graph *dualGraph = new Graph( (int)this->faces->size(),this->currentNumberOfEdges);
+  
+  for (int i = 0 ; i < faces->size(); ++i){
+  
+    Faces * currentFace  = faces->at(i);
+    std::vector<Edge*> *edges = currentFace->edgesInFace;
+    
+    for (int j = 0 ; j < edges->size(); ++j){
+    
+      PlanarEdge* currentEdge = (PlanarEdge*)edges->at(j);
+//      if (currentFace->id == currentEdge->faceID1){
+//        
+//        
+//      }
+    }
+  }
+  
   return dualGraph;
 }
 

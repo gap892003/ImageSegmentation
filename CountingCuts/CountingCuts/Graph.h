@@ -48,7 +48,7 @@ public:
    *  vertices and inserts it into the graph.
    *  returns created edge
    */
-  Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay = false);
+  virtual Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay = false);
   
   /**
    * Function to be used after max flow is found
@@ -114,6 +114,9 @@ private:
    */
   void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, int *verticesOrder);
   
+protected:
+  
+  Edge* insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay);
 public:
   // destructor
   ~Graph();

@@ -28,10 +28,7 @@ public:
   int vertex1ID;
   int vertex2ID;
 //  EdgeDirection direction; // dont need this 
-  // specifically for planar graphs
-  // to check whether the edge is done
-  bool doneFwd = false ;
-  bool doneBakWd = false ;
+
 private:
   
   WEIGHT_TYPE weight; // Forward weight

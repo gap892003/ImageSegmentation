@@ -12,6 +12,7 @@
 #include "Graph.h"
 #include "Constants.h"
 #include "PlanarGraph.h"
+#include "PlanarEdge.h"
 #include <iostream>
 #include <list>
 #include <vector>
@@ -72,6 +73,12 @@ void Graph::insertVertexInGraph( int idOfVertex ){
 Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay){
   
   Edge *edge = new Edge();
+  return insertEdge( edge,idOfVertex1, idOfvertex2, weight, oneWay );
+}
+
+
+Edge* Graph::insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay){
+
   edge->vertex1ID = idOfVertex1;
   edge->vertex2ID = idOfvertex2;
   edge->setWeight( weight );
@@ -89,9 +96,9 @@ Edge* Graph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE wei
   
   /********** Analyse this *******************************/
   if (!oneWay){
-  
+    
     verticesArray[idOfvertex2]->addEdge(edge);
-  
+    
   }
   
   edgesArray[currentNumberOfEdges++] = edge;

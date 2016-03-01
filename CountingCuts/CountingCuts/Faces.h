@@ -9,17 +9,18 @@
 #ifndef Faces_hpp
 #define Faces_hpp
 #include <stdio.h>
-#include <list>
+#include <vector>
+
 class Edge;
 
 class Faces {
 
 public:
-  
-  Faces( std::list<Edge*> *listOfEdges );
+  int faceID;
+  Faces( std::vector<Edge*> *listOfEdges, int _faceID );
   ~Faces();
 //  Edge **edgesInFace;
-  std::list<Edge*> *edgesInFace;
+  std::vector<Edge*> *edgesInFace;
   void printEdges();
 };
 
