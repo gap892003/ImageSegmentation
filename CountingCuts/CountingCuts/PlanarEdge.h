@@ -22,10 +22,16 @@ public:
   // to check whether the edge is done
   bool doneFwd = false ;
   bool doneBakWd = false ;
+  
+  // this two if set properly by outside code
+  // will help find dual of quickely
   int faceID1 = -1; // face contains fwd
   int faceID2 = -1; // face contains backward
   
   // algorithm specific
+  // this will help me identify that I need one
+  // vertex per this types of edge and only connect to
+  // one face
   bool belongsToStPath = false;
   
   inline void addFace (int faceID, bool fwd){

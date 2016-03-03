@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Constants.h"
+#include <vector>
 
 class Edge;
 class Vertex;
@@ -28,6 +29,7 @@ protected:
   int currentNumberOfEdges;
   int lastVertex;
   int *visitedEdges;
+  std::vector<int> *vertexPairArray; // specifically for counting cuts algorihm
   
 public:
   
@@ -89,7 +91,19 @@ public:
   static void reverseEdges( Graph* graph );
 
   void deleteEdge(int id1, int id2);
-private:
+  
+  /**
+   *
+   */
+  void addVertexPair (int vertex1, int vertex2);
+ 
+  /**
+   *  THE function
+   **/
+  int countMinCuts ();
+
+  
+protected:
   
   Edge** DFS( int& edgesInPath, int startIndex, int endIndex );
   /**
@@ -114,6 +128,7 @@ private:
    */
   void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, int *verticesOrder);
   
+  int countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path);
 protected:
   
   Edge* insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay);

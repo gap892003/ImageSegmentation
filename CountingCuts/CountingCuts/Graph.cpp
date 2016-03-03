@@ -39,7 +39,8 @@ totalVertices(numberOfVertices),totalEdges(numberOfEdges){
     
     visitedEdges[i] = 0;
   }
-  
+ 
+  vertexPairArray = NULL;
 }
 
 // constructor
@@ -53,6 +54,8 @@ Graph::Graph ( int numberOfVertices ): totalVertices(numberOfVertices){
     
     verticesArray[i] = NULL; // setting all to null
   }
+  
+  vertexPairArray = NULL;
 }
 
 /**
@@ -761,16 +764,120 @@ void Graph::reverseEdges( Graph* graph ){
   }
 }
 
+/**
+ *  Vertex pair array if not initialized then initialize it 
+ *  and add pair to the array
+ */
+void Graph::addVertexPair ( int vertex1, int vertex2 ){
+
+  if ( vertexPairArray == NULL ){
+  
+    vertexPairArray = new std::vector<int>();
+  }
+  
+  vertexPairArray->push_back(vertex1);
+  vertexPairArray->push_back(vertex2);
+}
+
+/**
+ * THE function of the algorithm which calculates 
+ */
+int Graph::countMinCuts (){
+
+  int minCutsCount = 0;
+  
+  // go through each vertex pair
+  // find number of paths in between those vertices
+  
+  for ( int i = 0 ; i < vertexPairArray->size(); i += 2 ){
+    
+    // create a visited edges array
+    // mark each edge after visiting it
+    // if that edge can be taken then only take that path
+    // this is only for Testing
+    // In DAG we should not have such case
+    // TODO: Remove this after successful test
+    bool *seen = new bool [currentNumberOfVertices];
+    
+    for (int j = 0 ; j < currentNumberOfVertices; ++j ){
+      
+      seen[j] = false;
+    }
+    
+    vector<Edge*> path;
+    // TODO: Remove path after testing
+    minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path);
+  }
+  
+  return minCutsCount;
+}
+
+int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path ){
+
+  if (source == destination){
+    
+    std::cout << "Path is: "<< std::endl;
+    
+    for (int i = 0 ; i < path.size(); ++i){
+      
+      Edge *edge = path.at(i);
+      std::cout << edge->vertex1ID << " -> " << edge->vertex2ID << std::endl;
+    }
+    
+    return 1;
+  }
+  
+  // get adjacency list of source
+  seen[source] = true;
+  
+  // check only forward edges here
+  Edge** adjList = verticesArray[source]->adjacencyList;
+  int numberOfEdgesInList = verticesArray[source]->numberOfEdges;
+  int pathCount = 0;
+  
+  for ( int i = 0 ; i < numberOfEdgesInList ; ++i){
+  
+    Edge *edge = adjList[i];
+    
+    // move ahead only if its a fwd edge and next vertex is not seen
+    // seen check is necessary as we dont want to move backwards
+    if ( edge->vertex1ID == source && !seen[edge->vertex2ID] ){
+      
+      path.push_back(edge);
+      pathCount = pathCount + countPaths(edge->vertex2ID, destination, seen, path);
+      path.pop_back();
+      seen[edge->vertex2ID] = false;
+    }
+  }
+  
+  return pathCount;
+}
+
+
 // destructor
 Graph::~Graph(){
   
   for (int i = 0 ; i < currentNumberOfVertices; ++i) {
+
+    if (verticesArray[i] != NULL) {
     
-    delete verticesArray[i];
+      delete verticesArray[i];
+    }
   }
   
   for (int i = 0 ; i < currentNumberOfEdges; ++i) {
     
-    delete edgesArray[i];
+    if (edgesArray[i] != NULL) {
+     
+      delete edgesArray[i];
+    }
   }
+  
+  if (vertexPairArray != NULL){
+
+    vertexPairArray->clear();
+    delete vertexPairArray;
+    vertexPairArray = NULL;
+  }
+  
 }

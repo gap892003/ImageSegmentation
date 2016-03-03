@@ -217,10 +217,40 @@ void testPlanarGraphs(){
   
   planarGraph->findFaces();
   planarGraph->printFaces();
+  planarGraph->setSource( 4 );
+  planarGraph->setSink( 0 );
+  planarGraph->findAndMarkSTPath();
+  Graph *dual = planarGraph->calculateDual();
+  dual->printEdges();
+  delete dual;
   delete planarGraph;
+}
+
+void testCountingPaths (){
+
+  std::ifstream arq(getenv("GRAPH"));
+  std::cin.rdbuf(arq.rdbuf());
+  
+  int numberOfVertices = 0 ;
+  std::cin >> numberOfVertices;
+  Graph *planarGraph = new Graph(numberOfVertices,numberOfVertices);
+  int id1;
+  std::cin >> id1;
+  
+  while ( id1 != -1) {
+    
+    int id2;
+    std::cin >> id2;
+    planarGraph->insertEdgeInGraph(id1, id2, 1);
+    std::cin >> id1;
+  }
+
+  planarGraph->addVertexPair(0, 4);
+  std::cout << "Number of paths " << planarGraph->countMinCuts() << std::endl;
 }
 
 int main(int argc, const char * argv[]) {
   
-  testPlanarGraphs();
+  //testPlanarGraphs();
+  testCountingPaths();
 }

@@ -253,25 +253,53 @@ Graph* PlanarGraph::calculateDual(){
   // for each face go through all edges
   // vertex will be represented by same faceID
   // If this face id is same face1ID connect with Face2
-  Graph *dualGraph = new Graph( (int)this->faces->size(),this->currentNumberOfEdges);
-  
-  for (int i = 0 ; i < faces->size(); ++i){
-  
-    Faces * currentFace  = faces->at(i);
-    std::vector<Edge*> *edges = currentFace->edgesInFace;
+  // *2 is accomodating for s-t path vertices
+  Graph *dualGraph = new Graph( (int)this->faces->size() * 2 ,this->currentNumberOfEdges);
+  int stPathEdgeNumber = 0; // this is to keep track of stPathedgenumber so that
+                      // we can add new vertex with ID numberofFaces+stPathEdgeNumber
+  for (int i = 0 ; i < currentNumberOfEdges; ++i){
     
-    for (int j = 0 ; j < edges->size(); ++j){
+    PlanarEdge* currentEdge = (PlanarEdge*)this->edgesArray[i];
     
-      PlanarEdge* currentEdge = (PlanarEdge*)edges->at(j);
-//      if (currentFace->id == currentEdge->faceID1){
-//        
-//        
-//      }
+    // add edge between face and face 2
+    // only if it not the pathe edge
+    if (!currentEdge->belongsToStPath) {
+      
+      // weights wont matter
+      dualGraph->insertEdgeInGraph( currentEdge->faceID2, currentEdge->faceID1, 1 );
+    }else{
+
+      // add new vertices corresponding to edge in st path and add edge to face 2
+      // at the same time store it in pairs in map to get between which vertices
+      // we want to find out paths
+      // IMP : for  edges with same face1 do not add edge again
+      // for this simply keep track of last face1
+
+      // TODO : verify this we require face 1 or 2?
+      int newFaceID = (int)faces->size()+stPathEdgeNumber;
+      dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
+      dualGraph->addVertexPair( newFaceID, currentEdge->faceID1 );
+      ++stPathEdgeNumber;
     }
   }
   
   return dualGraph;
 }
+
+
+void PlanarGraph::findAndMarkSTPath(){
+
+  Edge** path = NULL;
+  int edgesInPath = 0;
+  path = BFS(edgesInPath, t, s);
+  
+  for ( int i = 0 ; i < edgesInPath; ++i ) {
+    
+    PlanarEdge* edge = (PlanarEdge*) path[i];
+    edge->belongsToStPath = true;
+  }
+}
+
 
 PlanarGraph::~PlanarGraph(){
 
