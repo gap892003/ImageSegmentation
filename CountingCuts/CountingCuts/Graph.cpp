@@ -657,7 +657,7 @@ Graph* Graph::findAndContractSCC ( int source, int sink ){
   // this is poor version of this I will imporve on it later
   // IMP: Dont care about residual edges here
 
-  // iterate through each all strongly connected components collected above
+  // iterate through all strongly connected components collected above
 
 //  for ( int i = 0 ; i < newGraph->currentNumberOfEdges ; ++i ){
   
@@ -666,7 +666,7 @@ Graph* Graph::findAndContractSCC ( int source, int sink ){
     int *verticesWithSameBoss = collectedVerticesList[i];
     
     int verticesCount = (sizeof((verticesWithSameBoss))/sizeof((verticesWithSameBoss[0])));
-
+    
     // take vertex 1 and contract every vertex
     Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss[0]];
     

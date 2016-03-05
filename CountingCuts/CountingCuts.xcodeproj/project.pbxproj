@@ -10,6 +10,7 @@
 		F40284CC1C7E598800F99F0E /* PlanarGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284CA1C7E598800F99F0E /* PlanarGraph.cpp */; };
 		F40284CF1C7E5A2200F99F0E /* Faces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284CD1C7E5A2200F99F0E /* Faces.cpp */; };
 		F40284D21C84962900F99F0E /* PlanarEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284D01C84962800F99F0E /* PlanarEdge.cpp */; };
+		F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */; };
 		F4AFE7A41C6AAD550054987E /* libOpenImageIO.1.7.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F4AFE7A21C6AAD550054987E /* libOpenImageIO.1.7.2.dylib */; };
 		F4AFE7A91C6E35650054987E /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AFE7A71C6E35640054987E /* Graph.cpp */; };
 		F4AFE7AC1C6E366C0054987E /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AFE7AA1C6E366C0054987E /* Vertex.cpp */; };
@@ -37,6 +38,8 @@
 		F40284CE1C7E5A2200F99F0E /* Faces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Faces.h; sourceTree = "<group>"; };
 		F40284D01C84962800F99F0E /* PlanarEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlanarEdge.cpp; sourceTree = "<group>"; };
 		F40284D11C84962800F99F0E /* PlanarEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanarEdge.h; sourceTree = "<group>"; };
+		F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkedList.cpp; sourceTree = "<group>"; };
+		F40D818A1C8A1CD100E9BEAE /* LinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkedList.h; sourceTree = "<group>"; };
 		F4AD97321C74340B00CCB223 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		F4AFE7A11C6AAD550054987E /* libOpenImageIO_Util.1.7.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOpenImageIO_Util.1.7.2.dylib; sourceTree = "<group>"; };
 		F4AFE7A21C6AAD550054987E /* libOpenImageIO.1.7.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOpenImageIO.1.7.2.dylib; sourceTree = "<group>"; };
@@ -97,6 +100,8 @@
 				F40284CE1C7E5A2200F99F0E /* Faces.h */,
 				F40284D01C84962800F99F0E /* PlanarEdge.cpp */,
 				F40284D11C84962800F99F0E /* PlanarEdge.h */,
+				F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */,
+				F40D818A1C8A1CD100E9BEAE /* LinkedList.h */,
 			);
 			path = CountingCuts;
 			sourceTree = "<group>";
@@ -159,6 +164,7 @@
 			files = (
 				F4AFE7AC1C6E366C0054987E /* Vertex.cpp in Sources */,
 				F40284D21C84962900F99F0E /* PlanarEdge.cpp in Sources */,
+				F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */,
 				F4AFE7A91C6E35650054987E /* Graph.cpp in Sources */,
 				F4AFE7AF1C6E37080054987E /* Edge.cpp in Sources */,
 				F40284CC1C7E598800F99F0E /* PlanarGraph.cpp in Sources */,

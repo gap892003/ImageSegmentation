@@ -15,6 +15,7 @@
 #include <math.h>
 #include "Constants.h"
 #include "PlanarGraph.h"
+#include "LinkedList.h"
 
 using namespace OpenImageIO;
 
@@ -30,11 +31,9 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 //  WEIGHT_TYPE newValue = exp (luminance+1);
 //  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
 //  WEIGHT_TYPE newValue = temp + 1;
-
   
   double temp  = pow ( 255-luminance, 4);// x+2 as Dont want to deal with zeroes
   WEIGHT_TYPE newValue = temp + 1;
-
   
 //  double temp  = 10000000000 - pow(luminance,4);
 //  WEIGHT_TYPE newValue = temp + 1;
@@ -183,7 +182,7 @@ void readImageAndCreateGraph ( Graph *graph ){
   delete graphDash;
 }
 
-/*
+
 void testCountingCuts (){
   
   // reading image and creating a planar graph
@@ -194,7 +193,7 @@ void testCountingCuts (){
   delete planarGraph;
   planarGraph = NULL;
 }
-*/
+
 
 void testPlanarGraphs(){
 
@@ -249,8 +248,37 @@ void testCountingPaths (){
   std::cout << "Number of paths " << planarGraph->countMinCuts() << std::endl;
 }
 
-int main(int argc, const char * argv[]) {
+void testLinkedList(){
+
+  LinkedList<int> *list = new LinkedList<int>();
   
-  //testPlanarGraphs();
-  testCountingPaths();
+  for (int i = 0 ; i < 10 ; ++i ){
+  
+    Node<int> *node1 = new Node<int>();
+    node1->val = i;
+    list->addNodeAtEnd( node1 );
+  }
+
+
+  std::cout <<  " Begins "<<  std::endl;
+  list->beginIteration();
+  
+  for (int i = 0; i < list->getListSize() ; ++i) {
+    
+    std::cout <<  list->getNextElement() << "  " ;
+  }
+  
+    std::cout <<  std::endl;
+    std::cout <<  " ends "<<  std::endl;
+  list->printList();
+  list->printListRev();
+  delete list;
+}
+
+int main(int argc, const char * argv[]) {
+ 
+//  testCountingCuts();
+//  testPlanarGraphs();
+//  testCountingPaths();
+  testLinkedList();
 }
