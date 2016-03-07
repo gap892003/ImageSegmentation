@@ -9,7 +9,7 @@
 #define Vertex_h
 
 #include <stdio.h>
-
+#include "LinkedList.h"
 class Edge;
 
 class Vertex{
@@ -17,9 +17,9 @@ class Vertex{
 public:
   
   int id;
-  Edge **adjacencyList;
-  int numberOfEdges;
   
+  int numberOfEdges;
+  LinkedList<Edge*> *adjacencyList;
   //******* capstone specific
   int luminance;
   
@@ -30,9 +30,12 @@ public:
   
   public:
   Vertex(int totalVertices,int _id);
-  void addEdge(Edge *e);
-  int indexOfEdgeInList (int vertexID);
+  Node<Edge*>* addEdge(Edge *e);
+//  int indexOfEdgeInList (int vertexID); // not needed
   void insertEdgesInList(int index, Edge** edgesToAdd);
+  void insertEdgesInList(Node<Edge*> *nodeToBeContractedPos1, Node<Edge*> *nodeToBeContractedPos2);
+  void deleteEdge (Node<Edge*> *node) ;
+  void printAdjacencyList();
   ~Vertex();
 };
 

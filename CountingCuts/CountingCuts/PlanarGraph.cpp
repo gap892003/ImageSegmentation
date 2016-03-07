@@ -41,10 +41,12 @@ void PlanarGraph::findFaces(){
   // setting false for whether edge is done
   bool *seen = new bool [currentNumberOfVertices];
   
-  for (int i = 0; i < currentNumberOfEdges; ++i ){
-    
-    ((PlanarEdge*)edgesArray[i])->doneFwd = false;
-    ((PlanarEdge*)edgesArray[i])->doneBakWd = false;
+//  for (int i = 0; i < currentNumberOfEdges; ++i ){
+  for ( Edge *edge = edgesArray->beginIteration(); edge != NULL ;
+       edge = edgesArray->getNextElement()){
+  
+    ((PlanarEdge*)edge)->doneFwd = false;
+    ((PlanarEdge*)edge)->doneBakWd = false;
   }
   
   for (int i = 0; i < currentNumberOfVertices; ++i ){
@@ -66,12 +68,31 @@ void PlanarGraph::findFaces(){
     // catch here is seen[i] wont work, use seen [verticesArray [i]->id]
     if (!seen [verticesArray[i]->id]){
     
-      Edge** edgesArray = verticesArray[i]->adjacencyList;
-      int totalEdgesInAdj = verticesArray[i]->numberOfEdges;
+//      Edge** edgesArray = verticesArray[i]->adjacencyList;
+//      int totalEdgesInAdj = verticesArray[i]->numberOfEdges;
+//      for (int edgeNumber = 0 ; edgeNumber < totalEdgesInAdj; ++edgeNumber){
+      for ( Edge *e = verticesArray[i]->adjacencyList->beginIteration(); e != NULL ;
+           e = verticesArray[i]->adjacencyList->getNextElement()){
       
-      for (int edgeNumber = 0 ; edgeNumber < totalEdgesInAdj; ++edgeNumber){
-      
-        PlanarEdge *edge = (PlanarEdge*)edgesArray[edgeNumber];
+        // check if next edge is same as previous
+        Node<Edge*> *currentNode = verticesArray[i]->adjacencyList->getCurrentNode();
+        Edge* nextEdge = currentNode->nextNode->val;
+        
+        // if it is same edge
+        if (( (verticesArray[nextEdge->vertex1ID]->id == verticesArray[e->vertex1ID]->id )
+            &&
+            (verticesArray[nextEdge->vertex2ID]->id == verticesArray[e->vertex2ID]->id))
+//            ||
+//            ((verticesArray[nextEdge->vertex2ID]->id == verticesArray[e->vertex1ID]->id )
+//             &&
+//             (verticesArray[nextEdge->vertex1ID]->id == verticesArray[e->vertex2ID]->id))
+            ) {
+          
+          continue;
+        }
+        
+        
+        PlanarEdge *edge = (PlanarEdge*)e;
         
         if ( !edge->doneBakWd || !edge->doneFwd )// I dont think I need this
         {
@@ -126,9 +147,9 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
   
   Edge *lastEdgeAdded = path->back();
   PlanarEdge *nextEdge = NULL;
-  bool lastEdgeWasFwd = lastEdgeAdded->vertex1ID == lastVertex->id;
-  if ( (lastEdgeWasFwd && lastEdgeAdded->vertex2ID == start->id) ||
-      ( !lastEdgeWasFwd && lastEdgeAdded->vertex1ID == start->id)){
+  bool lastEdgeWasFwd = verticesArray[lastEdgeAdded->vertex1ID]->id == lastVertex->id;
+  if ( (lastEdgeWasFwd && verticesArray[lastEdgeAdded->vertex2ID]->id == start->id) ||
+      ( !lastEdgeWasFwd && verticesArray[lastEdgeAdded->vertex1ID]->id == start->id)){
     
     int newFaceID = (int)this->faces->size();
     // create face here and move back
@@ -137,34 +158,37 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
     return newFaceID;
   }else{
     
-    int currentVertexID = lastEdgeWasFwd?lastEdgeAdded->vertex2ID:lastEdgeAdded->vertex1ID;
+    int currentVertexID = lastEdgeWasFwd?verticesArray[lastEdgeAdded->vertex2ID]->id:verticesArray[lastEdgeAdded->vertex1ID]->id;
     Vertex *currentVertex = verticesArray[currentVertexID];
     
+//    Edge** adj = currentVertex->adjacencyList;
+//    int indexOfEdge = -1;
     // find this edge in adjancency list of currentVertex
     // TODO: Improve this
-    Edge** adj = currentVertex->adjacencyList;
-    int indexOfEdge = -1;
-    
     // this will find edge as well it will find next edge to add
     // COOOOL !
-    int totalEdgesInList = currentVertex->numberOfEdges;//sizeof(adj)/sizeof(adj[0]);
-    for (int i = 0 ; i < totalEdgesInList; ++i) {
-      
-      Edge *edgeUnderQ = adj[i];
-      
+//    int totalEdgesInList = currentVertex->numberOfEdges;//sizeof(adj)/sizeof(adj[0]);
+//    for (int i = 0 ; i < totalEdgesInList; ++i) {
+    
+    for ( Edge *edgeUnderQ = currentVertex->adjacencyList->beginIteration(); edgeUnderQ != NULL ;
+           edgeUnderQ = currentVertex->adjacencyList->getNextElement()){
+              
       // this will find all edges between 1 and 2 and set index to last
       // matching edge
 //      if (((lastEdgeWasFwd && (edgeUnderQ->vertex1ID == lastVertex->id && edgeUnderQ->vertex2ID == currentVertexID))
 //          ||
 //          
 //          (!lastEdgeWasFwd && (edgeUnderQ->vertex2ID == lastVertex->id && edgeUnderQ->vertex1ID == currentVertexID))) && (i != totalEdgesInList-1 )){
-      if ((lastEdgeWasFwd && (edgeUnderQ->vertex1ID == lastVertex->id && edgeUnderQ->vertex2ID == currentVertexID))
+      if ((lastEdgeWasFwd && ( verticesArray[edgeUnderQ->vertex1ID]->id == lastVertex->id && verticesArray[edgeUnderQ->vertex2ID]->id == currentVertexID))
            ||
            
-           (!lastEdgeWasFwd && (edgeUnderQ->vertex2ID == lastVertex->id && edgeUnderQ->vertex1ID == currentVertexID))){
+           (!lastEdgeWasFwd && ( verticesArray[edgeUnderQ->vertex2ID]->id == lastVertex->id && verticesArray[edgeUnderQ->vertex1ID]->id == currentVertexID))){
       
-        indexOfEdge = i;
-        nextEdge = (PlanarEdge*)adj[ (i+1) % totalEdgesInList ]; // id dont know if I need cyclic,
+//        indexOfEdge = i;
+//        nextEdge = (PlanarEdge*)adj[ (i+1) % totalEdgesInList ]; // id dont know if I need cyclic,
+
+        Node <Edge*>* currentNode = currentVertex->adjacencyList->getCurrentNode();
+        nextEdge = (PlanarEdge*)currentNode->nextNode->val;
       }
       
       // this means we have skipped all similar edges and next edge is
@@ -176,11 +200,18 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
 //      }
     }
 
+    // this will happen if head = tail
+    if ( nextEdge == NULL ) {
+      
+      delete path;
+      return -1;
+    }
+    
     // check if nextEdge is fwd or backward
     bool nextEdgeFwd = currentVertex->id==nextEdge->vertex1ID;
     
     // if there is no path
-    if ( (indexOfEdge == -1 || nextEdge == NULL )
+    if ( (nextEdge == NULL )
         // next edge is fwd and it is done Fwd
         || ( nextEdgeFwd && nextEdge->doneFwd )
         // next edge is Bwd and it is done Bwd
@@ -257,9 +288,11 @@ Graph* PlanarGraph::calculateDual(){
   Graph *dualGraph = new Graph( (int)this->faces->size() * 2 ,this->currentNumberOfEdges);
   int stPathEdgeNumber = 0; // this is to keep track of stPathedgenumber so that
                       // we can add new vertex with ID numberofFaces+stPathEdgeNumber
-  for (int i = 0 ; i < currentNumberOfEdges; ++i){
-    
-    PlanarEdge* currentEdge = (PlanarEdge*)this->edgesArray[i];
+//  for (int i = 0 ; i < currentNumberOfEdges; ++i){
+  for ( Edge *edge = edgesArray->beginIteration(); edge != NULL ;
+       edge = edgesArray->getNextElement()){
+  
+    PlanarEdge* currentEdge = (PlanarEdge*)edge;
     
     // add edge between face and face 2
     // only if it not the pathe edge
@@ -299,7 +332,6 @@ void PlanarGraph::findAndMarkSTPath(){
     edge->belongsToStPath = true;
   }
 }
-
 
 PlanarGraph::~PlanarGraph(){
 

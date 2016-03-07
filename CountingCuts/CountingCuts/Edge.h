@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include "Constants.h"
-
+#include "LinkedList.h"
 
 //typedef enum {
 //
@@ -28,7 +28,9 @@ public:
   int vertex1ID;
   int vertex2ID;
 //  EdgeDirection direction; // dont need this 
-
+  Node<Edge*> *nodeInVertex1AdjList;
+  Node<Edge*> *nodeInVertex2AdjList;
+  
 private:
   
   WEIGHT_TYPE weight; // Forward weight

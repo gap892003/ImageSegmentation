@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "Constants.h"
 #include <vector>
+#include "LinkedList.h"
 
 class Edge;
 class Vertex;
@@ -24,13 +25,13 @@ public:
 protected:
   int totalVertices;
   int totalEdges;
-  Edge **edgesArray;
+//  Edge **edgesArray;
   int currentNumberOfVertices;
   int currentNumberOfEdges;
   int lastVertex;
   int *visitedEdges;
   std::vector<int> *vertexPairArray; // specifically for counting cuts algorihm
-  
+  LinkedList<Edge*> *edgesArray;
 public:
   
   // Constructor
@@ -63,7 +64,7 @@ public:
    */
   void printEdges();
   
-  
+  void printEdgesBoss();
   /**
    *  Function used for debugging to print out edges passed
    */

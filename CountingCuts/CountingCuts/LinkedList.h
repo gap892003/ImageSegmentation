@@ -37,6 +37,14 @@ public:
     tailNode = NULL;
   }
   
+  Node<T>* addValue ( T val ){
+  
+    Node<T> *node = new Node<T>();
+    node->val = val;
+    addNodeAtEnd(node);
+    return node;
+  }
+  
   void addNodeAtEnd( Node<T> * nodeToAdd ){
   
     if (headNode == NULL) {
@@ -96,9 +104,33 @@ public:
     }
     
     sizeOfList += listToAdd->getListSize();
-
   }
 
+  // both node will have same value here but different next and prev
+  void mergeLists(Node<T> *nodeInList1, Node<T> *nodeInList2){
+  
+    // dont think head and tail will need to be changed
+    // we dont want nodeInList2 in our linkedList
+    Node<T> *temp = nodeInList1->nextNode;
+    
+    if (nodeInList2->nextNode != NULL){
+      
+      nodeInList1->nextNode = nodeInList2->nextNode;
+      nodeInList2->nextNode->prevNode = nodeInList1;
+    }
+    
+    if (nodeInList2->prevNode != NULL){
+      
+      nodeInList2->prevNode->nextNode = temp;
+      temp->prevNode = nodeInList2->prevNode;
+    }
+    
+    nodeInList2->nextNode = NULL;
+    nodeInList2->prevNode = NULL;
+    delete nodeInList2;
+    nodeInList2 = NULL;
+  }
+  
   inline Node<T> * getHeadNode(){
   
     return headNode;
@@ -116,10 +148,28 @@ public:
   
   void deleteNode( Node<T> *node){
 
-    node->prevNode->nextNode = node->nextNode;
-    node->nextNode->prevNode = node->prevNode;
+    if ( headNode == node ){
+    
+      headNode = node->nextNode;
+    }
+
+    if ( tailNode == node ){
+      
+      tailNode = node->nextNode;
+    }
+
+    
+    if (node->prevNode != NULL && node->nextNode != NULL){
+      
+      node->prevNode->nextNode = node->nextNode;
+      node->nextNode->prevNode = node->prevNode;
+    }
+    
     --sizeOfList;
+    node->nextNode = NULL;
+    node->prevNode = NULL;
     delete node;
+    node = NULL;
   }
 
   void printList(){
@@ -160,8 +210,11 @@ public:
       
       Node<T> *temp = iNode;
       iNode = iNode->nextNode;
-      delete temp;
-      temp = NULL;
+      if (iNode != NULL){
+      
+        delete temp;
+        temp = NULL;
+      }
     } while (iNode != tailNode);
     
     if (tailNode != NULL){
@@ -190,10 +243,22 @@ public:
     // this indicates end iteration
     if ( iteratorNode == headNode ){
     
+      iteratorNode = tailNode; // this is just to keep iteratorNode at last node
+                               // in the ring
       return NULL;
     }
     
     return iteratorNode->val;
+  }
+  
+  
+  /**
+   * TO be used during iteration
+   */
+  
+  Node<T> *getCurrentNode (){
+  
+    return iteratorNode;
   }
   
   /**

@@ -47,7 +47,9 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 void readImageAndCreateGraph ( Graph *graph ){
   
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
+
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
@@ -179,6 +181,10 @@ void readImageAndCreateGraph ( Graph *graph ){
   
   // contract strongly connected components here
   Graph *graphDash = graph->findAndContractSCC(2, floor(xResolution * yResolution/2));
+  ((PlanarGraph*)graphDash)->findFaces();
+//  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+//  dualGraph->countMinCuts();
   delete graphDash;
 }
 
@@ -259,26 +265,37 @@ void testLinkedList(){
     list->addNodeAtEnd( node1 );
   }
 
+  LinkedList<int> *list2 = new LinkedList<int>();
+  
+  for (int i = 0 ; i < 4 ; ++i ){
+    
+    Node<int> *node1 = new Node<int>();
+    node1->val = i*10;
+    list2->addNodeAtEnd( node1 );
+  }
 
   std::cout <<  " Begins "<<  std::endl;
-  list->beginIteration();
+  int val = list->beginIteration();
   
-  for (int i = 0; i < list->getListSize() ; ++i) {
+  for (int i = val; i < list->getListSize()-1 ; i = list->getNextElement()) {
     
-    std::cout <<  list->getNextElement() << "  " ;
+    std::cout <<  i << "  " ;
   }
-  
-    std::cout <<  std::endl;
-    std::cout <<  " ends "<<  std::endl;
+
+  std::cout <<  std::endl;
+  std::cout <<  " ends "<<  std::endl;
+  list->mergeLists( list->getHeadNode(), list2->getHeadNode() );
+  list->deleteNode(list->getHeadNode());
   list->printList();
   list->printListRev();
   delete list;
+  delete list2;
 }
 
 int main(int argc, const char * argv[]) {
  
 //  testCountingCuts();
 //  testPlanarGraphs();
-//  testCountingPaths();
-  testLinkedList();
+  testCountingPaths();
+//  testLinkedList();
 }
