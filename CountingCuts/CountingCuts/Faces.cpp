@@ -10,6 +10,7 @@
 #include "Edge.h"
 #include <iostream>
 #include "PlanarEdge.h"
+#include "Constants.h"
 
 // constructor
 Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOfEdges),faceID(_faceID){
@@ -27,6 +28,7 @@ Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOf
  */
 void Faces::printEdges(){
 
+#ifdef DEBUG_ON
   std::cout << "***** Face Starts here " << faceID << " ****" << std::endl;
   for ( std::vector<Edge*>::iterator it = edgesInFace->begin(); it != edgesInFace->end(); ++it ){
     
@@ -37,6 +39,7 @@ void Faces::printEdges(){
 
   }
     std::cout << "***** Face ends here ****" << std::endl;
+#endif
 }
 
 // destructor

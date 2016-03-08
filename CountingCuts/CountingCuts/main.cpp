@@ -48,9 +48,8 @@ void readImageAndCreateGraph ( Graph *graph ){
   
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
-
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
 
@@ -89,7 +88,7 @@ void readImageAndCreateGraph ( Graph *graph ){
     // relative luminance 
     float luminance = (0.2126*R + 0.7152*G + 0.0722*B);
     
-#ifdef PRINT_RGB
+#ifdef DEBUG_ON
     std::cout <<  "R:" << R << " G:" << G << " B: " << B << std::endl;
     std::cout <<  row*yResolution + column << " " << luminance << std::endl;
 #endif

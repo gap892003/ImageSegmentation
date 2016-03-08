@@ -9,6 +9,7 @@
 #include "Vertex.h"
 #include "Edge.h"
 #include <iostream>
+#include "Constants.h"
 
 Vertex::Vertex(int totalVertices,int _id){
   
@@ -61,7 +62,8 @@ void Vertex::deleteEdge (Node<Edge*> *node){
 }
 
 void Vertex::printAdjacencyList(){
-
+  
+#ifdef DEBUG_ON
   std::cout << "********* Adj List" << id << "*********" << std::endl;
   for ( Edge *e = adjacencyList->beginIteration_debug(); e != NULL ;
        e = adjacencyList->getNextElement_debug()){
@@ -70,6 +72,7 @@ void Vertex::printAdjacencyList(){
   }
   
   std::cout << "********* Adj List" << id << "*********" << std::endl;
+#endif
 }
 
 

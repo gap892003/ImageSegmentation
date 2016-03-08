@@ -115,7 +115,8 @@ Edge* Graph::insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TY
  *  Function used for debugging to print out edges in graph
  */
 void Graph::printEdges(){
-  
+
+#ifdef DEBUG_ON
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
@@ -123,13 +124,15 @@ void Graph::printEdges(){
   }
   
   cout <<endl;
+#endif
 }
 
 /**
  *  Function used for debugging to print out edges in graph
  */
 void Graph::printEdgesBoss(){
-  
+
+#ifdef DEBUG_ON
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
@@ -137,17 +140,22 @@ void Graph::printEdgesBoss(){
   }
   
   cout <<endl;
+#endif
+  
 }
 
 /**
  *  Function used for debugging to print out edges passed
  */
 void Graph::printEdgesArray(Edge** array, int count){
-  
+
+#ifdef DEBUG_ON
   for (int i = 0 ; i < count ; ++i) {
     
     cout << array[i]->vertex1ID << " " << array[i]->vertex2ID << " " <<array[i]->getWeight() << endl  ;
   }
+  
+#endif
 }
 
 Edge** Graph::DFS( int& edgesInPath, int startIndex,  int endIndex){
@@ -268,7 +276,7 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
   
   while ( edgesInPath != 0 ) {
     
-    
+#ifdef DEBUG_ON
     /***********REMOVE THIS************************************/
     cout << "Path is: " << endl;
     for (int i = 0 ; i < edgesInPath ; ++i){
@@ -277,6 +285,7 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
       << path[i]->getWeight() << " RW: " << path[i]->getResidualWeight() << endl;
     }
     /***********REMOVE THIS************************************/
+#endif
     
     int localLastVertex = t;
     WEIGHT_TYPE bottleNeckWeight = -1;
@@ -765,7 +774,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           sink = ver1->id;
         }
         
-#ifdef DEBUG
+#ifdef DEBUG_ON
         std::cout << " Before merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
         ver2->printAdjacencyList();
@@ -878,7 +887,15 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         if (edge->nodeInVertex1AdjList != NULL && edge->nodeInVertex2AdjList != NULL){
           
           ver1->insertEdgesInList( mainNode, secondNode);
+          
+          // very importatnt not to delete this edge
+          // it will be deleted afterwards, if you delete here
+          // in case this is first edge , iteartor will move back
+          //  and the way iterator code is written
+          // in next call for getNextElement iteration will stop.
+          
           //ver1->deleteEdge(mainNode);
+          
           edge->nodeInVertex1AdjList = NULL;
           edge->nodeInVertex2AdjList = NULL;
         }
@@ -891,7 +908,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     }
   }
   
-#ifdef DEBUG
+#ifdef DEBUG_ON
   cout << "******************************************" << endl;
   cout << " New graph edges" << endl;
   newGraph->printEdgesBoss();

@@ -9,54 +9,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479166086.371075"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "738"
-            endingLineNumber = "738"
-            landmarkName = "Graph::findAndContractSCC ( int &amp;source, int&amp; sink )"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479166210.470458"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "743"
-            endingLineNumber = "743"
-            landmarkName = "Graph::findAndContractSCC ( int &amp;source, int&amp; sink )"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479167263.846575"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "876"
-            endingLineNumber = "876"
-            landmarkName = "Graph::findAndContractSCC ( int &amp;source, int&amp; sink )"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "CountingCuts/LinkedList.h"
             timestampString = "479168526.949053"
             startingColumnNumber = "9223372036854775807"
@@ -74,12 +26,12 @@
                   moduleName = "CountingCuts"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/Gaurav/Documents/STudies/Capstone/workspace/ImageSegmentation/CountingCuts/CountingCuts/LinkedList.h"
-                  timestampString = "479168527.307364"
+                  timestampString = "479171144.828628"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "174"
                   endingLineNumber = "174"
-                  offsetFromSymbolStart = "221">
+                  offsetFromSymbolStart = "185">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -89,14 +41,30 @@
                   moduleName = "CountingCuts"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/Gaurav/Documents/STudies/Capstone/workspace/ImageSegmentation/CountingCuts/CountingCuts/LinkedList.h"
-                  timestampString = "479168527.307524"
+                  timestampString = "479171144.828787"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "174"
                   endingLineNumber = "174"
-                  offsetFromSymbolStart = "221">
+                  offsetFromSymbolStart = "185">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CountingCuts/Vertex.cpp"
+            timestampString = "479170969.120245"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "67"
+            endingLineNumber = "67"
+            landmarkName = "Vertex::printAdjacencyList()"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

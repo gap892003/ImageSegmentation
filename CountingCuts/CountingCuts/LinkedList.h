@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include "Constants.h"
 
 template <class T>
 struct Node{
@@ -189,7 +190,8 @@ public:
   }
 
   void printList(){
-  
+
+#ifdef DEBUG_ON
     Node<T> *iNode = headNode;
     
     do {
@@ -200,11 +202,14 @@ public:
     
     std::cout<< tailNode->val << " ";
     std::cout<< std::endl;
+#endif
+    
   }
   
   
   void printListRev(){
     
+#ifdef DEBUG_ON
     Node<T> *iNode = tailNode;
     
     do {
@@ -215,6 +220,8 @@ public:
     
     std::cout<< headNode->val << " ";
     std::cout<< std::endl;
+#endif
+    
   }
 
   void clearList(){
