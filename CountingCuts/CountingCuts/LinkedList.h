@@ -27,6 +27,7 @@ protected:
   Node<T> *headNode;
   Node<T> *tailNode;
   Node<T> *iteratorNode;
+  Node<T> *debugIteratorNode;
   int sizeOfList; // not realiable , part of design , just for debugging
   
 public:
@@ -35,6 +36,8 @@ public:
   
     headNode = NULL;
     tailNode = NULL;
+    iteratorNode = NULL;
+    debugIteratorNode = NULL;
   }
   
   Node<T>* addValue ( T val ){
@@ -147,22 +150,35 @@ public:
   }
   
   void deleteNode( Node<T> *node){
-
-    if ( headNode == node ){
     
-      headNode = node->nextNode;
-    }
-
-    if ( tailNode == node ){
-      
-      tailNode = node->nextNode;
-    }
-
+    if ( node  == NULL) return;
     
     if (node->prevNode != NULL && node->nextNode != NULL){
+
+      if ( headNode == node ){
+        
+        headNode = node->nextNode;
+      }
       
+      if ( tailNode == node ){
+        
+        tailNode = node->nextNode;
+      }
+
       node->prevNode->nextNode = node->nextNode;
       node->nextNode->prevNode = node->prevNode;
+      
+      // check if iteration is going on , delete that node
+      // and move pointer back , so that iterator is not
+      if (iteratorNode != NULL && iteratorNode == node) {
+        iteratorNode = node->prevNode;
+      }
+    }else {
+    
+      // this means its only node in list
+      headNode = NULL;
+      tailNode = NULL;
+      iteratorNode = NULL;
     }
     
     --sizeOfList;
@@ -228,16 +244,27 @@ public:
    * Begin iteration
    */
   T beginIteration(){
-  
-    iteratorNode = headNode;
     
-    if (iteratorNode != NULL) {
+    if (headNode != NULL) {
       
+      iteratorNode = headNode;
       return iteratorNode->val;
     }
     
     return NULL;
   }
+  
+  T beginIteration_debug(){
+    
+    if (headNode != NULL) {
+      
+      debugIteratorNode = headNode;
+      return debugIteratorNode->val;
+    }
+    
+    return NULL;
+  }
+
   
   /**
    *  Used for iteration
@@ -247,7 +274,10 @@ public:
     iteratorNode = iteratorNode->nextNode;
     
     // this indicates end iteration
-    if ( iteratorNode == headNode ){
+    // iteratorNode == NULL , ensures begin is called
+    // also if only one node was there in linkedList and it was
+    // deleted during iteration it takes care of that.
+    if ( iteratorNode == headNode || iteratorNode == NULL){
     
       iteratorNode = tailNode; // this is just to keep iteratorNode at last node
                                // in the ring
@@ -257,6 +287,23 @@ public:
     return iteratorNode->val;
   }
   
+  T getNextElement_debug(){
+    
+    debugIteratorNode = debugIteratorNode->nextNode;
+    
+    // this indicates end iteration
+    // iteratorNode == NULL , ensures begin is called
+    // also if only one node was there in linkedList and it was
+    // deleted during iteration it takes care of that.
+    if ( debugIteratorNode == headNode || debugIteratorNode == NULL){
+      
+      debugIteratorNode = tailNode; // this is just to keep iteratorNode at last node
+      // in the ring
+      return NULL;
+    }
+    
+    return debugIteratorNode->val;
+  }
   
   /**
    * TO be used during iteration
@@ -278,7 +325,10 @@ public:
   
   ~LinkedList(){
   
-    clearList();
+    if (headNode != NULL) {
+      
+         clearList();
+    }
   }
 };
 

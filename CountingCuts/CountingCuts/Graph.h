@@ -127,7 +127,7 @@ protected:
   /**
    *  Finished Time version of DFS
    */
-  void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, int *verticesOrder);
+  void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, std::vector<int> *verticesOrder);
   
   int countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path);
 protected:

@@ -63,8 +63,8 @@ void Vertex::deleteEdge (Node<Edge*> *node){
 void Vertex::printAdjacencyList(){
 
   std::cout << "********* Adj List" << id << "*********" << std::endl;
-  for ( Edge *e = adjacencyList->beginIteration(); e != NULL ;
-       e = adjacencyList->getNextElement()){
+  for ( Edge *e = adjacencyList->beginIteration_debug(); e != NULL ;
+       e = adjacencyList->getNextElement_debug()){
     
     std::cout << e->vertex1ID << "->" << e->vertex2ID << " W: " << e->getWeight() << " RW: " << e->getResidualWeight() << std::endl;
   }
