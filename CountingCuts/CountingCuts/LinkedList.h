@@ -206,7 +206,7 @@ public:
     Node<T> *iNode = headNode;
     headNode = NULL;
     
-    do {
+    while (iNode != tailNode) {
       
       Node<T> *temp = iNode;
       iNode = iNode->nextNode;
@@ -215,7 +215,7 @@ public:
         delete temp;
         temp = NULL;
       }
-    } while (iNode != tailNode);
+    }
     
     if (tailNode != NULL){
       
@@ -230,7 +230,13 @@ public:
   T beginIteration(){
   
     iteratorNode = headNode;
-    return iteratorNode->val;
+    
+    if (iteratorNode != NULL) {
+      
+      return iteratorNode->val;
+    }
+    
+    return NULL;
   }
   
   /**

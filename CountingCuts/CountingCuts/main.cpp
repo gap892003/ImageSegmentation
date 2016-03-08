@@ -180,12 +180,20 @@ void readImageAndCreateGraph ( Graph *graph ){
   graph->getMinCut( 2, floor(xResolution * yResolution/2));
   
   // contract strongly connected components here
-  Graph *graphDash = graph->findAndContractSCC(2, floor(xResolution * yResolution/2));
+  int source = 2;
+  int sink =floor(xResolution * yResolution/2);
+  Graph *graphDash = graph->findAndContractSCC( source, sink );
   ((PlanarGraph*)graphDash)->findFaces();
-//  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
-//  dualGraph->countMinCuts();
+  
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  dualGraph->printEdges();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+
+  std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
   delete graphDash;
+  delete dualGraph;
 }
 
 
@@ -294,8 +302,8 @@ void testLinkedList(){
 
 int main(int argc, const char * argv[]) {
  
-//  testCountingCuts();
+  testCountingCuts();
 //  testPlanarGraphs();
-  testCountingPaths();
+//  testCountingPaths();
 //  testLinkedList();
 }

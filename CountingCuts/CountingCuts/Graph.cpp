@@ -472,7 +472,8 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     
       // add vertices to queue if they are reachable
       // via residual or
-      if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  edgeUnderQ->getResidualWeight() !=0  ){
+      // verticesArray[edgeUnderQ->vertex1ID]->id is requred for planar graphs
+      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  edgeUnderQ->getResidualWeight() !=0  ){
       
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] != NULL ){
           
@@ -484,7 +485,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
         queue.push_back( verticesArray[edgeUnderQ->vertex1ID] );
         traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] = edgeUnderQ;
         
-      }else if( (!(seen[edgeUnderQ->vertex2ID] )) && edgeUnderQ->getWeight() != 0 ){
+      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && edgeUnderQ->getWeight() != 0 ){
 
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex2ID]->id] != NULL ){
           
@@ -509,7 +510,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     
     // this means it was a forward edge(not residual edge) last vertex will be
     // vertex 1, vice versa
-    if ( edgeInPath->vertex2ID == lastVertexId ){
+    if ( verticesArray[edgeInPath->vertex2ID]->id == lastVertexId ){
       
       lastVertexId = edgeInPath->vertex1ID;
       // we will examine how we reached vertex 1
@@ -517,7 +518,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     }else{
       
       // this means residual edge was used to reach vertex
-      lastVertexId = edgeInPath->vertex2ID;
+      lastVertexId = verticesArray[edgeInPath->vertex2ID]->id;
     }
     
     if (lastVertexId == s){
@@ -537,7 +538,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
  *  Function finds Strongly connected Components, stores them 
  *  then process ( contracts them )
  */
-Graph* Graph::findAndContractSCC ( int source, int sink ){
+Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   
   // Run DFS On residual graph
   bool *seen = new bool [totalVertices];
@@ -742,6 +743,18 @@ Graph* Graph::findAndContractSCC ( int source, int sink ){
     
     if ( ver1->boss == ver2->boss ){
       
+      
+      // check if source or sink is being merged and change source and sink
+      if ( ver1->id == source || ver2->id == source){
+        
+        source = ver1->id;
+      }
+      
+      if ( ver1->id == sink || ver2->id == sink){
+        
+        sink = ver1->id;
+      }
+      
       std::cout << " Before merging "<<  ver1->id << " " << ver2->id << std::endl;
       ver1->printAdjacencyList();
       ver2->printAdjacencyList();
@@ -898,6 +911,8 @@ Graph* Graph::findAndContractSCC ( int source, int sink ){
     }
   }
   
+  newGraph->setSource( source );
+  newGraph->setSink ( sink );
   cout << "******************************************" << endl;
   cout << "After Deleting graph edges" << endl;
   newGraph->printEdgesBoss();
@@ -1003,9 +1018,15 @@ int Graph::countMinCuts (){
 
   int minCutsCount = 0;
   
+  // if following is the case that means no faces existed
+  // which means only one min cut was there
+  if (vertexPairArray == NULL) {
+    
+    return 1;
+  }
+
   // go through each vertex pair
   // find number of paths in between those vertices
-  
   for ( int i = 0 ; i < vertexPairArray->size(); i += 2 ){
     
     // create a visited edges array
@@ -1076,12 +1097,20 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
 // destructor
 Graph::~Graph(){
   
-  for (int i = 0 ; i < currentNumberOfVertices; ++i) {
-
-    if (verticesArray[i] != NULL) {
+  for (int i = currentNumberOfVertices-1 ; i >=0 ; --i) {
     
-      delete verticesArray[i];
-      verticesArray[i] = NULL;
+    Vertex *temp = verticesArray[i];
+    if ( temp != NULL ) {
+      for (int j = i-1 ; j >=0 ; --j) {
+        
+        if ( temp == verticesArray[j]) {
+          
+          verticesArray[j] = NULL;
+        }
+      }
+      
+      delete temp ;
+      temp = NULL;
     }
   }
   

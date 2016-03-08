@@ -19,7 +19,7 @@ class PlanarGraph : public Graph{
 
 private:
   std::vector <Faces*> *faces;
-  int s, t;
+  int localsource, localSink;
 public:
   
   PlanarGraph ( int numberOfVertices );
@@ -31,8 +31,8 @@ public:
   virtual Edge* insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay = false);
   void findAndMarkSTPath();
   virtual  ~PlanarGraph();
-  inline void setSource ( int source ){ s = source; }
-  inline void setSink ( int sink ){ t = sink; }
+  inline void setSource ( int source ){ localsource = source; }
+  inline void setSink ( int sink ){ localSink = sink; }
 };
 
 

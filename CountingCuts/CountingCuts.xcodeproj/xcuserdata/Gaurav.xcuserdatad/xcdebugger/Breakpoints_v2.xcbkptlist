@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479023792.57067"
+            timestampString = "479082611.591236"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "901"
-            endingLineNumber = "901"
-            landmarkName = "Graph::findAndContractSCC ( int source, int sink )"
+            startingLineNumber = "1019"
+            endingLineNumber = "1019"
+            landmarkName = "Graph::countMinCuts ()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,46 +25,46 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479023792.57067"
+            filePath = "CountingCuts/LinkedList.h"
+            timestampString = "479091571.141391"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "910"
-            endingLineNumber = "910"
-            landmarkName = "Graph::findAndContractSCC ( int source, int sink )"
+            startingLineNumber = "206"
+            endingLineNumber = "206"
+            landmarkName = "clearList()"
             landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/PlanarGraph.cpp"
-            timestampString = "479014116.732557"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "57"
-            endingLineNumber = "57"
-            landmarkName = "PlanarGraph::findFaces()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "479023630.965893"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "753"
-            endingLineNumber = "753"
-            landmarkName = "Graph::findAndContractSCC ( int source, int sink )"
-            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LinkedList&lt;Edge*&gt;::clearList()"
+                  moduleName = "CountingCuts"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/Gaurav/Documents/STudies/Capstone/workspace/ImageSegmentation/CountingCuts/CountingCuts/LinkedList.h"
+                  timestampString = "479091698.154156"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "206"
+                  endingLineNumber = "206"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LinkedList&lt;int&gt;::clearList()"
+                  moduleName = "CountingCuts"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/Gaurav/Documents/STudies/Capstone/workspace/ImageSegmentation/CountingCuts/CountingCuts/LinkedList.h"
+                  timestampString = "479091698.154607"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "206"
+                  endingLineNumber = "206"
+                  offsetFromSymbolStart = "16">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

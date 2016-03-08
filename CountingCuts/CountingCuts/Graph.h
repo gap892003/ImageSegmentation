@@ -87,7 +87,7 @@ public:
    *  Function that finds and contracts a strongly connected 
    *  component
    */
-  Graph* findAndContractSCC( int source, int sink );
+  Graph* findAndContractSCC( int& source, int& sink );
   
   static void reverseEdges( Graph* graph );
 

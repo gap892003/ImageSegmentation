@@ -299,7 +299,10 @@ Graph* PlanarGraph::calculateDual(){
     if (!currentEdge->belongsToStPath) {
       
       // weights wont matter
-      dualGraph->insertEdgeInGraph( currentEdge->faceID2, currentEdge->faceID1, 1 );
+      if ( currentEdge->faceID2 != -1 && currentEdge->faceID1 != -1){
+        
+            dualGraph->insertEdgeInGraph( currentEdge->faceID2, currentEdge->faceID1, 1 );
+      }
     }else{
 
       // add new vertices corresponding to edge in st path and add edge to face 2
@@ -310,9 +313,14 @@ Graph* PlanarGraph::calculateDual(){
 
       // TODO : verify this we require face 1 or 2?
       int newFaceID = (int)faces->size()+stPathEdgeNumber;
-      dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
-      dualGraph->addVertexPair( newFaceID, currentEdge->faceID1 );
-      ++stPathEdgeNumber;
+      
+      // this will happen only in case of only 1 cut
+      if ( currentEdge->faceID1 != -1 ) {
+        
+        dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
+        dualGraph->addVertexPair( newFaceID, currentEdge->faceID1 );
+        ++stPathEdgeNumber;
+      }
     }
   }
   
@@ -324,7 +332,7 @@ void PlanarGraph::findAndMarkSTPath(){
 
   Edge** path = NULL;
   int edgesInPath = 0;
-  path = BFS(edgesInPath, t, s);
+  path = BFS(edgesInPath, localSink, localsource);
   
   for ( int i = 0 ; i < edgesInPath; ++i ) {
     
