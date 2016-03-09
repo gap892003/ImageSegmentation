@@ -9,7 +9,7 @@
 #ifndef Constants_h
 #define Constants_h
 
-//#define DEBUG_ON
+#define DEBUG_ON
 
 
 //#define PRINT_RGB

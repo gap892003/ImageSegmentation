@@ -32,7 +32,7 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 //  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
 //  WEIGHT_TYPE newValue = temp + 1;
   
-  double temp  = pow ( 255-luminance, 4);// x+2 as Dont want to deal with zeroes
+  double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
   WEIGHT_TYPE newValue = temp + 1;
   
 //  double temp  = 10000000000 - pow(luminance,4);
@@ -51,9 +51,9 @@ void readImageAndCreateGraph ( Graph *graph ){
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small.jpg");
 
   if (!imageFile){
     
@@ -301,10 +301,51 @@ void testLinkedList(){
   delete list2;
 }
 
+void testCountingOnGraph(){
+
+  std::ifstream arq(getenv("GRAPH2"));
+  std::cin.rdbuf(arq.rdbuf());
+  
+  int numberOfVertices = 0 ;
+  std::cin >> numberOfVertices;
+  Graph *planarGraph = new Graph(numberOfVertices,numberOfVertices);
+  int id1;
+  std::cin >> id1;
+  int weight;
+  
+  while ( id1 != -1) {
+    
+    int id2;
+    std::cin >> id2;
+    std::cin >> weight;
+    planarGraph->insertEdgeInGraph(id1, id2, weight);
+    std::cin >> id1;
+  }
+  
+  // find min cut value
+  planarGraph->getMinCut( 0 , 6 );
+  int source = 0 , sink = 6;
+  Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
+  ((PlanarGraph*)graphDash)->findFaces();
+  ((PlanarGraph*)graphDash)->printFaces();
+  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+  
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  dualGraph->printEdges();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  
+  std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
+  delete graphDash;
+  delete dualGraph;
+  delete planarGraph;
+}
+
 int main(int argc, const char * argv[]) {
  
-  testCountingCuts();
+//  testCountingCuts();
 //  testPlanarGraphs();
 //  testCountingPaths();
 //  testLinkedList();
+    testCountingOnGraph();
 }

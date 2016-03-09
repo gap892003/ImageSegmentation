@@ -772,7 +772,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         if ( ver1->id == sink || ver2->id == sink){
           
           sink = ver1->id;
-          newGraph->setSource(sink);
+          newGraph->setSink(sink);
         }
         
 #ifdef DEBUG_ON
@@ -873,6 +873,29 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           }
         }
         
+        // TODO: change following to mainNode and Second Node
+        if (edge->nodeInVertex1AdjList != NULL && edge->nodeInVertex2AdjList != NULL){
+          
+          ver1->insertEdgesInList( mainNode, secondNode);
+          
+          // very important not to delete this edge
+          // it will be deleted afterwards, if you delete here
+          // in case this is first edge , iteartor will move back
+          //  and the way iterator code is written
+          // in next call for getNextElement iteration will stop.
+          
+          //ver1->deleteEdge(mainNode);
+//          edge->nodeInVertex1AdjList = NULL;
+//          edge->nodeInVertex2AdjList = NULL;
+          if (newGraph->verticesArray[edge->vertex1ID]->id == ver1->id){
+            
+            edge->nodeInVertex2AdjList = NULL;
+          }else{
+          
+            edge->nodeInVertex1AdjList = NULL;
+          }
+        }
+        
         
         // contract his edge
         // while contracting just change the pointer at
@@ -884,23 +907,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         // IMP: Identify vertices by id
         // Awesome ! Right ?
         newGraph->verticesArray[ver2->id] = ver1;
-        
-        if (edge->nodeInVertex1AdjList != NULL && edge->nodeInVertex2AdjList != NULL){
-          
-          ver1->insertEdgesInList( mainNode, secondNode);
-          
-          // very importatnt not to delete this edge
-          // it will be deleted afterwards, if you delete here
-          // in case this is first edge , iteartor will move back
-          //  and the way iterator code is written
-          // in next call for getNextElement iteration will stop.
-          
-          //ver1->deleteEdge(mainNode);
-          
-          edge->nodeInVertex1AdjList = NULL;
-          edge->nodeInVertex2AdjList = NULL;
-        }
-        
+
         std::cout << " after merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
         delete ver2;
