@@ -318,7 +318,13 @@ Graph* PlanarGraph::calculateDual(){
       if ( currentEdge->faceID1 != -1 ) {
         
         dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
-        dualGraph->addVertexPair( newFaceID, currentEdge->faceID1 );
+        
+        if (currentEdge->faceID2 == -1) {
+            // shouldnt come here
+          std::cout << "something went wrong " << std::endl;
+        }
+        
+        dualGraph->addVertexPair( newFaceID, currentEdge->faceID2 );
         ++stPathEdgeNumber;
       }
     }

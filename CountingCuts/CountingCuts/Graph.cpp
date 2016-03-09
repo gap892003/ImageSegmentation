@@ -923,10 +923,17 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   cout << "******************************************" << endl;
 #endif
   // go through list again and remove all useless edges
-  
+  Edge* lastEdge = NULL;
   for ( Edge *edge = newGraph->edgesArray->beginIteration(); edge != NULL ;){
     
-    if ((newGraph->verticesArray[edge->vertex1ID]->id == newGraph->verticesArray[edge->vertex2ID]->id) || (edge->getWeight() == 0 && edge->getResidualWeight()==0 )) {
+    if ((newGraph->verticesArray[edge->vertex1ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
+        ||
+        (edge->getWeight() == 0 && edge->getResidualWeight()==0 )
+        ||
+        // also checking if edge is similar to last undeleted edge
+        // if it is we dont need that 
+        (lastEdge != NULL && newGraph->verticesArray[lastEdge->vertex1ID]->id == newGraph->verticesArray[edge->vertex1ID]->id && newGraph->verticesArray[lastEdge->vertex2ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
+        ) {
       
       // get current node
       Node<Edge*> *nodeToBeDeleted = newGraph->edgesArray->getCurrentNode();
@@ -973,6 +980,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
       
     }else {
       
+      lastEdge = edge; // last undeleted edge
       edge = newGraph->edgesArray->getNextElement();
     }
   }
