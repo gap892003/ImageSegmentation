@@ -476,7 +476,6 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     //    int totalNeighbours = vertexToVisit->numberOfEdges;
     //    for ( int i = 0; i < totalNeighbours; ++i) {
     //      Edge *edgeUnderQ = array[i] ;
-    
     for ( Edge *edgeUnderQ = vertexToVisit->adjacencyList->beginIteration(); edgeUnderQ != NULL ; edgeUnderQ = vertexToVisit->adjacencyList->getNextElement()){
       
       // add vertices to queue if they are reachable
@@ -510,7 +509,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
   }
   
   bool reached = false;
-  int lastVertexId = t;
+  int lastVertexId = verticesArray[t]->id;
   
   while (!reached) {
     
@@ -521,7 +520,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     // vertex 1, vice versa
     if ( verticesArray[edgeInPath->vertex2ID]->id == lastVertexId ){
       
-      lastVertexId = edgeInPath->vertex1ID;
+      lastVertexId = verticesArray[edgeInPath->vertex1ID]->id;
       // we will examine how we reached vertex 1
       // i.e. using which edge
     }else{
@@ -767,11 +766,13 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         if ( ver1->id == source || ver2->id == source){
           
           source = ver1->id;
+          newGraph->setSource(source);
         }
         
         if ( ver1->id == sink || ver2->id == sink){
           
           sink = ver1->id;
+          newGraph->setSource(sink);
         }
         
 #ifdef DEBUG_ON
