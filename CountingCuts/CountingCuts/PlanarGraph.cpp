@@ -301,7 +301,8 @@ Graph* PlanarGraph::calculateDual(){
       // weights wont matter
       if ( currentEdge->faceID2 != -1 && currentEdge->faceID1 != -1){
         
-            dualGraph->insertEdgeInGraph( currentEdge->faceID2, currentEdge->faceID1, 1 );
+          Edge* newAddedEdge = dualGraph->insertEdgeInGraph( currentEdge->faceID2, currentEdge->faceID1, 1 );
+        newAddedEdge->setNonDualEdge(currentEdge);
       }
     }else{
 
@@ -310,14 +311,14 @@ Graph* PlanarGraph::calculateDual(){
       // we want to find out paths
       // IMP : for  edges with same face1 do not add edge again
       // for this simply keep track of last face1
-
       // TODO : verify this we require face 1 or 2?
-      int newFaceID = (int)faces->size()+stPathEdgeNumber;
+      int newFaceID = (int)faces->size() + stPathEdgeNumber;
       
       // this will happen only in case of only 1 cut
       if ( currentEdge->faceID1 != -1 ) {
         
-        dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
+        Edge* newAddedEdge = dualGraph->insertEdgeInGraph( newFaceID , currentEdge->faceID1, 1 );
+        newAddedEdge->setNonDualEdge(currentEdge);
         
         if (currentEdge->faceID2 == -1) {
             // shouldnt come here

@@ -27,6 +27,7 @@ class Edge{
 public:
   int vertex1ID;
   int vertex2ID;
+  
 //  EdgeDirection direction; // dont need this 
   Node<Edge*> *nodeInVertex1AdjList;
   Node<Edge*> *nodeInVertex2AdjList;
@@ -35,9 +36,11 @@ private:
   
   WEIGHT_TYPE weight; // Forward weight
   WEIGHT_TYPE residualWeight; // Backward weight
+  Edge* nonDualEdge; // used in case of dual to backtrack
   
 public:
   
+  Edge();
   void setWeight( WEIGHT_TYPE weight );
 
 //  inline EdgeDirection getEdgeDirection( ){
@@ -71,7 +74,17 @@ public:
   // method to subtract weight
   void subtractWeight( WEIGHT_TYPE weightToBeSubtracted );
   void subtractFromResidualWeight( WEIGHT_TYPE weightToBeSubtracted );
-  
+
+  Edge* getNonDualEdge () {
+    
+    return nonDualEdge;
+  }
+
+  void setNonDualEdge ( Edge * _nonDualEdge) {
+    
+    nonDualEdge = _nonDualEdge;
+  }
+
   // overloaded operator to subtract edges
   bool operator<(Edge& other){
     

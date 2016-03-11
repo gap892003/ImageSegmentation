@@ -8,6 +8,13 @@
 
 #include "Edge.h"
 
+Edge::Edge(){
+
+  nodeInVertex1AdjList = NULL;
+  nodeInVertex2AdjList = NULL;
+  nonDualEdge = NULL;
+}
+
 void Edge::setWeight( WEIGHT_TYPE weight ){
   
   // redundant but still here

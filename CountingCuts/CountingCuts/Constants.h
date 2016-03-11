@@ -16,7 +16,7 @@
 #define PRINT_GRAPH
 //#define TRY_DIAGONAL_EDGES
 
-#define WEIGHT_TYPE  unsigned long long
+#define WEIGHT_TYPE  long double
 #define USE_EDMONDS_KARP
 
 #endif /* Constants_h */

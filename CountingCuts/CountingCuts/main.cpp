@@ -22,7 +22,7 @@ using namespace OpenImageIO;
 /**
  * Weight function
  */
-WEIGHT_TYPE weightFunction ( int &luminance ){
+WEIGHT_TYPE weightFunction ( int &luminance , int x, int y ){
 
 //  WEIGHT_TYPE newValue = 256 - luminance;
 //  WEIGHT_TYPE newValue = 100000000 - luminance*1000;
@@ -31,13 +31,18 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 //  WEIGHT_TYPE newValue = exp (luminance+1);
 //  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
 //  WEIGHT_TYPE newValue = temp + 1;
-  
-  double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
-  WEIGHT_TYPE newValue = temp + 1;
-  
-//  double temp  = 10000000000 - pow(luminance,4);
-//  WEIGHT_TYPE newValue = temp + 1;
 
+  //  double temp  = 10000000000 - pow(luminance,4);
+  //  WEIGHT_TYPE newValue = temp + 1;
+
+  
+  /********Working 1 ******/
+//  double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
+//  WEIGHT_TYPE newValue = temp + 1;
+  /********Working 1 ******/
+
+  double temp =  ((double)1/(luminance+1))*1000;
+  WEIGHT_TYPE newValue = pow ( temp, 2) * (x*y);
   return newValue;
 }
 
@@ -47,11 +52,11 @@ WEIGHT_TYPE weightFunction ( int &luminance ){
 void readImageAndCreateGraph ( Graph *graph ){
   
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small.jpg");
 
@@ -145,19 +150,30 @@ void readImageAndCreateGraph ( Graph *graph ){
         
         // if there is a pixel at bottom
         int bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
-        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight );
+        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight, xResolution, yResolution );
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
-//        newEdge->setEdgeDirection(EdgeDirection::BOTTOM);
         newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
-//        newEdge->setEdgeDirection(EdgeDirection::TOP);
       }
-      
+
+#ifdef TRY_DIAGONAL_EDGES
+      if (i != xResolution - 1 && j != yResolution-1 ){
+        
+        int diagonalPixelIndex = (i+1) * yResolution + j + 1;
+        // if there is a pixel at bottom
+        int weight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[diagonalPixelIndex]);
+        WEIGHT_TYPE newWeight = weightFunction ( weight, xResolution, yResolution );
+        
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, diagonalPixelIndex,newWeight);
+        newEdge = graph->insertEdgeInGraph(diagonalPixelIndex, currentPixelIndex, newWeight);
+      }
+
+#endif
       // add a check for right side
       if ( j != yResolution-1 ){
         
         int rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
-        WEIGHT_TYPE newWeight = weightFunction ( rightWeight );
+        WEIGHT_TYPE newWeight = weightFunction ( rightWeight, xResolution, yResolution );
         
        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
 //        newEdge->setEdgeDirection(EdgeDirection::RIGHT);
@@ -176,22 +192,27 @@ void readImageAndCreateGraph ( Graph *graph ){
     // close and destroy the file
   imageFile->close ();
   ImageInput::destroy (imageFile);
-  
+
+  int source = 2;
+//  int sink = 1000;
+    int sink =floor(xResolution * yResolution/2);
+//  int sink = (xResolution * yResolution) - 1;
+
   // find min cut value
-  graph->getMinCut( 2, floor(xResolution * yResolution/2));
+  graph->getMinCut( source, sink);
   
   // contract strongly connected components here
-  int source = 2;
-  int sink =floor(xResolution * yResolution/2);
   Graph *graphDash = graph->findAndContractSCC( source, sink );
   ((PlanarGraph*)graphDash)->findFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
   
+#ifdef DEBUG_ON
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
-
+#endif
+  
   std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
   delete graphDash;
   delete dualGraph;
@@ -323,8 +344,9 @@ void testCountingOnGraph(){
   }
   
   // find min cut value
-  planarGraph->getMinCut( 0 , 6 );
-  int source = 0 , sink = 6;
+  planarGraph->getMinCut( 0 , numberOfVertices-1);
+  planarGraph->printEdges();
+  int source = 0 , sink = numberOfVertices-1;
   Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
   ((PlanarGraph*)graphDash)->findFaces();
   ((PlanarGraph*)graphDash)->printFaces();
@@ -335,7 +357,7 @@ void testCountingOnGraph(){
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   
-  std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
+  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
   delete graphDash;
   delete dualGraph;
   delete planarGraph;
@@ -343,9 +365,9 @@ void testCountingOnGraph(){
 
 int main(int argc, const char * argv[]) {
  
-//  testCountingCuts();
+  testCountingCuts();
 //  testPlanarGraphs();
 //  testCountingPaths();
 //  testLinkedList();
-    testCountingOnGraph();
+//    testCountingOnGraph();
 }

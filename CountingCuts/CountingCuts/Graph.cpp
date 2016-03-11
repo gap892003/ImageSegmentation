@@ -766,15 +766,12 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         if ( ver1->id == source || ver2->id == source){
           
           source = ver1->id;
-          newGraph->setSource(source);
         }
         
-        if ( ver1->id == sink || ver2->id == sink){
+        if ( ver1->id == sink ||  ver2->id == sink){
           
           sink = ver1->id;
-          newGraph->setSink(sink);
         }
-        
 #ifdef DEBUG_ON
         std::cout << " Before merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
@@ -1128,15 +1125,25 @@ int Graph::countMinCuts (){
 int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path ){
   
   if (source == destination){
-    
-    std::cout << "Path is: "<< std::endl;
+
+#ifdef DEBUG_ON
+    std::cout << "Path START: "<< std::endl;
     
     for (int i = 0 ; i < path.size(); ++i){
       
       Edge *edge = path.at(i);
       std::cout << edge->vertex1ID << " -> " << edge->vertex2ID << std::endl;
+      
+      // see if we can print dual
+      Edge *nonDualEdge = edge->getNonDualEdge();
+      if (nonDualEdge != NULL) {
+       
+        std::cout << "Non dual edge: " <<  nonDualEdge->vertex1ID << " -> " << nonDualEdge->vertex2ID << std::endl;
+      }
     }
     
+    std::cout << "Path END: "<< std::endl;
+#endif
     return 1;
   }
   
