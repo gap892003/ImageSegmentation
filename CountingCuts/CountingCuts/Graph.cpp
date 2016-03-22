@@ -16,6 +16,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
+#include <cmath>
 using namespace std;
 
 // Constructor
@@ -481,7 +482,10 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
       // add vertices to queue if they are reachable
       // via residual or
       // verticesArray[edgeUnderQ->vertex1ID]->id is requred for planar graphs
-      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  edgeUnderQ->getResidualWeight() !=0  ){
+      cout << !islessequal( edgeUnderQ->getResidualWeight() , 0.0) << " ";
+      cout << !islessequal( edgeUnderQ->getWeight() , 0.0) << endl;
+      
+      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  !islessequal( edgeUnderQ->getResidualWeight() , 0.0)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] != NULL ){
           
@@ -493,7 +497,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
         queue.push_back( verticesArray[edgeUnderQ->vertex1ID] );
         traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] = edgeUnderQ;
         
-      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && edgeUnderQ->getWeight() != 0 ){
+      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && !islessequal( edgeUnderQ->getWeight() , 0.0)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex2ID]->id] != NULL ){
           
@@ -510,6 +514,13 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
   
   bool reached = false;
   int lastVertexId = verticesArray[t]->id;
+  
+  // could not reach sink
+  if ( traversedEdges[t] == NULL) {
+    
+    return NULL;
+  }
+  
   
   while (!reached) {
     
@@ -598,13 +609,16 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
       ++numberOfSCCFound;
       // do something with collcted vertices
       // right now just printing
+#ifdef DEBUG_ON
       cout << "Strongly connected Component: " ;
-      
+#endif
       // settting boss for each component
       // this will be useful while creating new graph
       for (int k = 0 ; k < dummy ; ++k){
         
+#ifdef DEBUG_ON
         cout << verticesCollected->at(k) << " ";
+#endif
         verticesArray[verticesCollected->at(k)]->boss = verticesCollected->at(0);
       }
       
@@ -905,8 +919,10 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         // Awesome ! Right ?
         newGraph->verticesArray[ver2->id] = ver1;
 
+#ifdef DEBUG_ON
         std::cout << " after merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
+#endif
         delete ver2;
         ver2 = NULL;
       }

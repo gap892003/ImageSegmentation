@@ -17,6 +17,8 @@
 #include "PlanarGraph.h"
 #include "LinkedList.h"
 
+#define EPSILON 1e-6       //used for numerical issues
+
 using namespace OpenImageIO;
 
 /**
@@ -42,7 +44,7 @@ WEIGHT_TYPE weightFunction ( int &luminance , int x, int y ){
   /********Working 1 ******/
 
   double temp =  ((double)1/(luminance+1))*1000;
-  WEIGHT_TYPE newValue = pow ( temp, 2) * (x*y);
+  WEIGHT_TYPE newValue = pow ( temp, 4) * (x*y);
   return newValue;
 }
 
@@ -52,13 +54,13 @@ WEIGHT_TYPE weightFunction ( int &luminance , int x, int y ){
 void readImageAndCreateGraph ( Graph *graph ){
   
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
 
   if (!imageFile){
     
@@ -322,6 +324,69 @@ void testLinkedList(){
   delete list2;
 }
 
+void testCountingOnSchmidtGraph(){
+  
+  std::ifstream arq(getenv("SchmidtGraph"));
+  std::cin.rdbuf(arq.rdbuf());
+  
+  int numberOfVertices = 0 ;
+  std::cin >> numberOfVertices;
+  
+  int numberOfEdges = 0 ;
+  std::cin >> numberOfEdges;
+  Graph *planarGraph = new Graph(numberOfVertices,numberOfEdges);
+  int id1;
+  std::cin >> id1;
+  double weight;
+  double revWeight;
+  while ( id1 != -1) {
+    
+    int id2;
+    std::cin >> id2;
+    std::cin >> weight;
+    std::cin >> revWeight;
+    
+    if (id1 == 528 or id2 == 528 ){
+    
+      std::cout << "wait" << std::endl;
+    }
+    
+    // I need to compare here with EPSILON as I dont want
+    // very small values to be included 
+    double actualWeight  = 1 - islessequal( weight, EPSILON);
+    double actualRevWeight  = 1 - islessequal( revWeight, EPSILON);
+    
+    Edge *edge =  planarGraph->insertEdgeInGraph(id1, id2, actualWeight);
+    edge->setResidualWeight(actualRevWeight);
+    std::cin >> id1;
+  }
+  
+  // find min cut value
+  int source, sink;
+  
+  std::cin >> source;
+  std::cin >> sink;
+
+  // min cut will be calculated from Schimdt segmentation
+//  planarGraph->getMinCut( source , sink );
+//  planarGraph->printEdges();
+  Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
+  ((PlanarGraph*)graphDash)->findFaces();
+  ((PlanarGraph*)graphDash)->printFaces();
+  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+  
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  dualGraph->printEdges();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  
+  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
+  delete graphDash;
+  delete dualGraph;
+  delete planarGraph;
+}
+
+
 void testCountingOnGraph(){
 
   std::ifstream arq(getenv("GRAPH2"));
@@ -365,9 +430,10 @@ void testCountingOnGraph(){
 
 int main(int argc, const char * argv[]) {
  
-  testCountingCuts();
+//  testCountingCuts();
 //  testPlanarGraphs();
 //  testCountingPaths();
 //  testLinkedList();
 //    testCountingOnGraph();
+  testCountingOnSchmidtGraph();
 }

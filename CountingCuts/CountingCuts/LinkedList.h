@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <iostream>
 #include "Constants.h"
+#include <exception>
 
 template <class T>
 struct Node{
@@ -23,7 +24,7 @@ struct Node{
 
 template <class T>
 class LinkedList{
-
+  
 protected:
   Node<T> *headNode;
   Node<T> *tailNode;
@@ -34,7 +35,7 @@ protected:
 public:
   
   LinkedList(){
-  
+    
     headNode = NULL;
     tailNode = NULL;
     iteratorNode = NULL;
@@ -42,7 +43,7 @@ public:
   }
   
   Node<T>* addValue ( T val ){
-  
+    
     Node<T> *node = new Node<T>();
     node->val = val;
     addNodeAtEnd(node);
@@ -50,7 +51,7 @@ public:
   }
   
   void addNodeAtEnd( Node<T> * nodeToAdd ){
-  
+    
     if (headNode == NULL) {
       
       headNode = nodeToAdd;
@@ -72,7 +73,7 @@ public:
   }
   
   void addNodeAtStart( Node<T> *nodeToAdd ){
-  
+    
     if (headNode == NULL) {
       
       headNode = nodeToAdd;
@@ -94,7 +95,7 @@ public:
   }
   
   void addListAfterNode( Node<T> *nodeInList1, LinkedList *listToAdd){
-  
+    
     if (headNode == NULL) {
       
       headNode = listToAdd->getHeadNode();
@@ -109,10 +110,10 @@ public:
     
     sizeOfList += listToAdd->getListSize();
   }
-
+  
   // both node will have same value here but different next and prev
   void mergeLists(Node<T> *nodeInList1, Node<T> *nodeInList2){
-  
+    
     // dont think head and tail will need to be changed
     // we dont want nodeInList2 in our linkedList
     Node<T> *temp = nodeInList1->nextNode;
@@ -136,7 +137,7 @@ public:
   }
   
   inline Node<T> * getHeadNode(){
-  
+    
     return headNode;
   }
   
@@ -155,7 +156,7 @@ public:
     if ( node  == NULL) return;
     
     if (node->prevNode != NULL && node->nextNode != NULL){
-
+      
       if ( headNode == node ){
         
         headNode = node->nextNode;
@@ -165,7 +166,7 @@ public:
         
         tailNode = node->nextNode;
       }
-
+      
       node->prevNode->nextNode = node->nextNode;
       node->nextNode->prevNode = node->prevNode;
       
@@ -175,7 +176,7 @@ public:
         iteratorNode = node->prevNode;
       }
     }else {
-    
+      
       // this means its only node in list
       headNode = NULL;
       tailNode = NULL;
@@ -188,9 +189,9 @@ public:
     delete node;
     node = NULL;
   }
-
+  
   void printList(){
-
+    
 #ifdef DEBUG_ON
     Node<T> *iNode = headNode;
     
@@ -223,30 +224,37 @@ public:
 #endif
     
   }
-
-  void clearList(){
   
-    Node<T> *iNode = headNode;
-    headNode = NULL;
+  void clearList(){
     
-    while (iNode != tailNode) {
+    try {
       
-      Node<T> *temp = iNode;
-      iNode = iNode->nextNode;
-      if (iNode != NULL){
+      Node<T> *iNode = headNode;
+      headNode = NULL;
       
-        delete temp;
-        temp = NULL;
+      while (iNode != tailNode) {
+        
+        Node<T> *temp = iNode;
+        iNode = iNode->nextNode;
+        if (iNode != NULL){
+          
+          delete temp;
+          temp = NULL;
+        }
       }
-    }
-    
-    if (tailNode != NULL){
       
-      delete tailNode;
-      tailNode = NULL;
+      if (tailNode != NULL){
+        
+        delete tailNode;
+        tailNode = NULL;
+      }
+      
+    } catch ( std::exception e ) {
+      
+      std::cout << "Could not delete something from linked list" << std::endl;
     }
   }
-
+  
   /**
    * Begin iteration
    */
@@ -271,7 +279,7 @@ public:
     
     return NULL;
   }
-
+  
   
   /**
    *  Used for iteration
@@ -285,9 +293,9 @@ public:
     // also if only one node was there in linkedList and it was
     // deleted during iteration it takes care of that.
     if ( iteratorNode == headNode || iteratorNode == NULL){
-    
+      
       iteratorNode = tailNode; // this is just to keep iteratorNode at last node
-                               // in the ring
+      // in the ring
       return NULL;
     }
     
@@ -317,7 +325,7 @@ public:
    */
   
   Node<T> *getCurrentNode (){
-  
+    
     return iteratorNode;
   }
   
@@ -328,13 +336,13 @@ public:
     
     
   }
-
+  
   
   ~LinkedList(){
-  
+    
     if (headNode != NULL) {
       
-         clearList();
+      clearList();
     }
   }
 };

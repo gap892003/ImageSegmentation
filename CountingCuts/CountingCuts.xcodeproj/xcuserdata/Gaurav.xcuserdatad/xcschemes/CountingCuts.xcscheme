@@ -74,6 +74,11 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
+            key = "SchmidtGraph"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/SchimdtOutput.txt"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
             key = "GRAPH"
             value = "/Users/Gaurav/Documents/STudies/Capstone/Test.txt"
             isEnabled = "YES">
