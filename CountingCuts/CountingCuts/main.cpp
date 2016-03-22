@@ -329,10 +329,10 @@ void testCountingOnSchmidtGraph(){
   std::ifstream arq(getenv("SchmidtGraph"));
   std::cin.rdbuf(arq.rdbuf());
   
-  int numberOfVertices = 0 ;
+  long numberOfVertices = 0 ;
   std::cin >> numberOfVertices;
   
-  int numberOfEdges = 0 ;
+  long numberOfEdges = 0 ;
   std::cin >> numberOfEdges;
   Graph *planarGraph = new Graph(numberOfVertices,numberOfEdges);
   int id1;
@@ -389,7 +389,7 @@ void testCountingOnSchmidtGraph(){
 
 void testCountingOnGraph(){
 
-  std::ifstream arq(getenv("GRAPH2"));
+  std::ifstream arq(getenv("GRAPH5"));
   std::cin.rdbuf(arq.rdbuf());
   
   int numberOfVertices = 0 ;
@@ -409,9 +409,9 @@ void testCountingOnGraph(){
   }
   
   // find min cut value
-  planarGraph->getMinCut( 0 , numberOfVertices-1);
+  int source = 0 , sink = 7 ;//sink = numberOfVertices-1;
+  planarGraph->getMinCut( source , sink );
   planarGraph->printEdges();
-  int source = 0 , sink = numberOfVertices-1;
   Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
   ((PlanarGraph*)graphDash)->findFaces();
   ((PlanarGraph*)graphDash)->printFaces();
@@ -434,6 +434,6 @@ int main(int argc, const char * argv[]) {
 //  testPlanarGraphs();
 //  testCountingPaths();
 //  testLinkedList();
-//    testCountingOnGraph();
-  testCountingOnSchmidtGraph();
+    testCountingOnGraph();
+//  testCountingOnSchmidtGraph();
 }
