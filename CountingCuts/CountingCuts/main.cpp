@@ -64,8 +64,8 @@ void readImageAndCreateGraph ( Graph *graph ){
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
   
   if (!imageFile){
     
@@ -639,16 +639,20 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
   saveSimplePPM(rgbNew, xResolution, yResolution, string("result.ppm"));
   cout << "\nSegmentation result written to result.ppm'\n\n";
   
-  for (int  i = 0 ; i < xResolution*yResolution ; ++i ){
-    
-    std::cout << mask[i] << " " ;
-  }
-  
-  std::cout<< std::endl;
+//  for (int  i = 0 ; i < xResolution*yResolution ; ++i ){
+//    
+//    std::cout << mask[i] << " " ;
+//  }
   
   PlanarEdge* changed_Edges = sc->getEdges();
   int numberOfEdges = sc->getNumberOfEdges();
   int numberofHorizontalEdges =  (yResolution - 1)  *  xResolution;
+  int numberOfVertices = xResolution*yResolution;
+  
+  int sourceToWrite = sourceRow*xResolution + sourceColumn;
+  int sinkToWrite = sinkRow*xResolution + sinkColumn;
+
+  Graph *planarGraph = new Graph(numberOfVertices,numberOfVertices*2);
   
   try{
     
@@ -661,19 +665,34 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
       
       // bottom edge
       PlanarEdge *edge2 = &changed_Edges[i+numberofHorizontalEdges];
-      myfile << edge2->getTail()->vertexID << " " << edge2->getHead()->vertexID << " " << edge2->getCapacity() << " " << edge2->getRevCapacity() << "\n";
-      
+
       // top edge
       PlanarEdge *edge = &changed_Edges[i];
+      
+      double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
+      double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
+
+      Edge *newEdge = planarGraph->insertEdgeInGraph((int)edge2->getTail()->vertexID, (int)edge2->getHead()->vertexID, actualWeight);
+      newEdge->setResidualWeight(actualRevWeight);
+
+      actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
+      actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
+      
+      newEdge = planarGraph->insertEdgeInGraph((int)edge->getTail()->vertexID, (int)edge->getHead()->vertexID, actualWeight);
+      newEdge->setResidualWeight(actualRevWeight);
+      
+#ifdef WRITE_INTERMEDIATE_TO_FILE
+      myfile << edge2->getTail()->vertexID << " " << edge2->getHead()->vertexID << " " << edge2->getCapacity() << " " << edge2->getRevCapacity() << "\n";
+      
       myfile << edge->getTail()->vertexID << " " << edge->getHead()->vertexID << " " << edge->getCapacity() << " " << edge->getRevCapacity() << "\n";
+#endif
     }
-    
+
+#ifdef WRITE_INTERMEDIATE_TO_FILE
     myfile << "-1\n" ;
-    
-    int sourceToWrite = sourceRow*xResolution + sourceColumn;
-    int sinkToWrite = sinkRow*xResolution + sinkColumn;
     myfile << sourceToWrite << " " << sinkToWrite << "\n" ;
     myfile.close();
+#endif
     delete sc;
   }catch (exception e){
     
@@ -683,22 +702,35 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
     exit(1);
   }
   
-  delete rgbNew;
+  delete[] rgbNew;
   delete mask;
+
+  Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
+  ((PlanarGraph*)graphDash)->findFaces();
+  ((PlanarGraph*)graphDash)->printFaces();
+  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
   
-  // call counting algorithm
-  testCountingOnSchmidtGraph();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  dualGraph->printEdges();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  
+  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
+  delete graphDash;
+  delete dualGraph;
+  delete planarGraph;
+
 }
 
 int main(int argc, const char * argv[]) {
   
-  //  testCountingCuts();
+//    testCountingCuts();
   //  testPlanarGraphs();
   //  testCountingPaths();
   //  testLinkedList();
-  //  testCountingOnGraph();
+//    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm");
-  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.ppm", 30, 32);
+  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_color.ppm", 16, 16);
 
 }

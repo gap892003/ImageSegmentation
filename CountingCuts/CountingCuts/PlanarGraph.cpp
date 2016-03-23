@@ -123,7 +123,7 @@ void PlanarGraph::findFaces(){
     }
   }
   
-  delete seen;
+  delete[] seen;
 }
 
 

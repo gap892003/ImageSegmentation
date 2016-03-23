@@ -170,7 +170,7 @@ Edge** Graph::DFS( int& edgesInPath, int startIndex,  int endIndex){
   }
   
   DFSRec(verticesArray[startIndex], seen, path, edgesInPath, endIndex);
-  delete seen;
+  delete[] seen;
   return path;
 }
 
@@ -335,7 +335,7 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
     }
     
     maxFlow += bottleNeckWeight;
-    delete path;
+    delete[] path;
     path = NULL;
     edgesInPath = 0;
     path = DFS(edgesInPath,s,t);
@@ -343,7 +343,7 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
   
   if (path != NULL) {
     
-    delete path;
+    delete[] path;
     path = NULL;
   }
   
@@ -384,7 +384,7 @@ Vertex** Graph::getMinCut(int s, int t){
   }
   
   std::cout << " }"<< std::endl;
-  delete seen;
+  delete[] seen;
   seen = NULL;
   return minCut;
 }
@@ -410,7 +410,7 @@ Edge** Graph::getOnePath(int sink, int source){
   
   //    printEdgesArray(path, edgesInPath);
   //    cout << endl;
-  delete seen;
+  delete[] seen;
   return path;
 }
 
@@ -482,14 +482,10 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
       // add vertices to queue if they are reachable
       // via residual or
       // verticesArray[edgeUnderQ->vertex1ID]->id is requred for planar graphs
-      cout << !islessequal( edgeUnderQ->getResidualWeight() , 0.0) << " ";
-      cout << !islessequal( edgeUnderQ->getWeight() , 0.0) << endl;
-      
       if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  !islessequal( edgeUnderQ->getResidualWeight() , 0.0)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] != NULL ){
           
-          cout << " Vertex already there not adding to queue" << endl;
           continue;
         }
         
@@ -501,7 +497,6 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex2ID]->id] != NULL ){
           
-          cout << " Vertex already there not adding to queue" << endl;
           continue;
         }
         
@@ -518,6 +513,9 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
   // could not reach sink
   if ( traversedEdges[t] == NULL) {
     
+    delete [] traversedEdges;
+    delete[] seen;
+    delete[] path;
     return NULL;
   }
   
@@ -546,9 +544,9 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
     }
   }
   
-  delete seen;
+  delete[] seen;
   seen = NULL;
-  delete traversedEdges;
+  delete[] traversedEdges;
   traversedEdges = NULL;
   return path;
 }
@@ -1000,6 +998,8 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   
   newGraph->setSource( source );
   newGraph->setSink ( sink );
+  
+#ifdef DEBUG_ON
   cout << "******************************************" << endl;
   cout << "After Deleting graph edges" << endl;
   newGraph->printEdgesBoss();
@@ -1008,15 +1008,16 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     
     cout << newGraph->verticesArray[i]->id << " " ;
   }
+#endif
   
   cout << endl;
   cout << "******************************************" << endl;
   
   /********************************APPROACH 3 ONLY ENDS ******************************/
   // clearing memory
-  delete seen;
+  delete[] seen;
   seen = NULL;
-  delete finishTime;
+  delete[] finishTime;
   delete verticesOrder;
   return newGraph;
 }
@@ -1133,6 +1134,8 @@ int Graph::countMinCuts (){
     vector<Edge*> path;
     // TODO: Remove path after testing
     minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path);
+    
+    delete [] seen;
   }
   
   return minCutsCount;

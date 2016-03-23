@@ -11,11 +11,10 @@
 
 //#define DEBUG_ON
 
-
 //#define PRINT_RGB
 #define PRINT_GRAPH
 //#define TRY_DIAGONAL_EDGES
-
+//#define WRITE_INTERMEDIATE_TO_FILE
 #define WEIGHT_TYPE  long double
 #define USE_EDMONDS_KARP
 
