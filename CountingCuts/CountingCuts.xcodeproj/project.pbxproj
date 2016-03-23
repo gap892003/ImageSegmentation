@@ -9,8 +9,16 @@
 /* Begin PBXBuildFile section */
 		F40284CC1C7E598800F99F0E /* PlanarGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284CA1C7E598800F99F0E /* PlanarGraph.cpp */; };
 		F40284CF1C7E5A2200F99F0E /* Faces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284CD1C7E5A2200F99F0E /* Faces.cpp */; };
-		F40284D21C84962900F99F0E /* PlanarEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284D01C84962800F99F0E /* PlanarEdge.cpp */; };
+		F40284D21C84962900F99F0E /* MyPlanarEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284D01C84962800F99F0E /* MyPlanarEdge.cpp */; };
 		F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */; };
+		F4AEF3711CA2144500D3B8D2 /* CGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3601CA2144500D3B8D2 /* CGraph.cpp */; };
+		F4AEF3721CA2144500D3B8D2 /* CutGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3621CA2144500D3B8D2 /* CutGrid.cpp */; };
+		F4AEF3731CA2144500D3B8D2 /* CutPlanar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3641CA2144500D3B8D2 /* CutPlanar.cpp */; };
+		F4AEF3741CA2144500D3B8D2 /* CutSegment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3671CA2144500D3B8D2 /* CutSegment.cpp */; };
+		F4AEF3751CA2144500D3B8D2 /* CutShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3691CA2144500D3B8D2 /* CutShape.cpp */; };
+		F4AEF3761CA2144500D3B8D2 /* DynPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF36B1CA2144500D3B8D2 /* DynPath.cpp */; };
+		F4AEF3771CA2144500D3B8D2 /* Planar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF36D1CA2144500D3B8D2 /* Planar.cpp */; };
+		F4AEF3781CA2144500D3B8D2 /* PlanarException.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF36F1CA2144500D3B8D2 /* PlanarException.cpp */; };
 		F4AFE7A41C6AAD550054987E /* libOpenImageIO.1.7.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = F4AFE7A21C6AAD550054987E /* libOpenImageIO.1.7.2.dylib */; };
 		F4AFE7A91C6E35650054987E /* Graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AFE7A71C6E35640054987E /* Graph.cpp */; };
 		F4AFE7AC1C6E366C0054987E /* Vertex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AFE7AA1C6E366C0054987E /* Vertex.cpp */; };
@@ -36,11 +44,29 @@
 		F40284CB1C7E598800F99F0E /* PlanarGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanarGraph.h; sourceTree = "<group>"; };
 		F40284CD1C7E5A2200F99F0E /* Faces.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Faces.cpp; sourceTree = "<group>"; };
 		F40284CE1C7E5A2200F99F0E /* Faces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Faces.h; sourceTree = "<group>"; };
-		F40284D01C84962800F99F0E /* PlanarEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlanarEdge.cpp; sourceTree = "<group>"; };
-		F40284D11C84962800F99F0E /* PlanarEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanarEdge.h; sourceTree = "<group>"; };
+		F40284D01C84962800F99F0E /* MyPlanarEdge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MyPlanarEdge.cpp; sourceTree = "<group>"; };
+		F40284D11C84962800F99F0E /* MyPlanarEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPlanarEdge.h; sourceTree = "<group>"; };
 		F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkedList.cpp; sourceTree = "<group>"; };
 		F40D818A1C8A1CD100E9BEAE /* LinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkedList.h; sourceTree = "<group>"; };
 		F4AD97321C74340B00CCB223 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
+		F4AEF35F1CA2144500D3B8D2 /* BlockAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockAllocator.h; sourceTree = "<group>"; };
+		F4AEF3601CA2144500D3B8D2 /* CGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGraph.cpp; sourceTree = "<group>"; };
+		F4AEF3611CA2144500D3B8D2 /* CGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGraph.h; sourceTree = "<group>"; };
+		F4AEF3621CA2144500D3B8D2 /* CutGrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CutGrid.cpp; sourceTree = "<group>"; };
+		F4AEF3631CA2144500D3B8D2 /* CutGrid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CutGrid.h; sourceTree = "<group>"; };
+		F4AEF3641CA2144500D3B8D2 /* CutPlanar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CutPlanar.cpp; sourceTree = "<group>"; };
+		F4AEF3651CA2144500D3B8D2 /* CutPlanar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CutPlanar.h; sourceTree = "<group>"; };
+		F4AEF3661CA2144500D3B8D2 /* CutPlanarDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CutPlanarDefs.h; sourceTree = "<group>"; };
+		F4AEF3671CA2144500D3B8D2 /* CutSegment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CutSegment.cpp; sourceTree = "<group>"; };
+		F4AEF3681CA2144500D3B8D2 /* CutSegment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CutSegment.h; sourceTree = "<group>"; };
+		F4AEF3691CA2144500D3B8D2 /* CutShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CutShape.cpp; sourceTree = "<group>"; };
+		F4AEF36A1CA2144500D3B8D2 /* CutShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CutShape.h; sourceTree = "<group>"; };
+		F4AEF36B1CA2144500D3B8D2 /* DynPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynPath.cpp; sourceTree = "<group>"; };
+		F4AEF36C1CA2144500D3B8D2 /* DynPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynPath.h; sourceTree = "<group>"; };
+		F4AEF36D1CA2144500D3B8D2 /* Planar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Planar.cpp; sourceTree = "<group>"; };
+		F4AEF36E1CA2144500D3B8D2 /* Planar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Planar.h; sourceTree = "<group>"; };
+		F4AEF36F1CA2144500D3B8D2 /* PlanarException.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PlanarException.cpp; sourceTree = "<group>"; };
+		F4AEF3701CA2144500D3B8D2 /* PlanarException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlanarException.h; sourceTree = "<group>"; };
 		F4AFE7A11C6AAD550054987E /* libOpenImageIO_Util.1.7.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOpenImageIO_Util.1.7.2.dylib; sourceTree = "<group>"; };
 		F4AFE7A21C6AAD550054987E /* libOpenImageIO.1.7.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libOpenImageIO.1.7.2.dylib; sourceTree = "<group>"; };
 		F4AFE7A71C6E35640054987E /* Graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Graph.cpp; sourceTree = "<group>"; };
@@ -65,6 +91,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F4AEF35E1CA2144500D3B8D2 /* SchimdtSegmentation */ = {
+			isa = PBXGroup;
+			children = (
+				F4AEF35F1CA2144500D3B8D2 /* BlockAllocator.h */,
+				F4AEF3601CA2144500D3B8D2 /* CGraph.cpp */,
+				F4AEF3611CA2144500D3B8D2 /* CGraph.h */,
+				F4AEF3621CA2144500D3B8D2 /* CutGrid.cpp */,
+				F4AEF3631CA2144500D3B8D2 /* CutGrid.h */,
+				F4AEF3641CA2144500D3B8D2 /* CutPlanar.cpp */,
+				F4AEF3651CA2144500D3B8D2 /* CutPlanar.h */,
+				F4AEF3661CA2144500D3B8D2 /* CutPlanarDefs.h */,
+				F4AEF3671CA2144500D3B8D2 /* CutSegment.cpp */,
+				F4AEF3681CA2144500D3B8D2 /* CutSegment.h */,
+				F4AEF3691CA2144500D3B8D2 /* CutShape.cpp */,
+				F4AEF36A1CA2144500D3B8D2 /* CutShape.h */,
+				F4AEF36B1CA2144500D3B8D2 /* DynPath.cpp */,
+				F4AEF36C1CA2144500D3B8D2 /* DynPath.h */,
+				F4AEF36D1CA2144500D3B8D2 /* Planar.cpp */,
+				F4AEF36E1CA2144500D3B8D2 /* Planar.h */,
+				F4AEF36F1CA2144500D3B8D2 /* PlanarException.cpp */,
+				F4AEF3701CA2144500D3B8D2 /* PlanarException.h */,
+			);
+			path = SchimdtSegmentation;
+			sourceTree = "<group>";
+		};
 		F4F40A8C1C6A44B2009EBAFC = {
 			isa = PBXGroup;
 			children = (
@@ -86,6 +137,7 @@
 		F4F40A971C6A44B3009EBAFC /* CountingCuts */ = {
 			isa = PBXGroup;
 			children = (
+				F4AEF35E1CA2144500D3B8D2 /* SchimdtSegmentation */,
 				F4F40A981C6A44B3009EBAFC /* main.cpp */,
 				F4AFE7A71C6E35640054987E /* Graph.cpp */,
 				F4AFE7A81C6E35650054987E /* Graph.h */,
@@ -98,8 +150,8 @@
 				F40284CB1C7E598800F99F0E /* PlanarGraph.h */,
 				F40284CD1C7E5A2200F99F0E /* Faces.cpp */,
 				F40284CE1C7E5A2200F99F0E /* Faces.h */,
-				F40284D01C84962800F99F0E /* PlanarEdge.cpp */,
-				F40284D11C84962800F99F0E /* PlanarEdge.h */,
+				F40284D01C84962800F99F0E /* MyPlanarEdge.cpp */,
+				F40284D11C84962800F99F0E /* MyPlanarEdge.h */,
 				F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */,
 				F40D818A1C8A1CD100E9BEAE /* LinkedList.h */,
 			);
@@ -163,13 +215,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4AFE7AC1C6E366C0054987E /* Vertex.cpp in Sources */,
-				F40284D21C84962900F99F0E /* PlanarEdge.cpp in Sources */,
+				F4AEF3781CA2144500D3B8D2 /* PlanarException.cpp in Sources */,
+				F40284D21C84962900F99F0E /* MyPlanarEdge.cpp in Sources */,
+				F4AEF3761CA2144500D3B8D2 /* DynPath.cpp in Sources */,
+				F4AEF3741CA2144500D3B8D2 /* CutSegment.cpp in Sources */,
+				F4AEF3771CA2144500D3B8D2 /* Planar.cpp in Sources */,
+				F4AEF3721CA2144500D3B8D2 /* CutGrid.cpp in Sources */,
 				F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */,
+				F4AEF3711CA2144500D3B8D2 /* CGraph.cpp in Sources */,
 				F4AFE7A91C6E35650054987E /* Graph.cpp in Sources */,
+				F4AEF3751CA2144500D3B8D2 /* CutShape.cpp in Sources */,
 				F4AFE7AF1C6E37080054987E /* Edge.cpp in Sources */,
 				F40284CC1C7E598800F99F0E /* PlanarGraph.cpp in Sources */,
 				F40284CF1C7E5A2200F99F0E /* Faces.cpp in Sources */,
 				F4F40A991C6A44B3009EBAFC /* main.cpp in Sources */,
+				F4AEF3731CA2144500D3B8D2 /* CutPlanar.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

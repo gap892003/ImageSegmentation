@@ -12,7 +12,7 @@
 #include "Graph.h"
 #include "Constants.h"
 #include "PlanarGraph.h"
-#include "PlanarEdge.h"
+#include "MyPlanarEdge.h"
 #include <iostream>
 #include <list>
 #include <vector>

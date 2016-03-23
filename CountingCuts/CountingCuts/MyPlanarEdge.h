@@ -6,15 +6,15 @@
 //  Copyright © 2016 Gj. All rights reserved.
 //
 
-#ifndef PlanarEdge_h
-#define PlanarEdge_h
+#ifndef MyPlanarEdge_h
+#define MyPlanarEdge_h
 
 #include <stdio.h>
 #include "Edge.h"
 
 class Vertex;
 class Faces;
-class PlanarEdge : public Edge{
+class MyPlanarEdge : public Edge{
 
 public:
   
@@ -45,4 +45,4 @@ public:
     }
   }
 };
-#endif /* PlanarEdge_hpp */
+#endif /* MyPlanarEdge_hpp */

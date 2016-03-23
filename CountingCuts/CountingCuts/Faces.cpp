@@ -9,7 +9,7 @@
 #include "Faces.h"
 #include "Edge.h"
 #include <iostream>
-#include "PlanarEdge.h"
+#include "MyPlanarEdge.h"
 #include "Constants.h"
 
 // constructor
@@ -19,7 +19,7 @@ Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOf
 //  // add face identifier to all edges
 //  for ( std::vector<Edge*>::iterator it = edgesInFace->begin(); it != edgesInFace->end(); ++it ){
 //    
-//      ((PlanarEdge*) *it)->addFace(_faceID);
+//      ((MyPlanarEdge*) *it)->addFace(_faceID);
 //  }
 }
 
@@ -32,7 +32,7 @@ void Faces::printEdges(){
   std::cout << "***** Face Starts here " << faceID << " ****" << std::endl;
   for ( std::vector<Edge*>::iterator it = edgesInFace->begin(); it != edgesInFace->end(); ++it ){
     
-    PlanarEdge* edge = ((PlanarEdge*) *it);
+    MyPlanarEdge* edge = ((MyPlanarEdge*) *it);
     bool flag = edge->faceID1 == faceID;
 //    std::cout << edge->vertex1ID << "->" << edge->vertex2ID << " Face1: "<< edge->faceID1 << " Face2: "<< edge->faceID2 << std::endl;
     std::cout << edge->vertex1ID << "->" << edge->vertex2ID << " Fwd: "<< flag << std::endl;
