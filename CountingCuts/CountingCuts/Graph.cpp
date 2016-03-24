@@ -620,7 +620,9 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
         verticesArray[verticesCollected->at(k)]->boss = verticesCollected->at(0);
       }
       
+#ifdef DEBUG_ON
       cout << endl;
+#endif
       collectedVerticesList.push_back(verticesCollected);
       //      delete verticesCollected;
     }
@@ -833,7 +835,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           tempEdge->nodeInVertex2AdjList = NULL;
           tempEdge->nodeInVertex1AdjList = NULL;
           
-          if ( mainNode != NULL){
+          if ( mainNode != NULL && mainNode->val != NULL ){
             
             tempNode = mainNode->nextNode;
           }else{
@@ -873,7 +875,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           tempEdge->nodeInVertex2AdjList = NULL;
           tempEdge->nodeInVertex1AdjList = NULL;
           
-          if ( mainNode != NULL){
+          if ( mainNode != NULL && mainNode->val != NULL ){
             
             tempNode = mainNode->prevNode;
           }else{
@@ -1008,10 +1010,10 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     
     cout << newGraph->verticesArray[i]->id << " " ;
   }
-#endif
   
   cout << endl;
   cout << "******************************************" << endl;
+#endif
   
   /********************************APPROACH 3 ONLY ENDS ******************************/
   // clearing memory

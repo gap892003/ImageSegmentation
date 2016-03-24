@@ -99,7 +99,7 @@ void PlanarGraph::findFaces(){
           // recursively find all the faces that the edge is assosciated with
           std::vector<Edge*> *path =  new std::vector<Edge*>();
           path->push_back(edge);
-          int faceIDNew = findFacesRec( path,  verticesArray[i],  verticesArray[i] );
+          int faceIDNew = findFacesRecNew( path,  verticesArray[i],  verticesArray[i] );
           bool fwdEdge = verticesArray[i]->id == edge->vertex1ID;
           
           if (faceIDNew !=-1){
@@ -188,7 +188,12 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
 //        nextEdge = (MyPlanarEdge*)adj[ (i+1) % totalEdgesInList ]; // id dont know if I need cyclic,
 
         Node <Edge*>* currentNode = currentVertex->adjacencyList->getCurrentNode();
-        nextEdge = (MyPlanarEdge*)currentNode->nextNode->val;
+        
+        // what if there is only one edge
+        if ( currentNode->nextNode != NULL ){
+          
+          nextEdge = (MyPlanarEdge*)currentNode->nextNode->val;
+        }
       }
       
       // this means we have skipped all similar edges and next edge is
@@ -257,6 +262,111 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
   
   return -1;
 }
+
+
+int PlanarGraph::findFacesRecNew( std::vector<Edge*> *path, Vertex *start, Vertex *lastVertex ){
+  
+  // add all edges in same direction (or opposite if vertices are reversed)
+  // in the face
+  
+  // may have to remove an edge from this path array after done with creating a face
+  // as moving up that edge wont be in the path
+  
+  // base case
+  // fetch last edge in path see if goes to startVertex
+  
+  // next edge should not between same vertices
+  // while adding add all edges that are between same vertices
+  
+  Edge *lastEdgeAdded = path->back();
+  MyPlanarEdge *nextEdge = NULL;
+  bool lastEdgeWasFwd = verticesArray[lastEdgeAdded->vertex1ID]->id == lastVertex->id;
+  if ( (lastEdgeWasFwd && verticesArray[lastEdgeAdded->vertex2ID]->id == start->id) ||
+      ( !lastEdgeWasFwd && verticesArray[lastEdgeAdded->vertex1ID]->id == start->id)){
+    
+    int newFaceID = (int)this->faces->size();
+    // create face here and move back
+    Faces *newFace = new Faces(path, newFaceID);// this can cause precision loss, but wont happen in our case I guess as number of faces is unlikely to be greater than 2^32 (for bit machine)
+    this->faces->push_back(newFace);
+    return newFaceID;
+  }else{
+    
+    int currentVertexID = lastEdgeWasFwd?verticesArray[lastEdgeAdded->vertex2ID]->id:verticesArray[lastEdgeAdded->vertex1ID]->id;
+    Vertex *currentVertex = verticesArray[currentVertexID];
+    
+    // if lastedgeWasFwd we used node1 now we want to use node2
+    Node <Edge*>* currentNode = NULL;
+    if ( lastEdgeWasFwd ){
+      
+      currentNode = lastEdgeAdded->nodeInVertex2AdjList;
+    }else {
+    
+      currentNode = lastEdgeAdded->nodeInVertex1AdjList;
+    }
+    
+    if ( currentNode != NULL ) {
+      
+      nextEdge = (MyPlanarEdge*)currentNode->nextNode->val;
+    }
+
+    // this will happen if head = tail
+    if ( nextEdge == NULL ) {
+      
+      delete path;
+      return -1;
+    }
+    
+    // check if nextEdge is fwd or backward
+    bool nextEdgeFwd = currentVertex->id==nextEdge->vertex1ID;
+    
+    // if there is no path
+    if ( (nextEdge == NULL )
+        // next edge is fwd and it is done Fwd
+        || ( nextEdgeFwd && nextEdge->doneFwd )
+        // next edge is Bwd and it is done Bwd
+        || ( !nextEdgeFwd && nextEdge->doneBakWd )
+        ) {
+      
+      delete path; // to avoid leak
+      return -1;
+    }
+    
+    path->push_back(nextEdge);
+    
+    int faceID = findFacesRecNew(path, start ,currentVertex );
+    
+    if ( faceID != -1){
+      
+      // mark that edge as done iff face was found
+      if (nextEdgeFwd){
+        
+        nextEdge->doneFwd = nextEdgeFwd;
+      }else{
+        
+        nextEdge->doneBakWd = !nextEdgeFwd;
+      }
+      //      nextEdge->doneFwd = lastEdgeWasFwd;
+      //      nextEdge->doneBakWd = !lastEdgeWasFwd;
+      nextEdge->addFace(faceID, nextEdgeFwd);
+      return faceID;
+    }else{
+      
+      return -1;
+    }
+    
+    //    // move ahead
+    //    if (lastEdgeWasFwd){
+    //    
+    //      
+    //    }else{
+    //    
+    //      
+    //    }
+  }
+  
+  return -1;
+}
+
 
 Edge* PlanarGraph::insertEdgeInGraph(int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay){
 

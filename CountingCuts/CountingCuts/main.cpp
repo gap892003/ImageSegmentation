@@ -617,7 +617,7 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
   // CutSegment initialize
   //perform segmentation task
   unsigned char *grey = RGBDataToGrey(rgbData, xResolution, yResolution);
-  CutSegment *sc = new CutSegment(xResolution, yResolution);
+  CutSegment *sc = new CutSegment( xResolution, yResolution);
   sc->setImageData(grey);
   
   if (sinkRow == 0 && sinkColumn == 0) {
@@ -725,12 +725,15 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
 int main(int argc, const char * argv[]) {
   
 //    testCountingCuts();
-  //  testPlanarGraphs();
+//    testPlanarGraphs();
   //  testCountingPaths();
   //  testLinkedList();
 //    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
-//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm");
-  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_color.ppm", 16, 16);
+//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",40,40);
+//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.ppm", 25, 32);
 
+// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm",146,58);
+
+  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
 }
