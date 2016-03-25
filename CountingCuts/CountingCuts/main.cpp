@@ -6,9 +6,13 @@
 //  Copyright © 2016 Gj. All rights reserved.
 //
 
+#include "Constants.h"
 #include <iostream>
 #include <fstream>
-#include <imageio.h>
+#ifdef OPEN_IMAGE_IO_AVAILABLE
+  #include <imageio.h>
+#endif
+
 #include <math.h>
 #include <string>
 #include <sstream>
@@ -24,12 +28,17 @@
 #include "CutPlanarDefs.h"
 #include "CCCutSegment.h"
 
-using namespace OpenImageIO;
+#ifdef OPEN_IMAGE_IO_AVAILABLE
+  using namespace OpenImageIO;
+#endif
+
 using namespace std;
 
 /**
  *   Function reference: OpenImageIO 1.7 Programmer Documentation
  */
+
+#ifdef OPEN_IMAGE_IO_AVAILABLE
 void readImageAndCreateGraph ( Graph *graph ){
   
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
@@ -211,7 +220,6 @@ void readImageAndCreateGraph ( Graph *graph ){
   delete dualGraph;
 }
 
-
 void testCountingCuts (){
   
   // reading image and creating a planar graph
@@ -222,7 +230,7 @@ void testCountingCuts (){
   delete planarGraph;
   planarGraph = NULL;
 }
-
+#endif
 
 void testPlanarGraphs(){
   
@@ -554,13 +562,13 @@ unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
   
 }
 
-void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction = false, int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
+void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction, int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
   
   unsigned char* rgbData = NULL;
   int xResolution, yResolution;
   //  string picName = "/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm";
   //  string picName = "/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.ppm";
-  
+#ifdef OPEN_IMAGE_IO_AVAILABLE
   ImageInput *imageFile = ImageInput::open(picName);
   
   if (!imageFile){
@@ -593,6 +601,14 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     ImageInput::destroy (imageFile);
     rgbData =  pixels.data();
   }
+  
+  // This means code will work only for ppm file
+#else
+  
+  // this is a ppm file follow different flow.
+  rgbData = loadSimplePPM(xResolution, yResolution, picName);
+#endif
+  
   
   if (rgbData == NULL) {
     
@@ -700,26 +716,26 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   delete[] rgbNew;
   delete mask;
 
-  Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
-  ((PlanarGraph*)graphDash)->findFaces();
-  ((PlanarGraph*)graphDash)->printFaces();
-  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
-  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
-  
-  std::cout << "************* DUAL GRAPH **********" << std::endl;
-  dualGraph->printEdges();
-  std::cout << "************* DUAL GRAPH **********" << std::endl;
-  
-  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
-  delete graphDash;
-  delete dualGraph;
+//  Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
+//  ((PlanarGraph*)graphDash)->findFaces();
+//  ((PlanarGraph*)graphDash)->printFaces();
+//  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+//  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+//  
+//  std::cout << "************* DUAL GRAPH **********" << std::endl;
+//  dualGraph->printEdges();
+//  std::cout << "************* DUAL GRAPH **********" << std::endl;
+//  
+//  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
+//  delete graphDash;
+//  delete dualGraph;
   delete planarGraph;
 
 }
 
 int main(int argc, const char * argv[]) {
   
-    testCountingCuts();
+//    testCountingCuts();
 //    testPlanarGraphs();
 //    testCountingPaths();
   //  testLinkedList();
@@ -727,8 +743,10 @@ int main(int argc, const char * argv[]) {
   //  testCountingOnSchmidtGraph();
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",40,40);
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",true);
-  
-// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 38, 162 , 35,70);
+
+  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons.ppm",false);
+
+// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
 
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);

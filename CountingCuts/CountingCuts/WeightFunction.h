@@ -30,12 +30,14 @@ static WEIGHT_TYPE weightFunction ( double &luminance , int x, int y ){
   
   
   /********Working 1 ******/
-  //  double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
-  //  WEIGHT_TYPE newValue = temp + 1;
+//    double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
+//    WEIGHT_TYPE newValue = temp + 1;
   /********Working 1 ******/
   
-  double temp =  ((double)1/(luminance+1))*1000;
-  WEIGHT_TYPE newValue = pow ( temp, 4) * (x*y);
+//  double temp =  ((double)1/(luminance+1))*1000;
+//  WEIGHT_TYPE newValue = pow ( temp, 4) * (x*y);
+  
+  double newValue = 1/(pow(2,luminance));
   return newValue;
 }
 
