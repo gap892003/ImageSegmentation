@@ -68,6 +68,9 @@ class CutSegment : public CutGrid //  GAURAV CHANGE: private to public
   CutPlanar::ELabel getLabel(int x, int y);
 
   void getLabels(CutPlanar::ELabel *lmask);
+  
+  inline int getWidth (){ return width; }
+  inline int getHeight (){ return height;}
 };
 
 

@@ -9,7 +9,7 @@
 #ifndef Constants_h
 #define Constants_h
 
-//#define DEBUG_ON
+#define DEBUG_ON
 
 //#define PRINT_RGB
 #define PRINT_GRAPH
@@ -17,5 +17,5 @@
 //#define WRITE_INTERMEDIATE_TO_FILE
 #define WEIGHT_TYPE  long double
 #define USE_EDMONDS_KARP
-
+#define USE_BIDIRECTIONAL_EDGES
 #endif /* Constants_h */

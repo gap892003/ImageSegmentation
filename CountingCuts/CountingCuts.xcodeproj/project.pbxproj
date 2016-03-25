@@ -11,6 +11,7 @@
 		F40284CF1C7E5A2200F99F0E /* Faces.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284CD1C7E5A2200F99F0E /* Faces.cpp */; };
 		F40284D21C84962900F99F0E /* MyPlanarEdge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40284D01C84962800F99F0E /* MyPlanarEdge.cpp */; };
 		F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */; };
+		F476992E1CA5C2E600D645B5 /* CCCutSegment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F476992C1CA5C2E600D645B5 /* CCCutSegment.cpp */; };
 		F4AEF3711CA2144500D3B8D2 /* CGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3601CA2144500D3B8D2 /* CGraph.cpp */; };
 		F4AEF3721CA2144500D3B8D2 /* CutGrid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3621CA2144500D3B8D2 /* CutGrid.cpp */; };
 		F4AEF3731CA2144500D3B8D2 /* CutPlanar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4AEF3641CA2144500D3B8D2 /* CutPlanar.cpp */; };
@@ -48,6 +49,9 @@
 		F40284D11C84962800F99F0E /* MyPlanarEdge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyPlanarEdge.h; sourceTree = "<group>"; };
 		F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LinkedList.cpp; sourceTree = "<group>"; };
 		F40D818A1C8A1CD100E9BEAE /* LinkedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LinkedList.h; sourceTree = "<group>"; };
+		F476992C1CA5C2E600D645B5 /* CCCutSegment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCCutSegment.cpp; sourceTree = "<group>"; };
+		F476992D1CA5C2E600D645B5 /* CCCutSegment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCCutSegment.h; sourceTree = "<group>"; };
+		F476992F1CA5C6E800D645B5 /* WeightFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeightFunction.h; sourceTree = "<group>"; };
 		F4AD97321C74340B00CCB223 /* Constants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		F4AEF35F1CA2144500D3B8D2 /* BlockAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockAllocator.h; sourceTree = "<group>"; };
 		F4AEF3601CA2144500D3B8D2 /* CGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGraph.cpp; sourceTree = "<group>"; };
@@ -154,6 +158,9 @@
 				F40284D11C84962800F99F0E /* MyPlanarEdge.h */,
 				F40D81891C8A1CD100E9BEAE /* LinkedList.cpp */,
 				F40D818A1C8A1CD100E9BEAE /* LinkedList.h */,
+				F476992C1CA5C2E600D645B5 /* CCCutSegment.cpp */,
+				F476992D1CA5C2E600D645B5 /* CCCutSegment.h */,
+				F476992F1CA5C6E800D645B5 /* WeightFunction.h */,
 			);
 			path = CountingCuts;
 			sourceTree = "<group>";
@@ -220,6 +227,7 @@
 				F4AEF3761CA2144500D3B8D2 /* DynPath.cpp in Sources */,
 				F4AEF3741CA2144500D3B8D2 /* CutSegment.cpp in Sources */,
 				F4AEF3771CA2144500D3B8D2 /* Planar.cpp in Sources */,
+				F476992E1CA5C2E600D645B5 /* CCCutSegment.cpp in Sources */,
 				F4AEF3721CA2144500D3B8D2 /* CutGrid.cpp in Sources */,
 				F40D818B1C8A1CD100E9BEAE /* LinkedList.cpp in Sources */,
 				F4AEF3711CA2144500D3B8D2 /* CGraph.cpp in Sources */,

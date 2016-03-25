@@ -9,49 +9,23 @@
 #include <iostream>
 #include <fstream>
 #include <imageio.h>
-#include "Graph.h"
-#include "Vertex.h"
-#include "Edge.h"
 #include <math.h>
-#include "Constants.h"
-#include "PlanarGraph.h"
-#include "LinkedList.h"
 #include <string>
-#include "CutPlanar.h"
-#include "CutPlanarDefs.h"
-#include "CutSegment.h"
 #include <sstream>
 #include <cstdlib>
 
+#include "WeightFunction.h"
+#include "Graph.h"
+#include "Vertex.h"
+#include "Edge.h"
+#include "PlanarGraph.h"
+#include "LinkedList.h"
+#include "CutPlanar.h"
+#include "CutPlanarDefs.h"
+#include "CCCutSegment.h"
+
 using namespace OpenImageIO;
 using namespace std;
-
-/**
- * Weight function
- */
-WEIGHT_TYPE weightFunction ( int &luminance , int x, int y ){
-  
-  //  WEIGHT_TYPE newValue = 256 - luminance;
-  //  WEIGHT_TYPE newValue = 100000000 - luminance*1000;
-  //  should be inverse
-  //  WEIGHT_TYPE newValue = pow (2, luminance+1);
-  //  WEIGHT_TYPE newValue = exp (luminance+1);
-  //  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
-  //  WEIGHT_TYPE newValue = temp + 1;
-  
-  //  double temp  = 10000000000 - pow(luminance,4);
-  //  WEIGHT_TYPE newValue = temp + 1;
-  
-  
-  /********Working 1 ******/
-  //  double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes
-  //  WEIGHT_TYPE newValue = temp + 1;
-  /********Working 1 ******/
-  
-  double temp =  ((double)1/(luminance+1))*1000;
-  WEIGHT_TYPE newValue = pow ( temp, 4) * (x*y);
-  return newValue;
-}
 
 /**
  *   Function reference: OpenImageIO 1.7 Programmer Documentation
@@ -59,12 +33,12 @@ WEIGHT_TYPE weightFunction ( int &luminance , int x, int y ){
 void readImageAndCreateGraph ( Graph *graph ){
   
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
+    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
+//    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
   //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
-  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
 //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
   
   if (!imageFile){
@@ -156,11 +130,19 @@ void readImageAndCreateGraph ( Graph *graph ){
       if (i != xResolution - 1 ){
         
         // if there is a pixel at bottom
-        int bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
+        double bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( bottomWeight, xResolution, yResolution );
+        
+#ifdef USE_BIDIRECTIONAL_EDGES
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
         newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
+#else
+        
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight,true);
+        newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight,true);
+        
+#endif
       }
       
 #ifdef TRY_DIAGONAL_EDGES
@@ -175,19 +157,23 @@ void readImageAndCreateGraph ( Graph *graph ){
         newEdge = graph->insertEdgeInGraph(diagonalPixelIndex, currentPixelIndex, newWeight);
       }
       
+      
 #endif
       // add a check for right side
       if ( j != yResolution-1 ){
         
-        int rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
+        double rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight, xResolution, yResolution );
-        
+
+#ifdef USE_BIDIRECTIONAL_EDGES
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
-        //        newEdge->setEdgeDirection(EdgeDirection::RIGHT);
         
         newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
-        //        newEdge->setEdgeDirection(EdgeDirection::LEFT);
+#else 
         
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight,true);
+        newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight,true);
+#endif
       }
     }
   }
@@ -568,7 +554,7 @@ unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
   
 }
 
-void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
+void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction = false, int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
   
   unsigned char* rgbData = NULL;
   int xResolution, yResolution;
@@ -617,13 +603,22 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
   // CutSegment initialize
   //perform segmentation task
   unsigned char *grey = RGBDataToGrey(rgbData, xResolution, yResolution);
-  CutSegment *sc = new CutSegment( xResolution, yResolution);
+  CutSegment *sc;
+  
+  if (useCustomWeightFunction){
+  
+    sc = new CCCutSegment ( xResolution, yResolution);
+  }else{
+  
+    sc = new CutSegment( xResolution, yResolution);
+  }
+  
   sc->setImageData(grey);
   
   if (sinkRow == 0 && sinkColumn == 0) {
     
-    sinkRow = xResolution/2;
-    sinkColumn = yResolution/2;
+    sinkRow = yResolution/2;
+    sinkColumn = xResolution/2;
   }
   
   int source[2] = {sourceRow,sourceColumn};
@@ -724,17 +719,17 @@ void countingCutsThroughSchmidt ( std::string picName, int sinkRow = 0, int sink
 
 int main(int argc, const char * argv[]) {
   
-//    testCountingCuts();
+    testCountingCuts();
 //    testPlanarGraphs();
 //    testCountingPaths();
   //  testLinkedList();
 //    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",40,40);
-  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_color.ppm", 25, 32);
-
-// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm",146,58);
+//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",true);
+  
+// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 38, 162 , 35,70);
+//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
 
 //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-  
 }
