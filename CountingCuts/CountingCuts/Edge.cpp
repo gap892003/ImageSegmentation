@@ -41,3 +41,9 @@ void Edge::subtractFromResidualWeight( WEIGHT_TYPE weightToBeSubtracted ){
   this->weight = this->weight + weightToBeSubtracted;
   this->residualWeight -= weightToBeSubtracted;
 }
+
+Edge::~Edge(){
+
+  delete nodeInVertex1AdjList;
+  delete nodeInVertex2AdjList;
+}

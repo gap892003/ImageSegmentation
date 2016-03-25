@@ -78,6 +78,8 @@ void Vertex::printAdjacencyList(){
 
 Vertex::~Vertex(){
   
-  //delete adjacencyList;
+  // TODO: Deal with this
+  // SHould be deleted when deleting edges 
+//  delete adjacencyList;
 }
 

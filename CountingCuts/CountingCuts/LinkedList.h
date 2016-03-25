@@ -186,6 +186,7 @@ public:
     --sizeOfList;
     node->nextNode = NULL;
     node->prevNode = NULL;
+    
     delete node;
     node = NULL;
   }

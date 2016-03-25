@@ -17,6 +17,7 @@
 #include <list>
 #include <vector>
 #include <cmath>
+#include <set>
 using namespace std;
 
 // Constructor
@@ -1200,23 +1201,33 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
 // destructor
 Graph::~Graph(){
   
+  std::set<Vertex*> *uniqueVer = new std::set<Vertex*>();
   for (int i = currentNumberOfVertices-1 ; i >=0 ; --i) {
     
     Vertex *temp = verticesArray[i];
-    if ( temp != NULL ) {
-      for (int j = i-1 ; j >=0 ; --j) {
-        
-        if ( temp == verticesArray[j]) {
-          
-          verticesArray[j] = NULL;
-        }
-      }
-      
-      delete temp ;
-      temp = NULL;
-    }
+//    
+//    for (int j = i-1 ; j >=0 ; --j) {
+//        
+//        if ( temp == verticesArray[j]) {
+//          
+//          verticesArray[j] = NULL;
+//        }
+//      }
+//      
+//      delete temp ;
+//      temp = NULL;
+    
+    uniqueVer->insert(temp);
   }
   
+  std::set<Vertex*>::iterator it;
+  for (it = uniqueVer->begin(); it != uniqueVer->end(); ++it)
+  {
+    Vertex* ver = *it;
+    delete ver;
+  }
+  
+  delete uniqueVer;
   //  for (int i = 0 ; i < currentNumberOfEdges; ++i) {
   //    
   //    if (edgesArray[i] != NULL) {

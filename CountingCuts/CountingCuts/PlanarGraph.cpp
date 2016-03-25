@@ -76,7 +76,17 @@ void PlanarGraph::findFaces(){
       
         // check if next edge is same as previous
         Node<Edge*> *currentNode = verticesArray[i]->adjacencyList->getCurrentNode();
-        Edge* nextEdge = currentNode->nextNode->val;
+        Edge* nextEdge = NULL;
+        
+        // currentNode->nextNode == NULL can occur if there only one edge in that
+        // adjacency ist
+        if ( currentNode->nextNode != NULL ) {
+          
+          nextEdge = currentNode->nextNode->val;
+        }else{
+        
+          continue;
+        }
         
         // if it is same edge
         if (( (verticesArray[nextEdge->vertex1ID]->id == verticesArray[e->vertex1ID]->id )
@@ -304,7 +314,9 @@ int PlanarGraph::findFacesRecNew( std::vector<Edge*> *path, Vertex *start, Verte
       currentNode = lastEdgeAdded->nodeInVertex1AdjList;
     }
     
-    if ( currentNode != NULL ) {
+    // currentNode->nextNode == NULL can occur if there only one edge in that
+    // adjacency ist
+    if ( currentNode != NULL  && currentNode->nextNode != NULL ) {
       
       nextEdge = (MyPlanarEdge*)currentNode->nextNode->val;
     }
