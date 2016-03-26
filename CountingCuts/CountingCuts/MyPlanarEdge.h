@@ -17,22 +17,22 @@ class Faces;
 class MyPlanarEdge : public Edge{
 
 public:
-  
+  MyPlanarEdge();
   // specifically for planar graphs
   // to check whether the edge is done
-  bool doneFwd = false ;
-  bool doneBakWd = false ;
+  bool doneFwd;
+  bool doneBakWd;
   
   // this two if set properly by outside code
   // will help find dual of quickely
-  int faceID1 = -1; // face contains fwd
-  int faceID2 = -1; // face contains backward
+  int faceID1 ; // face contains fwd
+  int faceID2 ; // face contains backward
   
   // algorithm specific
   // this will help me identify that I need one
   // vertex per this types of edge and only connect to
   // one face
-  bool belongsToStPath = false;
+  bool belongsToStPath;
   
   inline void addFace (int faceID, bool fwd){
     

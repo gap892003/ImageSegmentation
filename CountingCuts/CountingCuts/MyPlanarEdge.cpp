@@ -7,3 +7,12 @@
 //
 
 #include "MyPlanarEdge.h"
+
+MyPlanarEdge::MyPlanarEdge():Edge(){
+
+  doneFwd = false;
+  doneBakWd = false;
+  faceID1 = -1;
+  faceID2 = -1;
+  belongsToStPath = false;
+}

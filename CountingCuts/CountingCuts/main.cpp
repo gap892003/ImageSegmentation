@@ -612,7 +612,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   
   if (rgbData == NULL) {
     
-    std::cout << " ERROR" << std::endl;
+    std::cout << " ERROR could not read image!" << std::endl;
     exit(1);
   }
   
@@ -716,22 +716,75 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   delete[] rgbNew;
   delete mask;
 
-//  Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
-//  ((PlanarGraph*)graphDash)->findFaces();
-//  ((PlanarGraph*)graphDash)->printFaces();
-//  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
-//  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
-//  
-//  std::cout << "************* DUAL GRAPH **********" << std::endl;
-//  dualGraph->printEdges();
-//  std::cout << "************* DUAL GRAPH **********" << std::endl;
-//  
-//  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
-//  delete graphDash;
-//  delete dualGraph;
+  Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
+  ((PlanarGraph*)graphDash)->findFaces();
+  ((PlanarGraph*)graphDash)->printFaces();
+  ((PlanarGraph*)graphDash)->findAndMarkSTPath();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+  
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  dualGraph->printEdges();
+  std::cout << "************* DUAL GRAPH **********" << std::endl;
+  
+  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
+  delete graphDash;
+  delete dualGraph;
   delete planarGraph;
 
 }
+
+void countCutsWithArguments(int argc, const char * argv[]){
+
+  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",40,40);
+  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",true);
+
+  if (argc == 0) {
+    
+    cerr << "Invalid Input !" << endl;
+  }
+  
+  string picName = argv[1];
+  
+  if (picName.rfind("ppm") == string::npos){
+  
+    cerr << "Image should be .ppm" << endl;
+    exit(1);
+  }
+  
+  bool useCustomWeightFunction = false;
+  int sinkRow = 0;
+  int sinkColumn = 0;
+  int sourceRow = 0;
+  int sourceColumn = 0;
+  
+  if ( argc >= 3 ){
+  
+    useCustomWeightFunction = atoi(argv[2]);
+  }
+
+  if ( argc >= 4 ){
+    
+    sinkRow = atoi(argv[3]);
+  }
+
+  if ( argc >= 5 ){
+    
+    sinkColumn = atoi(argv[4]);
+  }
+
+  if ( argc >= 6 ){
+    
+    sourceRow = atoi(argv[5]);
+  }
+
+  if ( argc >= 7 ){
+    
+    sourceRow = atoi(argv[6]);
+  }
+
+  countingCutsThroughSchmidt( picName, useCustomWeightFunction,sinkRow,sinkColumn,sourceRow,sourceColumn );
+}
+
 
 int main(int argc, const char * argv[]) {
   
@@ -741,13 +794,10 @@ int main(int argc, const char * argv[]) {
   //  testLinkedList();
 //    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
-//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",40,40);
-//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",true);
-
-  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons.ppm",false);
-
-// countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
-//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
-
-//  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
+  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons.ppm",false);
+  // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
+  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
+  
+  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
+  countCutsWithArguments(argc, argv);  
 }
