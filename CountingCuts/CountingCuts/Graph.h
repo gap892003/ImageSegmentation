@@ -129,7 +129,8 @@ protected:
    */
   void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, std::vector<int> *verticesOrder);
   
-  int countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path);
+  int countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path
+                  , int *countArray);
 protected:
   
   Edge* insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay);

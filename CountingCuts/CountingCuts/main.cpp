@@ -647,6 +647,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   
   //read out segmentation result and save to disk
   unsigned char *rgbNew = SegMaskAndGreyDataToRGB(mask, rgbData, xResolution,yResolution);
+
   saveSimplePPM(rgbNew, xResolution, yResolution, string("result.ppm"));
   cout << "\nSegmentation result written to result.ppm'\n\n";
   
@@ -792,12 +793,12 @@ int main(int argc, const char * argv[]) {
 //    testPlanarGraphs();
 //    testCountingPaths();
   //  testLinkedList();
-//    testCountingOnGraph();
+    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons.ppm",false);
   // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-  countCutsWithArguments(argc, argv);  
+  //countCutsWithArguments(argc, argv);
 }

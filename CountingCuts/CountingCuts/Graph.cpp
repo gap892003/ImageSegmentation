@@ -1135,16 +1135,25 @@ int Graph::countMinCuts (){
     }
     
     vector<Edge*> path;
+    int *countArray =  new int[currentNumberOfVertices];
+    
+    // intialize to -1
+    for (int i = 0 ; i < currentNumberOfVertices ; ++i){
+      
+      countArray[i] = -1;
+    }
+    
     // TODO: Remove path after testing
-    minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path);
+    minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path, countArray);
     
     delete [] seen;
+    delete [] countArray;
   }
   
   return minCutsCount;
 }
 
-int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path ){
+int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path, int *countArray){
   
   if (source == destination){
 
@@ -1188,7 +1197,17 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
     if ( edge->vertex1ID == source && !seen[edge->vertex2ID] ){
       
       path.push_back(edge);
-      pathCount = pathCount + countPaths(edge->vertex2ID, destination, seen, path);
+      
+      if (countArray[edge->vertex2ID] != -1){
+      
+        pathCount = pathCount + countArray[edge->vertex2ID];
+      }else {
+        
+        int pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
+        countArray[edge->vertex2ID] = pathsFromV2;
+        pathCount = pathCount + pathsFromV2;
+      }
+      
       path.pop_back();
       seen[edge->vertex2ID] = false;
     }
