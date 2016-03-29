@@ -103,7 +103,11 @@ public:
    **/
   int countMinCuts ();
 
+  /**
+   *
+   */
   
+  void printVertexPairArray();
 protected:
   
   Edge** DFS( int& edgesInPath, int startIndex, int endIndex );

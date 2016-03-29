@@ -33,6 +33,8 @@ public:
   virtual  ~PlanarGraph();
   inline void setSource ( int source ){ localsource = source; }
   inline void setSink ( int sink ){ localSink = sink; }
+  inline int getSource (){ return localsource; }
+  inline int getSink (){ return localSink; }
   int findFacesRecNew( std::vector<Edge*> *path, Vertex *start, Vertex *lastVertex );
 };
 

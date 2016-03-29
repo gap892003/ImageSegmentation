@@ -88,7 +88,7 @@ void PlanarGraph::findFaces(){
           continue;
         }
         
-        // if it is same edge
+/*        // if it is same edge
         if (( (verticesArray[nextEdge->vertex1ID]->id == verticesArray[e->vertex1ID]->id )
             &&
             (verticesArray[nextEdge->vertex2ID]->id == verticesArray[e->vertex2ID]->id))
@@ -99,18 +99,20 @@ void PlanarGraph::findFaces(){
             ) {
           
           continue;
-        }
-        
-        
+        }        
+*/
         MyPlanarEdge *edge = (MyPlanarEdge*)e;
-        
-        if ( !edge->doneBakWd || !edge->doneFwd )// I dont think I need this
+        bool fwdEdge = verticesArray[i]->id == verticesArray[edge->vertex1ID]->id;
+
+        // here we have to check if we are trying to use edge backwards
+        // and it is full backwards
+        // and same for fwd
+        if ( (!fwdEdge && !edge->doneBakWd) || (fwdEdge && !edge->doneFwd) )// I dont think I need this
         {
           // recursively find all the faces that the edge is assosciated with
           std::vector<Edge*> *path =  new std::vector<Edge*>();
           path->push_back(edge);
           int faceIDNew = findFacesRecNew( path,  verticesArray[i],  verticesArray[i] );
-          bool fwdEdge = verticesArray[i]->id == edge->vertex1ID;
           
           if (faceIDNew !=-1){
             
@@ -223,7 +225,7 @@ int PlanarGraph::findFacesRec( std::vector<Edge*> *path, Vertex *start, Vertex *
     }
     
     // check if nextEdge is fwd or backward
-    bool nextEdgeFwd = currentVertex->id==nextEdge->vertex1ID;
+    bool nextEdgeFwd = currentVertex->id==verticesArray[nextEdge->vertex1ID]->id;
     
     // if there is no path
     if ( (nextEdge == NULL )
@@ -297,6 +299,7 @@ int PlanarGraph::findFacesRecNew( std::vector<Edge*> *path, Vertex *start, Verte
     int newFaceID = (int)this->faces->size();
     // create face here and move back
     Faces *newFace = new Faces(path, newFaceID);// this can cause precision loss, but wont happen in our case I guess as number of faces is unlikely to be greater than 2^32 (for bit machine)
+    newFace->setGraph(this);
     this->faces->push_back(newFace);
     return newFaceID;
   }else{
@@ -329,7 +332,7 @@ int PlanarGraph::findFacesRecNew( std::vector<Edge*> *path, Vertex *start, Verte
     }
     
     // check if nextEdge is fwd or backward
-    bool nextEdgeFwd = currentVertex->id==nextEdge->vertex1ID;
+    bool nextEdgeFwd = currentVertex->id==verticesArray[nextEdge->vertex1ID]->id;
     
     // if there is no path
     if ( (nextEdge == NULL )

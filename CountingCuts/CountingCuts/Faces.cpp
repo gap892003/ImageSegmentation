@@ -11,7 +11,8 @@
 #include <iostream>
 #include "MyPlanarEdge.h"
 #include "Constants.h"
-
+#include "PlanarGraph.h"
+#include "Vertex.h"
 // constructor
 Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOfEdges),faceID(_faceID){
 
@@ -21,6 +22,8 @@ Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOf
 //    
 //      ((MyPlanarEdge*) *it)->addFace(_faceID);
 //  }
+  
+  graph = NULL;
 }
 
 /**
@@ -28,18 +31,22 @@ Faces::Faces( std::vector<Edge*> *listOfEdges, int _faceID ): edgesInFace(listOf
  */
 void Faces::printEdges(){
 
-#ifdef DEBUG_ON
+  if (graph == NULL) {
+    
+    std::cout << "Can not print edges " << std::endl;
+  }
+//#ifdef DEBUG_ON
   std::cout << "***** Face Starts here " << faceID << " ****" << std::endl;
   for ( std::vector<Edge*>::iterator it = edgesInFace->begin(); it != edgesInFace->end(); ++it ){
     
     MyPlanarEdge* edge = ((MyPlanarEdge*) *it);
     bool flag = edge->faceID1 == faceID;
 //    std::cout << edge->vertex1ID << "->" << edge->vertex2ID << " Face1: "<< edge->faceID1 << " Face2: "<< edge->faceID2 << std::endl;
-    std::cout << edge->vertex1ID << "->" << edge->vertex2ID << " Fwd: "<< flag << std::endl;
+    std::cout << graph->verticesArray[edge->vertex1ID]->id << "->" << graph->verticesArray[edge->vertex2ID]->id << " Fwd: "<< flag << std::endl;
 
   }
     std::cout << "***** Face ends here ****" << std::endl;
-#endif
+//#endif
 }
 
 // destructor

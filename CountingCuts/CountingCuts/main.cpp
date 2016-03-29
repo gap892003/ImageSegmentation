@@ -710,18 +710,22 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     
     cout << "Something went wrong while writing file" << endl;
     delete rgbNew;
-    delete mask;
+    delete[] mask;
     exit(1);
   }
   
   delete[] rgbNew;
-  delete mask;
+  delete[] mask;
 
   Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
+  graphDash->printEdges();
+  std::cout << "Source: " << ((PlanarGraph*)graphDash)->getSource() << " Sink: " << ((PlanarGraph*)graphDash)->getSink() << std::endl;
+  
   ((PlanarGraph*)graphDash)->findFaces();
   ((PlanarGraph*)graphDash)->printFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
-  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();  
+  dualGraph->printVertexPairArray();
   
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
@@ -793,12 +797,13 @@ int main(int argc, const char * argv[]) {
 //    testPlanarGraphs();
 //    testCountingPaths();
   //  testLinkedList();
-    testCountingOnGraph();
+   // testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
-  //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons.ppm",false);
+//    countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_Small2.ppm",false);
   // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-  //countCutsWithArguments(argc, argv);
+  countCutsWithArguments(argc, argv);
+  //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",false);
 }

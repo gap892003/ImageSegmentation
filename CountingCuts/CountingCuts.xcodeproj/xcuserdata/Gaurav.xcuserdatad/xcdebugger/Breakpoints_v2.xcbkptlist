@@ -6,32 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "480559744.329428"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "804"
-            endingLineNumber = "804"
-            landmarkName = "Graph::findAndContractSCC ( int &amp;source, int&amp; sink )"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CountingCuts/PlanarGraph.cpp"
-            timestampString = "480555568.658184"
+            timestampString = "480921493.255223"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "475"
-            endingLineNumber = "475"
-            landmarkName = "PlanarGraph::~PlanarGraph()"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "PlanarGraph::findFaces()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

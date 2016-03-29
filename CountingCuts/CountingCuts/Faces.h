@@ -12,7 +12,7 @@
 #include <vector>
 
 class Edge;
-
+class PlanarGraph;
 class Faces {
 
 public:
@@ -22,6 +22,8 @@ public:
 //  Edge **edgesInFace;
   std::vector<Edge*> *edgesInFace;
   void printEdges();
+  PlanarGraph *graph;
+  inline void setGraph (PlanarGraph *_graph) { graph = _graph;}
 };
 
 #endif /* Faces_h */

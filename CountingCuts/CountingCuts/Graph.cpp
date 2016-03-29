@@ -118,15 +118,15 @@ Edge* Graph::insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TY
  */
 void Graph::printEdges(){
 
-#ifdef DEBUG_ON
+//#ifdef DEBUG_ON
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
-    cout << edge->vertex1ID << " " << edge->vertex2ID << "  " << " W: "<< edge->getWeight() << "  RW: " << edge->getResidualWeight() << endl  ;
+    cout << verticesArray[edge->vertex1ID]->id << " " << verticesArray[edge->vertex2ID]->id << "  " << " W: "<< edge->getWeight() << "  RW: " << edge->getResidualWeight() << endl  ;
   }
   
   cout <<endl;
-#endif
+//#endif
 }
 
 /**
@@ -134,7 +134,7 @@ void Graph::printEdges(){
  */
 void Graph::printEdgesBoss(){
 
-#ifdef DEBUG_ON
+//#ifdef DEBUG_ON
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
@@ -142,7 +142,7 @@ void Graph::printEdgesBoss(){
   }
   
   cout <<endl;
-#endif
+//#endif
   
 }
 
@@ -151,13 +151,13 @@ void Graph::printEdgesBoss(){
  */
 void Graph::printEdgesArray(Edge** array, int count){
 
-#ifdef DEBUG_ON
+//#ifdef DEBUG_ON
   for (int i = 0 ; i < count ; ++i) {
     
     cout << array[i]->vertex1ID << " " << array[i]->vertex2ID << " " <<array[i]->getWeight() << endl  ;
   }
   
-#endif
+//#endif
 }
 
 Edge** Graph::DFS( int& edgesInPath, int startIndex,  int endIndex){
@@ -758,7 +758,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     vector<int> *verticesWithSameBoss = collectedVerticesList[i];
     
     // take vertex 1 and contract every vertex
-    Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss->at(0)];
+    Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss->at(verticesWithSameBoss->size()-1)];
     
     for ( Edge *edge = ver1->adjacencyList->beginIteration(); edge != NULL ;
          edge = ver1->adjacencyList->getNextElement()){
@@ -892,7 +892,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           
           // very important not to delete this edge
           // it will be deleted afterwards, if you delete here
-          // in case this is first edge , iteartor will move back
+          // in case this is first edge , iterator will move back
           //  and the way iterator code is written
           // in next call for getNextElement iteration will stop.
           
@@ -943,10 +943,10 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     if ((newGraph->verticesArray[edge->vertex1ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
         ||
         (edge->getWeight() == 0 && edge->getResidualWeight()==0 )
-        ||
+        //||
         // also checking if edge is similar to last undeleted edge
         // if it is we dont need that 
-        (lastEdge != NULL && newGraph->verticesArray[lastEdge->vertex1ID]->id == newGraph->verticesArray[edge->vertex1ID]->id && newGraph->verticesArray[lastEdge->vertex2ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
+        //(lastEdge != NULL && newGraph->verticesArray[lastEdge->vertex1ID]->id == newGraph->verticesArray[edge->vertex1ID]->id && newGraph->verticesArray[lastEdge->vertex2ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
         ) {
       
       // get current node
@@ -1006,11 +1006,16 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   cout << "******************************************" << endl;
   cout << "After Deleting graph edges" << endl;
   newGraph->printEdgesBoss();
-  
+
   for ( int  i = 0 ; i < newGraph->currentNumberOfVertices; ++i){
     
     cout << newGraph->verticesArray[i]->id << " " ;
   }
+
+    for ( int  i = 0 ; i < collectedVerticesList.size(); ++i){
+      
+      cout << collectedVerticesList.at(i)->at(0) << " " ;
+    }
   
   cout << endl;
   cout << "******************************************" << endl;
@@ -1216,6 +1221,24 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
   return pathCount;
 }
 
+
+void Graph::printVertexPairArray(){
+
+  // this means there were only two strongly connected components
+  // or this is not a dual graph
+  if (vertexPairArray == NULL){
+    
+    std::cerr << "Nothing to print here" << endl;
+    return;
+  }
+  
+  std::cout << "************* Vertex pairs **********" << std::endl;
+  for (int i = 0; i < vertexPairArray->size()-1; i+=2 ){
+  
+    std::cout << " Pair " << ((i/2) + (1)) << ": " << vertexPairArray->at(i) << " " <<vertexPairArray->at(i+1) << std::endl;
+  }
+  std::cout << "************* Vertex pairs **********" << std::endl;
+}
 
 // destructor
 Graph::~Graph(){
