@@ -664,7 +664,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   int sourceToWrite = sourceRow*xResolution + sourceColumn;
   int sinkToWrite = sinkRow*xResolution + sinkColumn;
 
-  Graph *planarGraph = new Graph(numberOfVertices,numberOfVertices*2);
+  Graph *planarGraph = new PlanarGraph(numberOfVertices,numberOfVertices*2);
   
   try{
     
@@ -672,31 +672,52 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     ofstream myfile;
     myfile.open ("/Users/Gaurav/Documents/STudies/Capstone/SchimdtOutput.txt");
     myfile << xResolution*yResolution << " " <<  numberOfEdges << std::endl;
+    int horizontalEdgeIndex = 0;
+    int verticalEdgeIndex = 0;
     
-    for (int i = 0 ; i < numberOfEdges/2 ; ++i ){
+//    for (int i = 0 ; i < numberOfEdges/2 ; ++i ){
+    for (int i = 0 ; i < numberOfVertices ; ++i){
       
       // bottom edge
-      PlanarEdge *edge2 = &changed_Edges[i+numberofHorizontalEdges];
-
+//      PlanarEdge *edge2 = &changed_Edges[i+numberofHorizontalEdges];
+      PlanarEdge *edge2 = NULL;
+      
+      // dont need to add any vertical edge for last row
+      if ( (verticalEdgeIndex+numberofHorizontalEdges) < numberOfEdges ) {
+        
+        edge2 = &changed_Edges[verticalEdgeIndex+numberofHorizontalEdges];
+        ++verticalEdgeIndex;
+        double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
+        double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
+        
+        Edge *newEdge = planarGraph->insertEdgeInGraph((int)edge2->getTail()->vertexID, (int)edge2->getHead()->vertexID, actualWeight);
+        newEdge->setResidualWeight(actualRevWeight);
+      }
       // top edge
-      PlanarEdge *edge = &changed_Edges[i];
+//      PlanarEdge *edge = &changed_Edges[i];
+      PlanarEdge *edge = NULL;
       
-      double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
-      double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
-
-      Edge *newEdge = planarGraph->insertEdgeInGraph((int)edge2->getTail()->vertexID, (int)edge2->getHead()->vertexID, actualWeight);
-      newEdge->setResidualWeight(actualRevWeight);
-
-      actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
-      actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
-      
-      newEdge = planarGraph->insertEdgeInGraph((int)edge->getTail()->vertexID, (int)edge->getHead()->vertexID, actualWeight);
-      newEdge->setResidualWeight(actualRevWeight);
+      // dont need to add horizontal edge for last vertex of every row
+      if ( (i+1)%xResolution != 0 ) {
+        
+        edge = &changed_Edges[horizontalEdgeIndex++];
+        double actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
+        double actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
+        
+        Edge * newEdge = planarGraph->insertEdgeInGraph((int)edge->getTail()->vertexID, (int)edge->getHead()->vertexID, actualWeight);
+        newEdge->setResidualWeight(actualRevWeight);
+      }
       
 #ifdef WRITE_INTERMEDIATE_TO_FILE
-      myfile << edge2->getTail()->vertexID << " " << edge2->getHead()->vertexID << " " << edge2->getCapacity() << " " << edge2->getRevCapacity() << "\n";
+      if (edge2 != NULL ){
+        
+        myfile << edge2->getTail()->vertexID << " " << edge2->getHead()->vertexID << " " << (1 - isless( edge2->getCapacity(), EPSILON)) << " " << (1 - isless( edge2->getRevCapacity(), EPSILON)) << "\n";
+      }
       
-      myfile << edge->getTail()->vertexID << " " << edge->getHead()->vertexID << " " << edge->getCapacity() << " " << edge->getRevCapacity() << "\n";
+      if (edge != NULL ){
+        
+        myfile << edge->getTail()->vertexID << " " << edge->getHead()->vertexID << " " << (1 - isless( edge->getCapacity(), EPSILON)) << " " << (1 - isless( edge->getRevCapacity(), EPSILON)) << "\n";
+      }
 #endif
     }
 
