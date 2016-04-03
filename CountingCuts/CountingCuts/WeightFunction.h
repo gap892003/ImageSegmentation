@@ -11,7 +11,7 @@
 
 #include <cmath>
 #include "Constants.h"
-
+#include "CutPlanarDefs.h"
 /**
  * Weight function
  */
@@ -37,8 +37,17 @@ static WEIGHT_TYPE weightFunction ( double &luminance , int x, int y ){
 //  double temp =  ((double)1/(luminance+1))*1000;
 //  WEIGHT_TYPE newValue = pow ( temp, 4) * (x*y);
   
-  double newValue = 1/(pow(2,luminance));
-  return newValue;
+//  double newValue = 1/(pow(2,luminance));
+//  return newValue;
+  
+  double diff = luminance;
+  diff = pow(diff, 2);
+  double weight;
+  weight = exp(-sqrt(diff));// + 0.0035;
+  if (weight < EPSILON)
+    weight = EPSILON;
+  return weight;
+
 }
 
 

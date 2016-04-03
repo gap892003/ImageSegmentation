@@ -34,99 +34,23 @@
 
 using namespace std;
 
-/**
- *   Function reference: OpenImageIO 1.7 Programmer Documentation
- */
 
-#ifdef OPEN_IMAGE_IO_AVAILABLE
-void readImageAndCreateGraph ( Graph *graph ){
+Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
   
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
-    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.jpg");
-//    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
-  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
-//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
-  
-  if (!imageFile){
-    
-    return;
-  }
-  
-  const ImageSpec &imageSpecs = imageFile->spec();
-  int xResolution = imageSpecs.width;
-  int yResolution = imageSpecs.height;
-  int channels = imageSpecs.nchannels;
-  int pixelsArraySize = ( xResolution * yResolution * channels ) ;
-  //  char *pixels = new char [ pixelsArraySize ];
-  std::vector<unsigned char> pixels (pixelsArraySize);
-  imageFile->read_image ( TypeDesc::UINT8, &pixels[0] );
-  
-  std::cout << "Pixel data: " << pixelsArraySize << std::endl;
-  std::cout << "Pixel channels: " << imageSpecs.nchannels << std::endl;
-  std::cout << "Resolution : " << xResolution << " * " << yResolution << std::endl;
-  
-  // create Graph here, (edges *4 , safer side they will be less than that)
-  
-  graph = new Graph (  xResolution * yResolution, xResolution * yResolution*4 );
-  int row = 0 ;
-  int column = 0 ;
-  int *luminanceArray = new int[ xResolution * yResolution ];
-  
-  // TODO: add a check for number of channels
-  for (int i = 0; i < pixelsArraySize ; i+=imageSpecs.nchannels){
-    
-    int R = (int)pixels[i];
-    int G = (int)pixels[i+1];
-    int B = (int)pixels[i+2];
-    
-    // relative luminance
-    float luminance = (0.2126*R + 0.7152*G + 0.0722*B);
-    
-#ifdef DEBUG_ON
-    std::cout <<  "R:" << R << " G:" << G << " B: " << B << std::endl;
-    std::cout <<  row*yResolution + column << " " << luminance << std::endl;
-#endif
-    // put luminance values and make edges
-    luminanceArray[ row*yResolution + column ] = luminance;
-    ++column;
-    
-    // reset column to 0
-    if ( column == yResolution ) {
-      
-      column = 0;
-      ++row;
-    }
-    
-    // unnecessary but added for testing
-    if (row == xResolution){
-      
-      break;
-    }
-  }
-  
-  //  for (int i = 0; i < spec.channelnames.size() ; ++i){
-  //
-  //    std::cout << spec.channelnames[i] << std::endl;
-  //  }
-  
-  
+  Graph* graph = new Graph (  xResolution * yResolution, xResolution * yResolution*4 );
   // connect all vertices now
   // edge weights are subtraction of luminance values
-  
-  for (int  i = 0 ; i < xResolution ; ++i ){
+  for (int  i = 0 ; i < yResolution ; ++i ){
     
-    for (int  j = 0 ; j < yResolution ; ++j ){
+    for (int  j = 0 ; j < xResolution ; ++j ){
       
       //      int currentPixelIndex = i * xResolution + j * xResolution;
       //      int rightPixelIndex = i * xResolution + (j+1) * xResolution;
       //      int bottomPixelIndex = (i+1) * xResolution + j * xResolution;
       
-      int currentPixelIndex = i * yResolution + j;
-      int rightPixelIndex = i * yResolution + (j+1);
-      int bottomPixelIndex = (i+1) * yResolution + j;
+      int currentPixelIndex = i * xResolution + j;
+      int rightPixelIndex = i * xResolution + (j+1);
+      int bottomPixelIndex = (i+1) * xResolution + j;
       
       // insert edges
       // NOTE: DO NOT check of left and up, as will be taken
@@ -136,7 +60,7 @@ void readImageAndCreateGraph ( Graph *graph ){
       // storing edges in a sequence where it will be useful for
       // finding faces
       // add a check for bottom pixel
-      if (i != xResolution - 1 ){
+      if (i != yResolution - 1 ){
         
         // if there is a pixel at bottom
         double bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
@@ -148,8 +72,9 @@ void readImageAndCreateGraph ( Graph *graph ){
         newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
 #else
         
-        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight,true);
-        newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight,true);
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
+        //        newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight,true);
+        newEdge->setResidualWeight(newWeight);
         
 #endif
       }
@@ -169,43 +94,36 @@ void readImageAndCreateGraph ( Graph *graph ){
       
 #endif
       // add a check for right side
-      if ( j != yResolution-1 ){
+      if ( j != xResolution-1 ){
         
         double rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight, xResolution, yResolution );
-
+        
 #ifdef USE_BIDIRECTIONAL_EDGES
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
         
         newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
-#else 
+#else
         
-        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight,true);
-        newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight,true);
+        Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
+        //newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight,true);
+        
+        newEdge->setResidualWeight(newWeight);
 #endif
       }
     }
   }
   
-#ifdef PRINT_GRAPH
-  graph->printEdges();
-#endif
-  
-  // close and destroy the file
-  imageFile->close ();
-  ImageInput::destroy (imageFile);
-  
-  int source = 2;
-  //  int sink = 1000;
-  int sink =floor(xResolution * yResolution/2);
-  //  int sink = (xResolution * yResolution) - 1;
-  
-  // find min cut value
-  graph->getMinCut( source, sink);
+  return graph;
+}
+
+void calculateCuts( Graph *graph, int source, int sink ){
   
   // contract strongly connected components here
   Graph *graphDash = graph->findAndContractSCC( source, sink );
+  ((PlanarGraph*)graphDash)->printEdges();
   ((PlanarGraph*)graphDash)->findFaces();
+  ((PlanarGraph*)graphDash)->printFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
   
@@ -220,15 +138,109 @@ void readImageAndCreateGraph ( Graph *graph ){
   delete dualGraph;
 }
 
+
+/**
+ *   Function reference: OpenImageIO 1.7 Programmer Documentation
+ */
+
+#ifdef OPEN_IMAGE_IO_AVAILABLE
+Graph* readImageAndCreateGraph (int &xres, int &yres){
+  
+  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/colorCircle.jpg");
+//    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.jpg");
+//    ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall2.jpg");
+  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/blackCircle.jpg");
+  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/sample1.jpg");
+  //  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/square.jpg");
+  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_color_small.png");
+//  ImageInput *imageFile = ImageInput::open("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_small2.jpg");
+  
+  if (!imageFile){
+    
+    return NULL;
+  }
+  
+  const ImageSpec &imageSpecs = imageFile->spec();
+  int xResolution = imageSpecs.width;
+  int yResolution = imageSpecs.height;
+  xres = xResolution;
+  yres = yResolution;
+  int channels = imageSpecs.nchannels;
+  int pixelsArraySize = ( xResolution * yResolution * channels ) ;
+  //  char *pixels = new char [ pixelsArraySize ];
+  std::vector<unsigned char> pixels (pixelsArraySize);
+  imageFile->read_image ( TypeDesc::UINT8, &pixels[0] );
+  
+  std::cout << "Pixel data: " << pixelsArraySize << std::endl;
+  std::cout << "Pixel channels: " << imageSpecs.nchannels << std::endl;
+  std::cout << "Resolution : " << xResolution << " * " << yResolution << std::endl;
+  
+  // create Graph here, (edges *4 , safer side they will be less than that)
+  int row = 0 ;
+  int column = 0 ;
+  int *luminanceArray = new int[ xResolution * yResolution ];
+  
+  // TODO: add a check for number of channels
+  for (int i = 0; i < pixelsArraySize ; i+=imageSpecs.nchannels){
+    
+    int R = (int)pixels[i];
+    int G = (int)pixels[i+1];
+    int B = (int)pixels[i+2];
+    
+    // relative luminance
+    float luminance = (0.2126*R + 0.7152*G + 0.0722*B);
+    
+#ifdef DEBUG_ON
+    std::cout <<  "R:" << R << " G:" << G << " B: " << B << std::endl;
+    std::cout <<  row*yResolution + column << " " << luminance << std::endl;
+#endif
+    // put luminance values and make edges
+    luminanceArray[ row*xResolution + column ] = luminance;
+    ++column;
+    
+    // reset column to 0
+    if ( column == xResolution ) {
+      
+      column = 0;
+      ++row;
+    }
+    
+    // unnecessary but added for testing
+    if (row == yResolution){
+      
+      break;
+    }
+  }
+  
+  //  for (int i = 0; i < spec.channelnames.size() ; ++i){
+  //
+  //    std::cout << spec.channelnames[i] << std::endl;
+  //  }
+  
+  Graph *graph =  createGraph(xResolution, yResolution, luminanceArray);
+  // close and destroy the file
+  imageFile->close ();
+  ImageInput::destroy (imageFile);
+  
+  return graph;
+}
+
 void testCountingCuts (){
   
   // reading image and creating a planar graph
-  Graph *planarGraph;
-  readImageAndCreateGraph( planarGraph );
+  int xRes;
+  int yRes;
+  Graph* graph = readImageAndCreateGraph(xRes,yRes);
   
-  //   delete graph after done
-  delete planarGraph;
-  planarGraph = NULL;
+  int source = 0;
+  int sink = floor(xRes* yRes/2);
+  //sink = 20*xRes + 19; // simmons2_small2
+  sink = 20*xRes + 20;
+  cout << "Sink: " << sink << endl;
+  // find min cut value
+  graph->getMinCut( source, sink);
+  calculateCuts(graph, source, sink);
+  delete graph;
 }
 #endif
 
@@ -562,7 +574,7 @@ unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
   
 }
 
-void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction, int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
+void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction,bool useSchmidt = true,   int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
   
   unsigned char* rgbData = NULL;
   int xResolution, yResolution;
@@ -616,9 +628,38 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     exit(1);
   }
   
+  if (sinkRow == 0 && sinkColumn == 0) {
+    
+    sinkRow = (int)(yResolution/2);
+    sinkColumn = (int)(xResolution/2);
+  }
+  
+  int source[2] = {sourceRow,sourceColumn};
+  int sink[2] = {sinkRow,sinkColumn};
+  int sourceToWrite = sourceRow*xResolution + sourceColumn;
+  int sinkToWrite = sinkRow*xResolution + sinkColumn;
+  cout << "Source to write " << sourceToWrite << endl;
+  cout << "Sink to write " << sinkToWrite << endl;
+  
   // CutSegment initialize
   //perform segmentation task
   unsigned char *grey = RGBDataToGrey(rgbData, xResolution, yResolution);
+  
+  if ( !useSchmidt ){
+  
+    int *pic = new int[xResolution*yResolution];
+    for ( int i=0; i < xResolution*yResolution; ++i)
+      pic[i] = (int)grey[i];
+
+    Graph *g = createGraph(xResolution,yResolution,pic);
+    g->getMinCut (sourceToWrite,sinkToWrite);
+    calculateCuts(g,sourceToWrite,sinkToWrite);
+    delete g;
+    delete[] pic;
+    return;
+  }
+  
+  
   CutSegment *sc;
   
   if (useCustomWeightFunction){
@@ -630,16 +671,6 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   }
   
   sc->setImageData(grey);
-  
-  if (sinkRow == 0 && sinkColumn == 0) {
-    
-    sinkRow = yResolution/2;
-    sinkColumn = xResolution/2;
-  }
-  
-  int source[2] = {sourceRow,sourceColumn};
-  int sink[2] = {sinkRow,sinkColumn};
-  
   sc->setSourceSink(NULL, source, sink);
   cout << "Cut: " << sc->segment() << "\n";
   CutPlanar::ELabel *mask = new CutPlanar::ELabel[xResolution*yResolution];
@@ -658,12 +689,9 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   
   PlanarEdge* changed_Edges = sc->getEdges();
   int numberOfEdges = sc->getNumberOfEdges();
-  int numberofHorizontalEdges =  (yResolution - 1)  *  xResolution;
+  int numberofHorizontalEdges =  (xResolution - 1)  *  yResolution;
   int numberOfVertices = xResolution*yResolution;
   
-  int sourceToWrite = sourceRow*xResolution + sourceColumn;
-  int sinkToWrite = sinkRow*xResolution + sinkColumn;
-
   Graph *planarGraph = new PlanarGraph(numberOfVertices,numberOfVertices*2);
   
   try{
@@ -687,8 +715,11 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
         
         edge2 = &changed_Edges[verticalEdgeIndex+numberofHorizontalEdges];
         ++verticalEdgeIndex;
-        double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
-        double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
+//        double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
+//        double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
+
+        double actualWeight  =  edge2->getCapacity();
+        double actualRevWeight  = edge2->getRevCapacity();
         
         Edge *newEdge = planarGraph->insertEdgeInGraph((int)edge2->getTail()->vertexID, (int)edge2->getHead()->vertexID, actualWeight);
         newEdge->setResidualWeight(actualRevWeight);
@@ -701,8 +732,10 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
       if ( (i+1)%xResolution != 0 ) {
         
         edge = &changed_Edges[horizontalEdgeIndex++];
-        double actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
-        double actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
+//        double actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
+//        double actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
+        double actualWeight  =  edge->getCapacity();
+        double actualRevWeight  = edge->getRevCapacity();
         
         Edge * newEdge = planarGraph->insertEdgeInGraph((int)edge->getTail()->vertexID, (int)edge->getHead()->vertexID, actualWeight);
         newEdge->setResidualWeight(actualRevWeight);
@@ -778,6 +811,8 @@ void countCutsWithArguments(int argc, const char * argv[]){
   }
   
   bool useCustomWeightFunction = false;
+  bool useSchmidt = true;
+
   int sinkRow = 0;
   int sinkColumn = 0;
   int sourceRow = 0;
@@ -787,20 +822,21 @@ void countCutsWithArguments(int argc, const char * argv[]){
   
     useCustomWeightFunction = atoi(argv[2]);
   }
-
+  
   if ( argc >= 4 ){
     
-    sinkRow = atoi(argv[3]);
+    useSchmidt = atoi(argv[3]);
   }
+
 
   if ( argc >= 5 ){
     
-    sinkColumn = atoi(argv[4]);
+    sinkRow = atoi(argv[4]);
   }
 
   if ( argc >= 6 ){
     
-    sourceRow = atoi(argv[5]);
+    sinkColumn = atoi(argv[5]);
   }
 
   if ( argc >= 7 ){
@@ -808,16 +844,23 @@ void countCutsWithArguments(int argc, const char * argv[]){
     sourceRow = atoi(argv[6]);
   }
 
-  countingCutsThroughSchmidt( picName, useCustomWeightFunction,sinkRow,sinkColumn,sourceRow,sourceColumn );
+  if ( argc >= 8 ){
+    
+    sourceColumn = atoi(argv[7]);
+  }
+
+  cout << "Sourcerow: "<< sourceRow << " Sourcecolumn:" << sourceColumn << endl;
+  cout << "SinkRow: "<< sinkRow << " SinkColumn:" << sinkColumn << endl;
+  countingCutsThroughSchmidt( picName, useCustomWeightFunction, useSchmidt, sinkRow,sinkColumn,sourceRow,sourceColumn );
 }
 
 
 int main(int argc, const char * argv[]) {
   
-//    testCountingCuts();
+    //testCountingCuts();
 //    testPlanarGraphs();
 //    testCountingPaths();
-  //  testLinkedList();
+//    testLinkedList();
    // testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //    countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_Small2.ppm",false);
@@ -826,5 +869,5 @@ int main(int argc, const char * argv[]) {
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
   countCutsWithArguments(argc, argv);
-  //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm",false);
+  //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",false);
 }

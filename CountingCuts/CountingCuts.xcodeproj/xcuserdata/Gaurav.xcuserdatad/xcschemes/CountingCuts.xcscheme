@@ -63,7 +63,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/Gaurav/Documents/STudies/Capstone/blackCircleSmall.ppm"
+            argument = "/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm 0 0"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

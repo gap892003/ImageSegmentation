@@ -31,6 +31,7 @@ public:
 //  EdgeDirection direction; // dont need this 
   Node<Edge*> *nodeInVertex1AdjList;
   Node<Edge*> *nodeInVertex2AdjList;
+  Node<Edge*> *nodeInMainList;
   
 private:
   

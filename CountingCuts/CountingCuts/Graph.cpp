@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "PlanarGraph.h"
 #include "MyPlanarEdge.h"
+#include "CutPlanarDefs.h"
 #include <iostream>
 #include <list>
 #include <vector>
@@ -36,12 +37,12 @@ totalVertices(numberOfVertices),totalEdges(numberOfEdges){
   }
   
   lastVertex = numberOfVertices-1;
-  visitedEdges = new int[numberOfEdges];
-  
-  for ( int i = 0 ; i < numberOfEdges ; ++i){
-    
-    visitedEdges[i] = 0;
-  }
+//  visitedEdges = new int[numberOfEdges];
+//  
+//  for ( int i = 0 ; i < numberOfEdges ; ++i){
+//    
+//    visitedEdges[i] = 0;
+//  }
   
   vertexPairArray = NULL;
 }
@@ -109,7 +110,8 @@ Edge* Graph::insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TY
   }
   
   //  edgesArray[currentNumberOfEdges++] = edge;
-  edgesArray->addValue(edge);
+  Node<Edge*> *mainNode = edgesArray->addValue(edge);
+  edge->nodeInMainList = mainNode;
   return edge;
 }
 
@@ -224,7 +226,7 @@ bool Graph::DFSRec( Vertex *ver, bool* seen , Edge** path, int &edgesInPath
     //
     //    }else
     
-    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  edgeUnderQ->getResidualWeight() !=0  ){
+    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  !isless (edgeUnderQ->getResidualWeight(),EPSILON)){
       
       // using residual edge
       if ( DFSRec(verticesArray[edgeUnderQ->vertex1ID], seen, path, edgesInPath,endIndex) ){
@@ -236,7 +238,7 @@ bool Graph::DFSRec( Vertex *ver, bool* seen , Edge** path, int &edgesInPath
         return true;
       }
       
-    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && edgeUnderQ->getWeight() != 0 ){
+    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && !isless(edgeUnderQ->getWeight(),EPSILON )){
       
       // using forward edge
       if (DFSRec(verticesArray[edgeUnderQ->vertex2ID], seen, path, edgesInPath,endIndex)){
@@ -339,7 +341,14 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
     delete[] path;
     path = NULL;
     edgesInPath = 0;
-    path = DFS(edgesInPath,s,t);
+#ifdef USE_EDMONDS_KARP
+    
+    path = BFS(edgesInPath, s,t);
+#else
+    
+    path = DFS(edgesInPath, s,t);
+#endif
+
   }
   
   if (path != NULL) {
@@ -483,7 +492,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
       // add vertices to queue if they are reachable
       // via residual or
       // verticesArray[edgeUnderQ->vertex1ID]->id is requred for planar graphs
-      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  !islessequal( edgeUnderQ->getResidualWeight() , 0.0)){
+      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  !isless ( edgeUnderQ->getResidualWeight() , EPSILON)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] != NULL ){
           
@@ -494,7 +503,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
         queue.push_back( verticesArray[edgeUnderQ->vertex1ID] );
         traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] = edgeUnderQ;
         
-      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && !islessequal( edgeUnderQ->getWeight() , 0.0)){
+      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && !isless( edgeUnderQ->getWeight() , EPSILON)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex2ID]->id] != NULL ){
           
@@ -666,7 +675,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   /********************************END OF APPROACH 1*************/
   
   /********************************APPROACH 2, 3 common part  *********************************/
-  
+
   // create new replica of the graph with exact same bosses
   // vertices, then use edge contraction
   // IMP: while creating new graph, dont worry about residual graphs
@@ -680,22 +689,27 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
        edge = edgesArray->getNextElement()){
     
     //    Edge* edge = edgesArray[i];
-    
-    //*****************Analyse this
-    // We need double way adjacency list to find out faces of the graph
-    Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight() );
-    newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
-    newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
+    // We need double way adjacency list to find out faces of the graph    
+    if ( !isless (edge->getWeight(),EPSILON) ){
+      Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight() );
+      newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
+      newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
+    }
     
     // if there is residual edge add actual edge
-    if (edge->getResidualWeight() > 0){
+    if ( !isless (edge->getResidualWeight(),EPSILON) ){
       
       Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight());
       newGraph->verticesArray[newEdgeRes->vertex1ID]->boss = verticesArray[edge->vertex2ID]->boss;
       newGraph->verticesArray[newEdgeRes->vertex2ID]->boss = verticesArray[edge->vertex1ID]->boss;
-      
     }
   }
+
+  
+  // IMP:
+  // CAN NOT DO FOLLOWING
+  // EDGES CANT HAVE RESIDUAL WEIGHTS AFTER THIS POINT
+  //PlanarGraph *newGraph = (PlanarGraph*)this;
   
   /**************************APPROACH 2, 3 common part ends  ***********************/
   
@@ -755,38 +769,87 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   
   for ( int i = 0 ; i < collectedVerticesList.size() ; ++i ){
     
-    vector<int> *verticesWithSameBoss = collectedVerticesList[i];
+    vector<int> *verticesWithSameBoss = collectedVerticesList.at(i);
     
     // take vertex 1 and contract every vertex
     Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss->at(verticesWithSameBoss->size()-1)];
     
-    for ( Edge *edge = ver1->adjacencyList->beginIteration(); edge != NULL ;
-         edge = ver1->adjacencyList->getNextElement()){
+    for ( int j = ( (int)verticesWithSameBoss->size()-2 ) ; j >= 0 ; --j ){
       
-      Vertex* ver2 = newGraph->verticesArray[edge->vertex1ID]->id == ver1->id ?  newGraph->verticesArray[edge->vertex2ID]: newGraph->verticesArray[edge->vertex1ID];
-      
-      //    Vertex *ver1 = newGraph->verticesArray[edge->vertex1ID];
-      //    Vertex *ver2 = newGraph->verticesArray[edge->vertex2ID];
+      Vertex* ver2 = newGraph->verticesArray[verticesWithSameBoss->at(j)];
+      Edge *edge = NULL;
       
       // check if these are alreay merged
+      // when we are moving according to verticesCollected list
+      // ver2 == NULL should not ever happen
+      // if it does then something is wrong
       if (ver1 == ver2 || ver2 == NULL) {
         
+        cout << "Ignoring ver2" << endl;
         continue;
       }
-      
-      if ( ver1->boss == ver2->boss ){
+
+      // find edge to contract
+      // following is constant time as at the max there can be 8 edges
+      for ( Edge *tempEdge = ver2->adjacencyList->beginIteration(); tempEdge != NULL ;
+           tempEdge = ver2->adjacencyList->getNextElement()){
         
+        // find matching edge
+        if ( newGraph->verticesArray[tempEdge->vertex1ID]->id == ver1->id ||
+            newGraph->verticesArray[tempEdge->vertex2ID]->id == ver1->id) {
+          
+          // this means there are duplicate edges and we should delete it
+          if (edge != NULL){
+            
+            // delete duplicate edges
+            if (newGraph->verticesArray[tempEdge->vertex1ID]->id == ver1->id &&  newGraph->verticesArray[tempEdge->vertex2ID]->id == ver2->id
+                ) {
+              
+              ver1->deleteEdge(tempEdge->nodeInVertex1AdjList);
+              ver2->deleteEdge(tempEdge->nodeInVertex2AdjList);
+              
+              // Backward edge
+            }else if ( newGraph->verticesArray[tempEdge->vertex2ID]->id == ver1->id &&  newGraph->verticesArray[tempEdge->vertex1ID]->id == ver2->id){
+              
+              ver1->deleteEdge(tempEdge->nodeInVertex2AdjList);
+              ver2->deleteEdge(tempEdge->nodeInVertex1AdjList);
+              
+            }
+            
+            tempEdge->nodeInVertex2AdjList = NULL;
+            tempEdge->nodeInVertex1AdjList = NULL;
+            newGraph->edgesArray->deleteNode(tempEdge->nodeInMainList);
+            delete tempEdge;
+          }else{
+            
+            edge = tempEdge;
+          }
+        }
+      }
+      
+      if (edge == NULL) {
+        
+        std::cerr << "Something went wrong";
+        continue;
+      }
+//    for ( Edge *edge = ver1->adjacencyList->beginIteration(); edge != NULL ;
+//         edge = ver1->adjacencyList->getNextElement()){
+//      
+//      Vertex* ver2 = newGraph->verticesArray[edge->vertex1ID]->id == ver1->id ?  newGraph->verticesArray[edge->vertex2ID]: newGraph->verticesArray[edge->vertex1ID];
+      
+//      if ( ver1->boss == ver2->boss ){ // redundant in new approach
         
         // check if source or sink is being merged and change source and sink
-        if ( ver1->id == source || ver2->id == source){
+        if ( ver1->id == source || ver2->id == source ){
           
           source = ver1->id;
         }
         
-        if ( ver1->id == sink ||  ver2->id == sink){
+        if ( ver1->id == sink || ver2->id == sink){
           
           sink = ver1->id;
         }
+        
 #ifdef DEBUG_ON
         std::cout << " Before merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
@@ -794,9 +857,10 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 #endif
         // node in ver1 list
         Node<Edge*> *mainNode  = newGraph->verticesArray[edge->vertex1ID]->id == ver1->id ? edge->nodeInVertex1AdjList:edge->nodeInVertex2AdjList;
-        // node in vertex 2 llist
+        
+        // node in vertex 2 list
         Node<Edge*> *secondNode  = newGraph->verticesArray[edge->vertex1ID]->id == ver1->id ? edge->nodeInVertex2AdjList:edge->nodeInVertex1AdjList;
-
+/*
         // before calling insert we need to find all edges between these two
         // vertices for maintaining consistency
         // we will select last node from list2 and first node from list 1
@@ -835,6 +899,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           
           tempEdge->nodeInVertex2AdjList = NULL;
           tempEdge->nodeInVertex1AdjList = NULL;
+          newGraph->edgesArray->deleteNode(tempEdge->nodeInMainList);
           
           if ( mainNode != NULL && mainNode->val != NULL ){
             
@@ -851,6 +916,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           
           tempNode = mainNode->prevNode;
         }
+        
         //deleting from list 1
         while (true && tempNode!= NULL) {
           
@@ -861,12 +927,12 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
               ) {
             
             ver1->deleteEdge(tempNode);
-            //          ver2->deleteEdge(tempEdge->nodeInVertex2AdjList);
+            ver2->deleteEdge(tempEdge->nodeInVertex2AdjList);
             
           }else if (newGraph->verticesArray[tempEdge->vertex2ID]->id == ver1->id &&  newGraph->verticesArray[tempEdge->vertex1ID]->id == ver2->id){
             
             ver1->deleteEdge(tempNode);
-            //        ver2->deleteEdge(tempEdge->nodeInVertex1AdjList);
+            ver2->deleteEdge(tempEdge->nodeInVertex1AdjList);
             
           }else{
             
@@ -875,7 +941,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           
           tempEdge->nodeInVertex2AdjList = NULL;
           tempEdge->nodeInVertex1AdjList = NULL;
-          
+          newGraph->edgesArray->deleteNode(tempEdge->nodeInMainList);
           if ( mainNode != NULL && mainNode->val != NULL ){
             
             tempNode = mainNode->prevNode;
@@ -884,10 +950,12 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
             tempNode = NULL;
           }
         }
-        
+*/
         // TODO: change following to mainNode and Second Node
         if (edge->nodeInVertex1AdjList != NULL && edge->nodeInVertex2AdjList != NULL){
           
+          // merge lists
+          // second node will be deleted inside
           ver1->insertEdgesInList( mainNode, secondNode);
           
           // very important not to delete this edge
@@ -896,18 +964,19 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           //  and the way iterator code is written
           // in next call for getNextElement iteration will stop.
           
-          //ver1->deleteEdge(mainNode);
-//          edge->nodeInVertex1AdjList = NULL;
-//          edge->nodeInVertex2AdjList = NULL;
-          if (newGraph->verticesArray[edge->vertex1ID]->id == ver1->id){
-            
-            edge->nodeInVertex2AdjList = NULL;
-          }else{
-          
-            edge->nodeInVertex1AdjList = NULL;
-          }
+          ver1->deleteEdge(mainNode);
+          edge->nodeInVertex1AdjList = NULL;
+          edge->nodeInVertex2AdjList = NULL;
+          newGraph->edgesArray->deleteNode( edge->nodeInMainList );
+          delete edge;
+//          if (newGraph->verticesArray[edge->vertex1ID]->id == ver1->id){
+//            
+//            edge->nodeInVertex2AdjList = NULL;
+//          }else{
+//          
+//            edge->nodeInVertex1AdjList = NULL;
+//          }
         }
-        
         
         // contract his edge
         // while contracting just change the pointer at
@@ -923,11 +992,18 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 #ifdef DEBUG_ON
         std::cout << " after merging "<<  ver1->id << " " << ver2->id << std::endl;
         ver1->printAdjacencyList();
+        LinkedList<Edge*> *adjacencyList = ver1->adjacencyList;
+        for ( Edge *e = adjacencyList->beginIteration_debug(); e != NULL ;
+             e = adjacencyList->getNextElement_debug()){
+          
+          std::cout << newGraph->verticesArray[e->vertex1ID]->id << "->" << newGraph->verticesArray[e->vertex2ID]->id << " W: " << e->getWeight() << " RW: " << e->getResidualWeight() << std::endl;
+        }
 #endif
         delete ver2;
         ver2 = NULL;
-      }
+//      }
     }
+    
   }
   
 #ifdef DEBUG_ON
@@ -981,17 +1057,18 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
       // this part of code should strictly be to remove edges
       // from main list as we cant delete it above
       if (node != NULL){
+        
         newGraph->verticesArray[edge->vertex1ID]->deleteEdge(node);
       }
       
       newGraph->verticesArray[edge->vertex1ID]->printAdjacencyList();
-      
+      Edge* tempEdge = edge;
       // need to move ahead before deleting node from edgesArray
       edge = newGraph->edgesArray->getNextElement();
       
       // delete node from main list and vertex's adj list
       newGraph->edgesArray->deleteNode( nodeToBeDeleted );
-      
+      delete tempEdge;
     }else {
       
       lastEdge = edge; // last undeleted edge
@@ -1002,31 +1079,41 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   newGraph->setSource( source );
   newGraph->setSink ( sink );
   
-#ifdef DEBUG_ON
+//#ifdef DEBUG_ON
   cout << "******************************************" << endl;
   cout << "After Deleting graph edges" << endl;
-  newGraph->printEdgesBoss();
+//  newGraph->printEdgesBoss();
 
-  for ( int  i = 0 ; i < newGraph->currentNumberOfVertices; ++i){
-    
-    cout << newGraph->verticesArray[i]->id << " " ;
-  }
+//  for ( int  i = 0 ; i < newGraph->currentNumberOfVertices; ++i){
+//    
+//    cout << newGraph->verticesArray[i]->id << " " ;
+//  }
 
     for ( int  i = 0 ; i < collectedVerticesList.size(); ++i){
       
-      cout << collectedVerticesList.at(i)->at(0) << " " ;
+      std::vector <int> *verWithSameBoss = collectedVerticesList.at(i);
+      cout << verWithSameBoss->at(verWithSameBoss->size()-1) << " " ;
     }
-  
+  cout << endl <<"NUMBER OF VERTICES: " << collectedVerticesList.size() << endl;
+//  LinkedList<Edge*> *adjacencyList = newGraph->verticesArray[0]->adjacencyList;
+//  std::cout << std::endl << "********* Adj List 0  " << "*********" << std::endl;
+//  for ( Edge *e = adjacencyList->beginIteration_debug(); e != NULL ;
+//       e = adjacencyList->getNextElement_debug()){
+//    
+//    std::cout << newGraph->verticesArray[e->vertex1ID]->id << "->" << newGraph->verticesArray[e->vertex2ID]->id << " W: " << e->getWeight() << " RW: " << e->getResidualWeight() << std::endl;
+//  }
+//
   cout << endl;
   cout << "******************************************" << endl;
-#endif
+//#endif
   
-  /********************************APPROACH 3 ONLY ENDS ******************************/
+  /***************************APPROACH 3 ONLY ENDS*****************************/
   // clearing memory
   delete[] seen;
   seen = NULL;
   delete[] finishTime;
   delete verticesOrder;
+  collectedVerticesList.clear();
   return newGraph;
 }
 
@@ -1042,12 +1129,12 @@ void Graph::DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time,
   //    Edge *edgeUnderQ = array[i] ;
   for ( Edge *edgeUnderQ = ver->adjacencyList->beginIteration(); edgeUnderQ != NULL ; edgeUnderQ = ver->adjacencyList->getNextElement()){
     
-    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  edgeUnderQ->getResidualWeight() !=0  ){
+    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  !(edgeUnderQ->getResidualWeight() < EPSILON)){
       
       // using residual edge
       DFSTime(verticesArray[edgeUnderQ->vertex1ID], seen, discoveryTimeArray, time , verticesOrder);
       
-    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && edgeUnderQ->getWeight() != 0 ){
+    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && !(edgeUnderQ->getWeight() < EPSILON) ){
       
       // using forward edge
       DFSTime(verticesArray[edgeUnderQ->vertex2ID], seen, discoveryTimeArray, time , verticesOrder);
@@ -1090,6 +1177,11 @@ void Graph::reverseEdges( Graph* graph ){
     int tempId = edge->vertex2ID;
     edge->vertex2ID = edge->vertex1ID;
     edge->vertex1ID = tempId;
+    
+    // other way to reverse edges
+//    WEIGHT_TYPE tempWeight = edge->getWeight();
+//    edge->setWeight(edge->getResidualWeight());
+//    edge->setResidualWeight(tempWeight);
   }
 }
 
@@ -1111,9 +1203,9 @@ void Graph::addVertexPair ( int vertex1, int vertex2 ){
 /**
  * THE function of the algorithm which calculates
  */
-int Graph::countMinCuts (){
+long Graph::countMinCuts (){
   
-  int minCutsCount = 0;
+  long minCutsCount = 0;
   
   // if following is the case that means no faces existed
   // which means only one min cut was there
@@ -1140,7 +1232,7 @@ int Graph::countMinCuts (){
     }
     
     vector<Edge*> path;
-    int *countArray =  new int[currentNumberOfVertices];
+    long *countArray =  new long[currentNumberOfVertices];
     
     // intialize to -1
     for (int i = 0 ; i < currentNumberOfVertices ; ++i){
@@ -1158,7 +1250,7 @@ int Graph::countMinCuts (){
   return minCutsCount;
 }
 
-int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path, int *countArray){
+long Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path, long *countArray){
   
   if (source == destination){
 
@@ -1189,7 +1281,7 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
   // check only forward edges here
   //  Edge** adjList = verticesArray[source]->adjacencyList;
   //  int numberOfEdgesInList = verticesArray[source]->numberOfEdges;
-  int pathCount = 0;
+  long pathCount = 0;
   
   //  for ( int i = 0 ; i < numberOfEdgesInList ; ++i){
   
@@ -1203,12 +1295,12 @@ int Graph::countPaths (int source, int destination , bool *seen, std::vector<Edg
       
       path.push_back(edge);
       
-      if (countArray[edge->vertex2ID] != -1){
+      if (countArray[edge->vertex2ID] > -1){
       
         pathCount = pathCount + countArray[edge->vertex2ID];
       }else {
         
-        int pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
+        long pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
         countArray[edge->vertex2ID] = pathsFromV2;
         pathCount = pathCount + pathsFromV2;
       }

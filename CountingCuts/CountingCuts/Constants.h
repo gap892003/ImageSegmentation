@@ -19,5 +19,5 @@
 //#define OPEN_IMAGE_IO_AVAILABLE
 #define WEIGHT_TYPE   double
 #define USE_EDMONDS_KARP
-#define USE_BIDIRECTIONAL_EDGES
+//#define USE_BIDIRECTIONAL_EDGES
 #endif /* Constants_h */

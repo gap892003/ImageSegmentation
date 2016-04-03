@@ -164,7 +164,7 @@ public:
       
       if ( tailNode == node ){
         
-        tailNode = node->nextNode;
+        tailNode = node->prevNode;
       }
       
       node->prevNode->nextNode = node->nextNode;

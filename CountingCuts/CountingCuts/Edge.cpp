@@ -12,6 +12,7 @@ Edge::Edge(){
 
   nodeInVertex1AdjList = NULL;
   nodeInVertex2AdjList = NULL;
+  nodeInMainList = NULL;
   nonDualEdge = NULL;
 }
 
@@ -44,6 +45,12 @@ void Edge::subtractFromResidualWeight( WEIGHT_TYPE weightToBeSubtracted ){
 
 Edge::~Edge(){
 
-  delete nodeInVertex1AdjList;
-  delete nodeInVertex2AdjList;
+  if (nodeInVertex1AdjList != NULL){
+  
+    delete nodeInVertex1AdjList;
+  }
+  
+  if (nodeInVertex2AdjList != NULL){
+    delete nodeInVertex2AdjList;
+  }
 }
