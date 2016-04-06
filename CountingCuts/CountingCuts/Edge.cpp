@@ -14,6 +14,8 @@ Edge::Edge(){
   nodeInVertex2AdjList = NULL;
   nodeInMainList = NULL;
   nonDualEdge = NULL;
+  weight = 0.0;
+  residualWeight = 0.0;
 }
 
 void Edge::setWeight( WEIGHT_TYPE weight ){

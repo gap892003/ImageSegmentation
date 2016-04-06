@@ -25,9 +25,9 @@ static WEIGHT_TYPE weightFunction ( double &luminance , int x, int y ){
   //  double temp  = ( 255 / log(luminance+2) );// x+2 as Dont want to deal with zeroes
   //  WEIGHT_TYPE newValue = temp + 1;
   
-  //  double temp  = 10000000000 - pow(luminance,4);
-  //  WEIGHT_TYPE newValue = temp + 1;
-  
+//    double temp  = 10000000000 - pow(luminance,4);
+//    WEIGHT_TYPE newValue = temp + 1;
+//    return newValue;
   
   /********Working 1 ******/
 //    double temp  = pow ( 255-luminance, 8);// x+2 as Dont want to deal with zeroes

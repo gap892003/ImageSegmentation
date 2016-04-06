@@ -124,7 +124,7 @@ void Graph::printEdges(){
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
-    cout << verticesArray[edge->vertex1ID]->id << " " << verticesArray[edge->vertex2ID]->id << "  " << " W: "<< edge->getWeight() << "  RW: " << edge->getResidualWeight() << endl  ;
+    cout << edge->vertex1ID << " " << edge->vertex2ID << "  " << " W: "<< edge->getWeight() << "  RW: " << edge->getResidualWeight() << endl  ;
   }
   
   cout <<endl;
@@ -226,7 +226,7 @@ bool Graph::DFSRec( Vertex *ver, bool* seen , Edge** path, int &edgesInPath
     //
     //    }else
     
-    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  !isless (edgeUnderQ->getResidualWeight(),EPSILON)){
+    if ( (!(seen[edgeUnderQ->vertex1ID] )) &&  isgreaterequal (edgeUnderQ->getResidualWeight(),EPSILON)){
       
       // using residual edge
       if ( DFSRec(verticesArray[edgeUnderQ->vertex1ID], seen, path, edgesInPath,endIndex) ){
@@ -238,7 +238,7 @@ bool Graph::DFSRec( Vertex *ver, bool* seen , Edge** path, int &edgesInPath
         return true;
       }
       
-    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && !isless(edgeUnderQ->getWeight(),EPSILON )){
+    }else if( (!(seen[edgeUnderQ->vertex2ID] )) && isgreaterequal(edgeUnderQ->getWeight(),EPSILON )){
       
       // using forward edge
       if (DFSRec(verticesArray[edgeUnderQ->vertex2ID], seen, path, edgesInPath,endIndex)){
@@ -312,7 +312,7 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
         weightToCompare = path[i]->getResidualWeight();
       }
       
-      if ( weightToCompare < bottleNeckWeight || bottleNeckWeight == -1) {
+      if ( isless(weightToCompare,bottleNeckWeight) || bottleNeckWeight == -1) {
         
         bottleNeckWeight = weightToCompare;
       }
@@ -366,12 +366,12 @@ WEIGHT_TYPE Graph::findMaxFlow(int s, int t){
  *
  *  @return Vertices that are in min cut
  */
-Vertex** Graph::getMinCut(int s, int t){
+bool* Graph::getMinCut(int s, int t){
   
   WEIGHT_TYPE maxFlow =  findMaxFlow(s, t);
   std::cout << "Max flow is : "<< maxFlow << std::endl;
   bool *seen = new bool [totalVertices];
-  Vertex** minCut = new Vertex* [totalVertices];
+  //Vertex** minCut = new Vertex* [totalVertices];
   
   for (int i = 0 ; i < totalVertices ; ++i){
     
@@ -383,7 +383,7 @@ Vertex** Graph::getMinCut(int s, int t){
   
   // go through all seen vertices and add them to
   // min cut Vertices array;
-  count = 0;
+/*  count = 0;
   std::cout << "Min cut is { " ;
   for (int i = 0 ; i < totalVertices ; ++i){
     
@@ -394,9 +394,11 @@ Vertex** Graph::getMinCut(int s, int t){
   }
   
   std::cout << " }"<< std::endl;
-  delete[] seen;
-  seen = NULL;
-  return minCut;
+*/ 
+//  delete[] seen;
+//  seen = NULL;
+  return seen;
+//  return minCut;
 }
 
 
@@ -492,7 +494,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
       // add vertices to queue if they are reachable
       // via residual or
       // verticesArray[edgeUnderQ->vertex1ID]->id is requred for planar graphs
-      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  !isless ( edgeUnderQ->getResidualWeight() , EPSILON)){
+      if ( (!(seen[verticesArray[edgeUnderQ->vertex1ID]->id] )) &&  isgreaterequal ( edgeUnderQ->getResidualWeight() , EPSILON)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] != NULL ){
           
@@ -503,7 +505,7 @@ Edge** Graph::BFS(int &edgesInPath, int s, int t ){
         queue.push_back( verticesArray[edgeUnderQ->vertex1ID] );
         traversedEdges[verticesArray[edgeUnderQ->vertex1ID]->id] = edgeUnderQ;
         
-      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && !isless( edgeUnderQ->getWeight() , EPSILON)){
+      }else if( (!(seen[verticesArray[edgeUnderQ->vertex2ID]->id] )) && isgreaterequal( edgeUnderQ->getWeight() , EPSILON)){
         
         if ( traversedEdges[verticesArray[edgeUnderQ->vertex2ID]->id] != NULL ){
           
@@ -573,7 +575,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   std::vector<int> *verticesOrder = new std::vector<int>();// this array is to store sorted
   // order of vertices during DFS
   int numberOfSCCFound = 0;
-  vector<std::vector<int> *> collectedVerticesList;
+  vector<std::vector<int> *> *collectedVerticesList = new vector<std::vector<int> *>();
   
   int time =  0 ;
   for (int i = 0 ; i < totalVertices ; ++i){
@@ -618,7 +620,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
       // do something with collcted vertices
       // right now just printing
 #ifdef DEBUG_ON
-      cout << "Strongly connected Component: " ;
+      cout << "Strongly connected Component: Size:" << verticesCollected->size() << " Component: " ;
 #endif
       // settting boss for each component
       // this will be useful while creating new graph
@@ -633,7 +635,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 #ifdef DEBUG_ON
       cout << endl;
 #endif
-      collectedVerticesList.push_back(verticesCollected);
+      collectedVerticesList->push_back(verticesCollected);
       //      delete verticesCollected;
     }
   }
@@ -690,14 +692,14 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     
     //    Edge* edge = edgesArray[i];
     // We need double way adjacency list to find out faces of the graph    
-    if ( !isless (edge->getWeight(),EPSILON) ){
+    if ( isgreaterequal (edge->getWeight(),EPSILON) ){
       Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight() );
       newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
       newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
     }
     
     // if there is residual edge add actual edge
-    if ( !isless (edge->getResidualWeight(),EPSILON) ){
+    if ( isgreaterequal (edge->getResidualWeight(),EPSILON) ){
       
       Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight());
       newGraph->verticesArray[newEdgeRes->vertex1ID]->boss = verticesArray[edge->vertex2ID]->boss;
@@ -767,9 +769,9 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   //  for ( Edge *edge = newGraph->edgesArray->beginIteration(); edge != NULL ;
   //       edge = newGraph->edgesArray->getNextElement()){
   
-  for ( int i = 0 ; i < collectedVerticesList.size() ; ++i ){
+  for ( int i = 0 ; i < collectedVerticesList->size() ; ++i ){
     
-    vector<int> *verticesWithSameBoss = collectedVerticesList.at(i);
+    vector<int> *verticesWithSameBoss = collectedVerticesList->at(i);
     
     // take vertex 1 and contract every vertex
     Vertex* ver1 = newGraph->verticesArray[verticesWithSameBoss->at(verticesWithSameBoss->size()-1)];
@@ -1089,12 +1091,12 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 //    cout << newGraph->verticesArray[i]->id << " " ;
 //  }
 
-    for ( int  i = 0 ; i < collectedVerticesList.size(); ++i){
+    for ( int  i = 0 ; i < collectedVerticesList->size(); ++i){
       
-      std::vector <int> *verWithSameBoss = collectedVerticesList.at(i);
+      std::vector <int> *verWithSameBoss = collectedVerticesList->at(i);
       cout << verWithSameBoss->at(verWithSameBoss->size()-1) << " " ;
     }
-  cout << endl <<"NUMBER OF VERTICES: " << collectedVerticesList.size() << endl;
+  cout << endl <<"NUMBER OF VERTICES: " << collectedVerticesList->size() << endl;
 //  LinkedList<Edge*> *adjacencyList = newGraph->verticesArray[0]->adjacencyList;
 //  std::cout << std::endl << "********* Adj List 0  " << "*********" << std::endl;
 //  for ( Edge *e = adjacencyList->beginIteration_debug(); e != NULL ;
@@ -1113,7 +1115,8 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   seen = NULL;
   delete[] finishTime;
   delete verticesOrder;
-  collectedVerticesList.clear();
+  collectedVerticesList->clear();
+  delete collectedVerticesList;
   return newGraph;
 }
 

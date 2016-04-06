@@ -37,9 +37,10 @@ using namespace std;
 
 Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
   
-  Graph* graph = new Graph (  xResolution * yResolution, xResolution * yResolution*4 );
+  Graph* graph = new PlanarGraph (  xResolution * yResolution, xResolution * yResolution*4 );
   // connect all vertices now
   // edge weights are subtraction of luminance values
+  int totalEdgesAdded = 0;
   for (int  i = 0 ; i < yResolution ; ++i ){
     
     for (int  j = 0 ; j < xResolution ; ++j ){
@@ -60,7 +61,7 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
       // storing edges in a sequence where it will be useful for
       // finding faces
       // add a check for bottom pixel
-      if (i != yResolution - 1 ){
+      if (i < yResolution-1 ){
         
         // if there is a pixel at bottom
         double bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
@@ -70,12 +71,13 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
         newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight);
+        totalEdgesAdded = totalEdgesAdded+2;
 #else
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
         //        newEdge = graph->insertEdgeInGraph(bottomPixelIndex, currentPixelIndex, newWeight,true);
         newEdge->setResidualWeight(newWeight);
-        
+        ++totalEdgesAdded;
 #endif
       }
       
@@ -89,12 +91,14 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, diagonalPixelIndex,newWeight);
         newEdge = graph->insertEdgeInGraph(diagonalPixelIndex, currentPixelIndex, newWeight);
+        
+        totalEdgesAdded = totalEdgesAdded +2;
       }
       
       
 #endif
       // add a check for right side
-      if ( j != xResolution-1 ){
+      if ( j < xResolution-1 ){
         
         double rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight, xResolution, yResolution );
@@ -103,17 +107,20 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
         
         newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight);
+        totalEdgesAdded = totalEdgesAdded + 2;
 #else
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
         //newEdge = graph->insertEdgeInGraph(rightPixelIndex, currentPixelIndex, newWeight,true);
         
         newEdge->setResidualWeight(newWeight);
+        ++totalEdgesAdded;
 #endif
       }
     }
   }
   
+  cout << "Totaledges = " << totalEdgesAdded << endl;
   return graph;
 }
 
@@ -395,7 +402,7 @@ void testCountingOnSchmidtGraph(){
 
 void testCountingOnGraph(){
   
-  std::ifstream arq(getenv("GRAPH5"));
+  std::ifstream arq(getenv("GRAPH2"));
   std::cin.rdbuf(arq.rdbuf());
   
   int numberOfVertices = 0 ;
@@ -415,7 +422,9 @@ void testCountingOnGraph(){
   }
   
   // find min cut value
-  int source = 0 , sink = 7 ;//sink = numberOfVertices-1;
+  int source = 0 ;
+  //int sink = 7 ;
+  int sink = numberOfVertices-1;
   planarGraph->getMinCut( source , sink );
   planarGraph->printEdges();
   Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
@@ -648,14 +657,41 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   if ( !useSchmidt ){
   
     int *pic = new int[xResolution*yResolution];
-    for ( int i=0; i < xResolution*yResolution; ++i)
+    
+    for ( int i=0; i < xResolution*yResolution; ++i){
       pic[i] = (int)grey[i];
-
+    }
+    
     Graph *g = createGraph(xResolution,yResolution,pic);
-    g->getMinCut (sourceToWrite,sinkToWrite);
-    calculateCuts(g,sourceToWrite,sinkToWrite);
-    delete g;
+    bool* minCut = g->getMinCut (sourceToWrite,sinkToWrite);
+    CutPlanar::ELabel *mask = new CutPlanar::ELabel[xResolution*yResolution];
+    
+    for (int i = 0; i < xResolution*yResolution; ++i){
+      
+      if ( minCut[i] ) {
+        
+        // belongs to source
+        mask[i] = CutPlanar::LABEL_SOURCE;
+        
+      }else{
+
+        // belongs to sink
+        mask[i] = CutPlanar::LABEL_SINK;
+      }
+    }
+    
+    unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution,yResolution );
+    saveSimplePPM(rgbNew, xResolution, yResolution, string("result.ppm"));
+    cout << "\nSegmentation result written to result.ppm'\n\n";
+    delete[] minCut;
+    delete[] mask;
+    delete[] rgbNew;
     delete[] pic;
+    delete[] grey;
+    delete[] rgbData;
+    calculateCuts(g,sourceToWrite,sinkToWrite);
+
+    delete g;
     return;
   }
   
@@ -692,7 +728,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   int numberofHorizontalEdges =  (xResolution - 1)  *  yResolution;
   int numberOfVertices = xResolution*yResolution;
   
-  Graph *planarGraph = new PlanarGraph(numberOfVertices,numberOfVertices*2);
+  Graph *planarGraph = new PlanarGraph(numberOfVertices, numberOfVertices*2);
   
   try{
     
@@ -715,11 +751,8 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
         
         edge2 = &changed_Edges[verticalEdgeIndex+numberofHorizontalEdges];
         ++verticalEdgeIndex;
-//        double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
-//        double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
-
-        double actualWeight  =  edge2->getCapacity();
-        double actualRevWeight  = edge2->getRevCapacity();
+        double actualWeight  = 1 - isless( edge2->getCapacity(), EPSILON);
+        double actualRevWeight  = 1 - isless( edge2->getRevCapacity(), EPSILON);
         
         Edge *newEdge = planarGraph->insertEdgeInGraph((int)edge2->getTail()->vertexID, (int)edge2->getHead()->vertexID, actualWeight);
         newEdge->setResidualWeight(actualRevWeight);
@@ -732,10 +765,8 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
       if ( (i+1)%xResolution != 0 ) {
         
         edge = &changed_Edges[horizontalEdgeIndex++];
-//        double actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
-//        double actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
-        double actualWeight  =  edge->getCapacity();
-        double actualRevWeight  = edge->getRevCapacity();
+        double actualWeight  = 1 - isless( edge->getCapacity(), EPSILON);
+        double actualRevWeight  = 1 - isless( edge->getRevCapacity(), EPSILON);
         
         Edge * newEdge = planarGraph->insertEdgeInGraph((int)edge->getTail()->vertexID, (int)edge->getHead()->vertexID, actualWeight);
         newEdge->setResidualWeight(actualRevWeight);
@@ -861,13 +892,13 @@ int main(int argc, const char * argv[]) {
 //    testPlanarGraphs();
 //    testCountingPaths();
 //    testLinkedList();
-   // testCountingOnGraph();
+//    testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //    countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_Small2.ppm",false);
   // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-  countCutsWithArguments(argc, argv);
+   countCutsWithArguments(argc, argv);
   //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",false);
 }

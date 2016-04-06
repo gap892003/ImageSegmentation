@@ -81,7 +81,7 @@ public:
    *  Ford Fulkerson algorithm implementation
    * @return Max flow value
    */
-  Vertex** getMinCut(int s, int t);
+  bool* getMinCut(int s, int t);
   
   /**
    *  Function that finds and contracts a strongly connected 

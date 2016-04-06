@@ -17,9 +17,9 @@ Vertex::Vertex(int totalVertices,int _id){
   adjacencyList = new LinkedList<Edge*>();
   numberOfEdges = 0;
   id = _id;
-  set = new int[totalVertices];
+//  set = new int[totalVertices];
   size = 0;
-  set[size++] = id;
+//  set[size++] = id;
   boss = id;
 }
 
