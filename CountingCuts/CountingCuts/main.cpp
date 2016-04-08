@@ -35,6 +35,155 @@
 using namespace std;
 
 
+/******************************************************************
+ INTEGRATION WITH SCHIMDTSEGMENTATION
+ 
+ Citation :     [1] Efficient Planar Graph Cuts with Applications in Computer Vision.
+ F. R. Schmidt, E. Töppe, D. Cremers,
+ IEEE CVPR, Miami, Florida, June 2009
+ 
+ ******************************************************************/
+
+unsigned char *loadSimplePPM(int &w, int &h, const string &filename) {
+  
+  char line[1000];
+  int depth = 0;
+  unsigned char *rgb = 0;
+  long lastpos;
+  
+  /*  streampos lastpos;
+   ifstream ifs(filename.c_str(), ios_base::binary);*/
+  
+  FILE *fh = fopen(filename.c_str(), "rb");
+  
+  w = 0, h = 0;
+  
+  if (!fgets(line, 1000, fh))
+    return NULL;
+  
+  if (strcmp(line, "P6\n")) {
+    //cerr << filename << " is no PPM-Datei\n";
+    return NULL;
+  }
+  
+  while (!feof(fh)) {
+    
+    lastpos = ftell(fh);
+    
+    if (!fgets(line, 1000, fh))
+      return NULL;
+    
+    if (line[0] == '#') {
+      //      cout << "Comment: " << line;
+    } else if (!w) {
+      if (sscanf(line, "%d %d", &w, &h) < 2) {
+        cerr << "error while reading the file " << filename;
+        cerr << " expected width and height of image\n";
+        return NULL;
+      }
+    } else if (!depth) {
+      if (sscanf(line, "%d", &depth) < 1) {
+        cerr << "error while reading the file " << filename;
+        cerr << " expected color depth\n";
+        return NULL;
+      }
+    } else {
+      rgb = new unsigned char[w*h*3];
+      fseek(fh, lastpos, SEEK_SET);
+      if (fread(rgb, 1, w*h*3, fh) != size_t(w*h*3)) {
+        fclose(fh);
+        return NULL;
+      }
+      break;
+    }
+    
+  }
+  
+  fclose(fh);
+  
+  return rgb;
+  
+}
+
+bool saveSimplePPM(unsigned char *rgb, int w, int h, const string &filename) {
+  
+  ofstream fos(filename.c_str(), ios_base::binary);
+  ostringstream ost;
+  string s;
+  
+  if (!fos)
+    return false;
+  
+  fos << "P6" << endl;
+  
+  ost << w << " " << h << endl;
+  
+  fos << ost.str();
+  fos << "255" << endl;
+  
+  fos.write((const char*)rgb, w*h*3);
+  
+  fos.close();
+  
+  return true;
+  
+}
+
+
+unsigned char *RGBDataToGrey(unsigned char *rgb, int w, int h) {
+  
+  unsigned char *pic = new unsigned char[w*h];
+  int i;
+  
+  for (i=0; i<w*h; i++)
+    pic[i] = rgb[i*3];
+  
+  return pic;
+  
+}
+
+
+unsigned char *GreyDataToRGB(unsigned char *pic, int w, int h) {
+  
+  unsigned char *rgb = new unsigned char[w*h*3];
+  int i;
+  
+  for (i=0; i<w*h; i++)
+    rgb[i*3] = rgb[i*3+1] = rgb[i*3+2] = pic[i];
+  
+  return rgb;
+  
+}
+
+
+unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
+                                       unsigned char *pic,
+                                       int w, int h) {
+  
+  unsigned char *rgb = new unsigned char[w*h*3];
+  int i;
+  
+  for (i=0; i<w*h; i++) {
+    
+    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
+    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
+    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
+    
+  }
+  
+  return rgb;
+  
+}
+/******************************************************************
+ INTEGRATION WITH SCHIMDTSEGMENTATION
+ 
+ Citation :     [1] Efficient Planar Graph Cuts with Applications in Computer Vision.
+ F. R. Schmidt, E. Töppe, D. Cremers,
+ IEEE CVPR, Miami, Florida, June 2009
+ 
+ ******************************************************************/
+
+
 Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
   
   Graph* graph = new PlanarGraph (  xResolution * yResolution, xResolution * yResolution*4 );
@@ -124,7 +273,7 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
   return graph;
 }
 
-void calculateCuts( Graph *graph, int source, int sink ){
+void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, string name, unsigned char* rgbData = NULL ){
   
   // contract strongly connected components here
   Graph *graphDash = graph->findAndContractSCC( source, sink );
@@ -142,7 +291,44 @@ void calculateCuts( Graph *graph, int source, int sink ){
 #endif
   
   std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
-  dualGraph->sampleAMinCut();
+  
+  for (int  i = 0 ; i < 5 ; ++i){
+    
+    std::set<int> *minCutSet = dualGraph->sampleAMinCut(i*10);
+    bool *minCut = graph->getMaskingForSet(minCutSet);
+    
+    if (minCut == NULL) {
+      
+      cout << "Could not sample" << endl;
+      return;
+    }
+    
+    int numberOfVertices = graphDash->getNumberOfVertices();
+    CutPlanar::ELabel *mask = new CutPlanar::ELabel[numberOfVertices];
+    
+    for (int i = 0; i < numberOfVertices ; ++i){
+      
+      if ( !minCut[i] ) {
+        
+        // belongs to source
+        mask[i] = CutPlanar::LABEL_SOURCE;
+        
+      }else{
+        
+        // belongs to sink
+        mask[i] = CutPlanar::LABEL_SINK;
+      }
+    }
+    
+    string str("sampledCut");
+    str = str + std::to_string(i) + "_";
+    name = str + name;
+    unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xresol, yresol);
+    saveSimplePPM(rgbNew, xresol, yresol, name);
+    delete minCut;
+    delete[] mask;
+    delete[] rgbNew;
+  }
   delete graphDash;
   delete dualGraph;
 }
@@ -445,146 +631,6 @@ void testCountingOnGraph(){
   delete planarGraph;
 }
 
-/******************************************************************
- INTEGRATION WITH SCHIMDTSEGMENTATION
- 
- Citation :     [1] Efficient Planar Graph Cuts with Applications in Computer Vision.
- F. R. Schmidt, E. Töppe, D. Cremers,
- IEEE CVPR, Miami, Florida, June 2009
- 
- ******************************************************************/
-
-unsigned char *loadSimplePPM(int &w, int &h, const string &filename) {
-  
-  char line[1000];
-  int depth = 0;
-  unsigned char *rgb = 0;
-  long lastpos;
-  
-  /*  streampos lastpos;
-   ifstream ifs(filename.c_str(), ios_base::binary);*/
-  
-  FILE *fh = fopen(filename.c_str(), "rb");
-  
-  w = 0, h = 0;
-  
-  if (!fgets(line, 1000, fh))
-    return NULL;
-  
-  if (strcmp(line, "P6\n")) {
-    //cerr << filename << " is no PPM-Datei\n";
-    return NULL;
-  }
-  
-  while (!feof(fh)) {
-    
-    lastpos = ftell(fh);
-    
-    if (!fgets(line, 1000, fh))
-      return NULL;
-    
-    if (line[0] == '#') {
-      //      cout << "Comment: " << line;
-    } else if (!w) {
-      if (sscanf(line, "%d %d", &w, &h) < 2) {
-        cerr << "error while reading the file " << filename;
-        cerr << " expected width and height of image\n";
-        return NULL;
-      }
-    } else if (!depth) {
-      if (sscanf(line, "%d", &depth) < 1) {
-        cerr << "error while reading the file " << filename;
-        cerr << " expected color depth\n";
-        return NULL;
-      }
-    } else {
-      rgb = new unsigned char[w*h*3];
-      fseek(fh, lastpos, SEEK_SET);
-      if (fread(rgb, 1, w*h*3, fh) != size_t(w*h*3)) {
-        fclose(fh);
-        return NULL;
-      }
-      break;
-    }
-    
-  }
-  
-  fclose(fh);
-  
-  return rgb;
-  
-}
-
-bool saveSimplePPM(unsigned char *rgb, int w, int h, const string &filename) {
-  
-  ofstream fos(filename.c_str(), ios_base::binary);
-  ostringstream ost;
-  string s;
-  
-  if (!fos)
-    return false;
-  
-  fos << "P6" << endl;
-  
-  ost << w << " " << h << endl;
-  
-  fos << ost.str();
-  fos << "255" << endl;
-  
-  fos.write((const char*)rgb, w*h*3);
-  
-  fos.close();
-  
-  return true;
-  
-}
-
-
-unsigned char *RGBDataToGrey(unsigned char *rgb, int w, int h) {
-  
-  unsigned char *pic = new unsigned char[w*h];
-  int i;
-  
-  for (i=0; i<w*h; i++)
-    pic[i] = rgb[i*3];
-  
-  return pic;
-  
-}
-
-
-unsigned char *GreyDataToRGB(unsigned char *pic, int w, int h) {
-  
-  unsigned char *rgb = new unsigned char[w*h*3];
-  int i;
-  
-  for (i=0; i<w*h; i++)
-    rgb[i*3] = rgb[i*3+1] = rgb[i*3+2] = pic[i];
-  
-  return rgb;
-  
-}
-
-
-unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
-                                       unsigned char *pic,
-                                       int w, int h) {
-  
-  unsigned char *rgb = new unsigned char[w*h*3];
-  int i;
-  
-  for (i=0; i<w*h; i++) {
-    
-    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
-    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
-    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
-    
-  }
-  
-  return rgb;
-  
-}
-
 void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction,bool useSchmidt = true,   int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
   
   unsigned char* rgbData = NULL;
@@ -682,20 +728,33 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
       }
     }
     
+    string name("result_");
+    
+    if (picName.rfind("/") == string::npos){
+      
+      name = name + picName.substr(0, picName.rfind(".ppm"));
+    }else{
+    
+      name = name + picName.substr(picName.rfind("/")+1, picName.rfind(".ppm"));
+
+    }
+    
+    name = name + std::to_string(sourceRow) + "," + std::to_string(sourceColumn) + "_" + std::to_string(sinkRow) + "," + std::to_string(sinkColumn);
+    name.append(".ppm");
+
     unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution,yResolution );
-    saveSimplePPM(rgbNew, xResolution, yResolution, string("result.ppm"));
-    cout << "\nSegmentation result written to result.ppm'\n\n";
+    saveSimplePPM(rgbNew, xResolution, yResolution, name);
+    cout << "\nSegmentation result written to " << name << "\n\n";
     delete[] minCut;
     delete[] mask;
     delete[] rgbNew;
+    calculateCuts(g,sourceToWrite,sinkToWrite,xResolution,yResolution, name ,rgbData);
     delete[] pic;
     delete[] grey;
     delete[] rgbData;
-    calculateCuts(g,sourceToWrite,sinkToWrite);
     delete g;
     return;
   }
-  
   
   CutSegment *sc;
   

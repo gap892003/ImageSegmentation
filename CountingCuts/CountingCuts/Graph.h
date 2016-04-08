@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include <vector>
 #include "LinkedList.h"
+#include <set>
 
 class Edge;
 class Vertex;
@@ -33,6 +34,8 @@ protected:
   std::vector<int> *vertexPairArray; // specifically for counting cuts algorihm
   std::vector<long*> *vertexPairPathCounts; // will store array per vertexPair
   LinkedList<Edge*> *edgesArray;
+  std::vector<std::vector<int> *> *collectedVerticesList;
+  
 public:
   
   // Constructor
@@ -112,8 +115,15 @@ public:
   /**
    *   Sample a min cut
    */
-  bool* sampleAMinCut();
+  std::set<int>* sampleAMinCut(int seed = 0);
   
+  /**
+   * This fucntion will be strictly used after 
+   * min cut is sampled
+   */
+  bool* getMaskingForSet(std::set<int> *minCut);
+  
+  inline int getNumberOfVertices () {return currentNumberOfVertices;}
 protected:
   
   Edge** DFS( int& edgesInPath, int startIndex, int endIndex );

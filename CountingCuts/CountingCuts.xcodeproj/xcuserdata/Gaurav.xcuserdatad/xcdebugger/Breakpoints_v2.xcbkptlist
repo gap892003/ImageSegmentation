@@ -90,28 +90,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CountingCuts/Graph.cpp"
-            timestampString = "481840196.472551"
+            timestampString = "481849391.959608"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1365"
-            endingLineNumber = "1365"
-            landmarkName = "Graph::sampleAMinCut()"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/Graph.cpp"
-            timestampString = "481840196.472551"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1404"
-            endingLineNumber = "1404"
-            landmarkName = "Graph::sampleAMinCut()"
+            startingLineNumber = "1423"
+            endingLineNumber = "1423"
+            landmarkName = "Graph::sampleAMinCut(int seed )"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

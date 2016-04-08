@@ -18,8 +18,8 @@
 #include <list>
 #include <vector>
 #include <cmath>
-#include <set>
 #include <time.h>
+
 using namespace std;
 
 // Constructor
@@ -47,6 +47,7 @@ totalVertices(numberOfVertices),totalEdges(numberOfEdges){
   
   vertexPairArray = NULL;
   vertexPairPathCounts = NULL;
+  collectedVerticesList = NULL;
 }
 
 // constructor
@@ -62,6 +63,8 @@ Graph::Graph ( int numberOfVertices ): totalVertices(numberOfVertices){
   }
   
   vertexPairArray = NULL;
+  vertexPairPathCounts = NULL;
+  collectedVerticesList = NULL;
 }
 
 /**
@@ -577,7 +580,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   std::vector<int> *verticesOrder = new std::vector<int>();// this array is to store sorted
   // order of vertices during DFS
   int numberOfSCCFound = 0;
-  vector<std::vector<int> *> *collectedVerticesList = new vector<std::vector<int> *>();
+  collectedVerticesList = new vector<std::vector<int> *>();
   
   int time =  0 ;
   for (int i = 0 ; i < totalVertices ; ++i){
@@ -1117,8 +1120,6 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   seen = NULL;
   delete[] finishTime;
   delete verticesOrder;
-  collectedVerticesList->clear();
-  delete collectedVerticesList;
   return newGraph;
 }
 
@@ -1343,15 +1344,15 @@ void Graph::printVertexPairArray(){
 /**
  *   Sample a min cut
  */
-bool* Graph::sampleAMinCut(){
+std::set<int>* Graph::sampleAMinCut(int seed ){
 
-  bool *sampledMinCut = new bool[currentNumberOfVertices];
-  
-  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
-    
-    sampledMinCut[i] = false;
-  }
-  
+//  bool *sampledMinCut = new bool[currentNumberOfVertices];
+//  
+//  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+//    
+//    sampledMinCut[i] = false;
+//  }
+//  
   // pick a vertex pair at random
   // consider path count array for that
   // start at end vertex pick a path from
@@ -1362,7 +1363,14 @@ bool* Graph::sampleAMinCut(){
   // store selected edges in an array.
   // go through that list in reverse order, see non dual edge, collect vertices
   // in a set
-  srand (time(NULL));
+  if (seed == 0) {
+    
+    srand (time(NULL));
+  }else{
+    
+    srand(seed);
+  }
+
   int pairNumber  =  rand()%(vertexPairArray->size()/2);
   
   int sourceSelected = vertexPairArray->at( pairNumber );
@@ -1411,6 +1419,7 @@ bool* Graph::sampleAMinCut(){
     
     // pick a vertex from vertex lottery
     int indexOfNextChosenEdge = rand()%(edgeLottery.size());
+    cout << "Index of chosen edge " << indexOfNextChosenEdge << endl;
     Edge *selectedEdge = edgeLottery.at(indexOfNextChosenEdge);
     pathChosen.push_back(selectedEdge);
     destinationSelected = selectedEdge->vertex1ID;// because we are going reverse
@@ -1421,7 +1430,7 @@ bool* Graph::sampleAMinCut(){
   // sampled min cut, i.e. we have a forward cut in the graph in which
   // SCCs are contracted. So all verticesArray[edge->vertex1ID]->id are vertices
   // in our min cut. How to get vertices in SCCs ?
-  set<int> minCut;
+  set<int> *minCut = new set<int>;
   
 #ifdef DEBUG_ON_2
   std::cout << "********************************************" << std::endl;
@@ -1432,7 +1441,7 @@ bool* Graph::sampleAMinCut(){
   
     Edge *edge = pathChosen.at(j);
     Edge* nonDualEdge = edge->getNonDualEdge();
-    minCut.insert(nonDualEdge->vertex1ID);
+    minCut->insert(nonDualEdge->vertex1ID);
     
 #ifdef DEBUG_ON_2
     std::cout << nonDualEdge->vertex1ID << " ";
@@ -1445,8 +1454,53 @@ bool* Graph::sampleAMinCut(){
   std::cout << "********************************************" << std::endl;
 #endif
   
+  return minCut;
+}
+
+bool* Graph::getMaskingForSet(std::set<int> *minCut){
+
+  if (collectedVerticesList == NULL) {
+    
+    cout << "INVALID OPERATION " << endl;
+    return NULL;
+  }
+  
+  bool *sampledMinCut = new bool[currentNumberOfVertices];
+  
+  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+  
+    sampledMinCut[i] = false;
+  }
+  
+  std::set<int>::iterator it;
+  
+  for ( it = minCut->begin(); it != minCut->end(); ++it ){
+    
+    int bossId = *it;
+    
+    // search this boss in collectedVerticesList
+    // assign all of the values to true;
+    
+    for (int i = 0 ; i < collectedVerticesList->size(); ++i ) {
+      
+      vector<int> *list = collectedVerticesList->at(i);
+      int listBossID = list->at(list->size()-1);
+      
+      if (listBossID == bossId){
+      
+        for (int j = 0 ; j < list->size(); ++j) {
+        
+          sampledMinCut[list->at(j)] = true;
+        }
+        
+        break;
+      }
+    }
+  }
+  
   return sampledMinCut;
 }
+
 
 // destructor
 Graph::~Graph(){
@@ -1507,5 +1561,11 @@ Graph::~Graph(){
       }
   }
   
-  delete vertexPairPathCounts;  
+  delete vertexPairPathCounts;
+  
+  if (collectedVerticesList != NULL ){
+  
+    collectedVerticesList->clear();
+    delete collectedVerticesList;
+  }
 }
