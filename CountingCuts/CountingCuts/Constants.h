@@ -10,7 +10,7 @@
 #define Constants_h
 
 //#define DEBUG_ON
-
+#define DEBUG_ON_2
 //#define PRINT_RGB
 //#define PRINT_GRAPH
 //#define TRY_DIAGONAL_EDGES

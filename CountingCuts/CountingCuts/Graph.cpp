@@ -19,6 +19,7 @@
 #include <vector>
 #include <cmath>
 #include <set>
+#include <time.h>
 using namespace std;
 
 // Constructor
@@ -45,6 +46,7 @@ totalVertices(numberOfVertices),totalEdges(numberOfEdges){
 //  }
   
   vertexPairArray = NULL;
+  vertexPairPathCounts = NULL;
 }
 
 // constructor
@@ -1209,6 +1211,7 @@ void Graph::addVertexPair ( int vertex1, int vertex2 ){
 long Graph::countMinCuts (){
   
   long minCutsCount = 0;
+  vertexPairPathCounts = new std::vector<long*>();
   
   // if following is the case that means no faces existed
   // which means only one min cut was there
@@ -1245,9 +1248,10 @@ long Graph::countMinCuts (){
     
     // TODO: Remove path after testing
     minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path, countArray);
-    
+    countArray[vertexPairArray->at(i)] = minCutsCount;
+    vertexPairPathCounts->push_back(countArray);
     delete [] seen;
-    delete [] countArray;
+//    delete [] countArray;
   }
   
   return minCutsCount;
@@ -1335,10 +1339,120 @@ void Graph::printVertexPairArray(){
   std::cout << "************* Vertex pairs **********" << std::endl;
 }
 
+
+/**
+ *   Sample a min cut
+ */
+bool* Graph::sampleAMinCut(){
+
+  bool *sampledMinCut = new bool[currentNumberOfVertices];
+  
+  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+    
+    sampledMinCut[i] = false;
+  }
+  
+  // pick a vertex pair at random
+  // consider path count array for that
+  // start at end vertex pick a path from
+  // destination to source,by going through adjacency list of selected
+  // vertex, while picking vertex make sure its path count is not zero
+  // beacuse in that case it will not be included in the path
+  // aftter picking that vertex traverse back
+  // store selected edges in an array.
+  // go through that list in reverse order, see non dual edge, collect vertices
+  // in a set
+  srand (time(NULL));
+  int pairNumber  =  rand()%(vertexPairArray->size()/2);
+  
+  int sourceSelected = vertexPairArray->at( pairNumber );
+  int destinationSelected = vertexPairArray->at( pairNumber+1 );
+  long *pathCountArray = vertexPairPathCounts->at(pairNumber);
+  std::vector<Edge*> pathChosen;
+  
+  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+  
+    if (destinationSelected == sourceSelected) {
+      
+      break;
+    }
+    
+    Vertex *localDestination = verticesArray[destinationSelected];
+    std::vector<Edge*> edgeLottery;
+    
+    // go through its edge list, where it is the second endpoint
+    // and put other points in an array as many times as they have count of
+    // path, so that vertices with higher number of paths gets picked
+    // with higher probability
+    for ( Edge *edge = localDestination->adjacencyList->beginIteration(); edge != NULL ; edge = localDestination->adjacencyList->getNextElement()){
+
+      // edge is incoming to this vertex
+      if ( edge->vertex2ID == localDestination->id ){
+      
+//        if (edge->vertex1ID ==  sourceSelected){
+//        
+//          // no lottery here , pick this edge
+//          pathChosen.push_back(edge);
+//          break;
+//        }
+        
+        // check if we can actually pick this vertex
+        if (pathCountArray[edge->vertex1ID] != 0){
+          
+          // put it in lottery as many times as its count
+          // so that it has chance proportional to number of paths to it
+          for (int k = 0; k < pathCountArray[edge->vertex1ID] ; ++k){
+            
+            edgeLottery.push_back(edge);
+          }
+        }
+      }
+    }
+    
+    // pick a vertex from vertex lottery
+    int indexOfNextChosenEdge = rand()%(edgeLottery.size());
+    Edge *selectedEdge = edgeLottery.at(indexOfNextChosenEdge);
+    pathChosen.push_back(selectedEdge);
+    destinationSelected = selectedEdge->vertex1ID;// because we are going reverse
+  }
+  
+  // now we have a chosen path. Put all the vertices of non dual edges
+  // of these path edges in a set, vertices above the source is our
+  // sampled min cut, i.e. we have a forward cut in the graph in which
+  // SCCs are contracted. So all verticesArray[edge->vertex1ID]->id are vertices
+  // in our min cut. How to get vertices in SCCs ?
+  set<int> minCut;
+  
+#ifdef DEBUG_ON_2
+  std::cout << "********************************************" << std::endl;
+  std::cout << "Sampled Cut:" << std::endl;
+#endif
+ 
+  for ( int j = 0 ; j < pathChosen.size() ; ++j ){
+  
+    Edge *edge = pathChosen.at(j);
+    Edge* nonDualEdge = edge->getNonDualEdge();
+    minCut.insert(nonDualEdge->vertex1ID);
+    
+#ifdef DEBUG_ON_2
+    std::cout << nonDualEdge->vertex1ID << " ";
+#endif
+    
+  }
+  
+#ifdef DEBUG_ON_2
+  std::cout << std::endl;
+  std::cout << "********************************************" << std::endl;
+#endif
+  
+  return sampledMinCut;
+}
+
 // destructor
 Graph::~Graph(){
   
   std::set<Vertex*> *uniqueVer = new std::set<Vertex*>();
+  
   for (int i = currentNumberOfVertices-1 ; i >=0 ; --i) {
     
     Vertex *temp = verticesArray[i];
@@ -1383,4 +1497,15 @@ Graph::~Graph(){
     vertexPairArray = NULL;
   }
   
+  
+  if (vertexPairPathCounts != NULL){
+  
+      for (int i = 0 ; i < vertexPairPathCounts->size(); ++i) {
+        
+        long *arr = vertexPairPathCounts->at(i);
+        delete arr;
+      }
+  }
+  
+  delete vertexPairPathCounts;  
 }

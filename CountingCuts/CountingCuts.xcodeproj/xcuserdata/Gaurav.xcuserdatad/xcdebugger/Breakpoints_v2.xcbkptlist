@@ -26,38 +26,6 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CountingCuts/SchimdtSegmentation/CutGrid.cpp"
-            timestampString = "481331317.512055"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "56"
-            endingLineNumber = "56"
-            landmarkName = "CutGrid::CutGrid(int nRows, int nCols)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/SchimdtSegmentation/CutGrid.cpp"
-            timestampString = "481331343.995143"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "71"
-            endingLineNumber = "71"
-            landmarkName = "CutGrid::CutGrid(int nRows, int nCols)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "CountingCuts/SchimdtSegmentation/CutGrid.cpp"
             timestampString = "481331361.210552"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
@@ -73,13 +41,77 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "CountingCuts/SchimdtSegmentation/CutGrid.cpp"
-            timestampString = "481331365.838132"
+            filePath = "CountingCuts/SchimdtSegmentation/CutPlanar.cpp"
+            timestampString = "481734481.273293"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "170"
-            endingLineNumber = "170"
-            landmarkName = "CutGrid::getMaxFlow()"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
+            landmarkName = "CutPlanar::initialize(int numVerts, PlanarVertex *vertexList, int numEdges, PlanarEdge *edgeList, int numFaces, PlanarFace *faceList, int idxSource, int idxSink, ECheckFlags checkInput)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CountingCuts/SchimdtSegmentation/CutPlanar.cpp"
+            timestampString = "481734567.366234"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "141"
+            endingLineNumber = "141"
+            landmarkName = "CutPlanar::initialize(int numVerts, PlanarVertex *vertexList, int numEdges, PlanarEdge *edgeList, int numFaces, PlanarFace *faceList, int idxSource, int idxSink, ECheckFlags checkInput)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CountingCuts/SchimdtSegmentation/CutPlanar.cpp"
+            timestampString = "481734567.978672"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
+            landmarkName = "CutPlanar::initialize(int numVerts, PlanarVertex *vertexList, int numEdges, PlanarEdge *edgeList, int numFaces, PlanarFace *faceList, int idxSource, int idxSink, ECheckFlags checkInput)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CountingCuts/Graph.cpp"
+            timestampString = "481840196.472551"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1365"
+            endingLineNumber = "1365"
+            landmarkName = "Graph::sampleAMinCut()"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CountingCuts/Graph.cpp"
+            timestampString = "481840196.472551"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1404"
+            endingLineNumber = "1404"
+            landmarkName = "Graph::sampleAMinCut()"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

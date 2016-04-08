@@ -31,6 +31,7 @@ protected:
   int lastVertex;
 //  int *visitedEdges;
   std::vector<int> *vertexPairArray; // specifically for counting cuts algorihm
+  std::vector<long*> *vertexPairPathCounts; // will store array per vertexPair
   LinkedList<Edge*> *edgesArray;
 public:
   
@@ -104,10 +105,15 @@ public:
   long countMinCuts ();
 
   /**
-   *
+   * Used for debugging
    */
-  
   void printVertexPairArray();
+  
+  /**
+   *   Sample a min cut
+   */
+  bool* sampleAMinCut();
+  
 protected:
   
   Edge** DFS( int& edgesInPath, int startIndex, int endIndex );

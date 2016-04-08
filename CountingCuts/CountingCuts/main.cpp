@@ -133,14 +133,16 @@ void calculateCuts( Graph *graph, int source, int sink ){
   ((PlanarGraph*)graphDash)->printFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+  dualGraph->printVertexPairArray();
   
-#ifdef DEBUG_ON
+#ifdef DEBUG_ON_2
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
 #endif
   
   std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
+  dualGraph->sampleAMinCut();
   delete graphDash;
   delete dualGraph;
 }
@@ -690,7 +692,6 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     delete[] grey;
     delete[] rgbData;
     calculateCuts(g,sourceToWrite,sinkToWrite);
-
     delete g;
     return;
   }
@@ -799,8 +800,10 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     exit(1);
   }
   
-  delete[] rgbNew;
   delete[] mask;
+  delete[] rgbNew;
+  delete[] grey;
+  delete[] rgbData;
 
   Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
   graphDash->printEdges();
@@ -899,6 +902,6 @@ int main(int argc, const char * argv[]) {
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-   countCutsWithArguments(argc, argv);
+    countCutsWithArguments(argc, argv);
   //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",false);
 }
