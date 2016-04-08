@@ -19,7 +19,7 @@
 #include <vector>
 #include <cmath>
 #include <time.h>
-
+#include <cstdlib>
 using namespace std;
 
 // Constructor
@@ -1419,7 +1419,6 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
     
     // pick a vertex from vertex lottery
     int indexOfNextChosenEdge = rand()%(edgeLottery.size());
-    cout << "Index of chosen edge " << indexOfNextChosenEdge << endl;
     Edge *selectedEdge = edgeLottery.at(indexOfNextChosenEdge);
     pathChosen.push_back(selectedEdge);
     destinationSelected = selectedEdge->vertex1ID;// because we are going reverse
@@ -1432,24 +1431,22 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
   // in our min cut. How to get vertices in SCCs ?
   set<int> *minCut = new set<int>;
   
-#ifdef DEBUG_ON_2
-  std::cout << "********************************************" << std::endl;
-  std::cout << "Sampled Cut:" << std::endl;
-#endif
- 
   for ( int j = 0 ; j < pathChosen.size() ; ++j ){
   
     Edge *edge = pathChosen.at(j);
     Edge* nonDualEdge = edge->getNonDualEdge();
     minCut->insert(nonDualEdge->vertex1ID);
-    
-#ifdef DEBUG_ON_2
-    std::cout << nonDualEdge->vertex1ID << " ";
-#endif
-    
   }
   
 #ifdef DEBUG_ON_2
+  std::cout << "********************************************" << std::endl;
+  std::cout << "Sampled Cut:" << std::endl;
+  std::set<int>::iterator it;
+  for ( it = minCut->begin(); it != minCut->end(); ++it ){
+    
+    int bossId = *it;
+    std::cout << bossId << " ";
+  }
   std::cout << std::endl;
   std::cout << "********************************************" << std::endl;
 #endif

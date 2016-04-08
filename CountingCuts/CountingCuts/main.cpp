@@ -35,6 +35,14 @@
 using namespace std;
 
 
+template <typename T>
+std::string to_string(T value)
+{
+  std::ostringstream os ;
+  os << value ;
+  return os.str() ;
+}
+
 /******************************************************************
  INTEGRATION WITH SCHIMDTSEGMENTATION
  
@@ -321,10 +329,10 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
     }
     
     string str("sampledCut");
-    str = str + std::to_string(i) + "_";
-    name = str + name;
+    str = str + to_string(i) + "_";
+    string newName = str + name;
     unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xresol, yresol);
-    saveSimplePPM(rgbNew, xresol, yresol, name);
+    saveSimplePPM(rgbNew, xresol, yresol, newName);
     delete minCut;
     delete[] mask;
     delete[] rgbNew;
@@ -739,7 +747,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
 
     }
     
-    name = name + std::to_string(sourceRow) + "," + std::to_string(sourceColumn) + "_" + std::to_string(sinkRow) + "," + std::to_string(sinkColumn);
+    name = name + to_string(sourceRow) + "," + to_string(sourceColumn) + "_" + to_string(sinkRow) + "," + to_string(sinkColumn);
     name.append(".ppm");
 
     unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution,yResolution );
