@@ -173,10 +173,13 @@ unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
   
   for (i=0; i<w*h; i++) {
     
-    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
-    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
-    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
-    
+//    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
+//    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
+//    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
+
+    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : pic[i*3];
+    rgb[i*3+1] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3+1] / 255.f * 200.f): pic[i*3+1];
+    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : pic[i*3 + 2];
   }
   
   return rgb;
@@ -222,8 +225,7 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
         
         // if there is a pixel at bottom
         double bottomWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[bottomPixelIndex]);
-        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight, xResolution, yResolution );
-        
+        WEIGHT_TYPE newWeight = weightFunction ( bottomWeight, xResolution, yResolution );        
 #ifdef USE_BIDIRECTIONAL_EDGES
         
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, bottomPixelIndex,newWeight);
@@ -259,7 +261,6 @@ Graph *createGraph (int xResolution, int yResolution, int *luminanceArray){
         
         double rightWeight  = abs(luminanceArray[currentPixelIndex] - luminanceArray[rightPixelIndex]);
         WEIGHT_TYPE newWeight = weightFunction ( rightWeight, xResolution, yResolution );
-        
 #ifdef USE_BIDIRECTIONAL_EDGES
         Edge* newEdge = graph->insertEdgeInGraph(currentPixelIndex, rightPixelIndex,newWeight);
         
@@ -298,7 +299,7 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
   std::cout << "************* DUAL GRAPH **********" << std::endl;
 #endif
   
-  long cutCount = dualGraph->countMinCuts();
+  double cutCount = dualGraph->countMinCuts();
   std::cout << "Number of min cuts: " <<  cutCount  << std::endl;
   
   for (int  i = 0 ; i < 10 ; ++i){
@@ -891,7 +892,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   
-  long cutCount = dualGraph->countMinCuts();
+  double cutCount = dualGraph->countMinCuts();
   std::cout << "Number of min cuts: " <<  cutCount  << std::endl;
   
   for (int  i = 0 ; i < 5 ; ++i){
