@@ -32,7 +32,7 @@ protected:
   int lastVertex;
 //  int *visitedEdges;
   std::vector<int> *vertexPairArray; // specifically for counting cuts algorihm
-  std::vector<long*> *vertexPairPathCounts; // will store array per vertexPair
+  std::vector<double*> *vertexPairPathCounts; // will store array per vertexPair
   LinkedList<Edge*> *edgesArray;
   std::vector<std::vector<int> *> *collectedVerticesList;
   
@@ -105,7 +105,7 @@ public:
   /**
    *  THE function
    **/
-  long countMinCuts ();
+  double countMinCuts ();
 
   /**
    * Used for debugging
@@ -149,8 +149,8 @@ protected:
    */
   void DFSTime(Vertex *ver, bool* seen ,int* discoveryTimeArray, int &time, std::vector<int> *verticesOrder);
   
-  long countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path
-                  , long *countArray);
+  double countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path
+                  , double *countArray);
 protected:
   
   Edge* insertEdge(Edge * edge, int idOfVertex1, int idOfvertex2, WEIGHT_TYPE weight, bool oneWay);

@@ -103,6 +103,21 @@
             value = "/Users/Gaurav/Documents/STudies/Capstone/Test4.txt"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "GRAPH6"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/Test6.txt"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "GRAPH7"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/Test7.txt"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "TEMP"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/Temp.txt"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>

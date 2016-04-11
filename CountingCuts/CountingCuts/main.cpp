@@ -298,9 +298,10 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
   std::cout << "************* DUAL GRAPH **********" << std::endl;
 #endif
   
-  std::cout << "Number of min cuts: " <<   dualGraph->countMinCuts() << std::endl;
+  long cutCount = dualGraph->countMinCuts();
+  std::cout << "Number of min cuts: " <<  cutCount  << std::endl;
   
-  for (int  i = 0 ; i < 5 ; ++i){
+  for (int  i = 0 ; i < 10 ; ++i){
     
     std::set<int> *minCutSet = dualGraph->sampleAMinCut(i*10);
     bool *minCut = graph->getMaskingForSet(minCutSet);
@@ -479,7 +480,7 @@ void testPlanarGraphs(){
 
 void testCountingPaths (){
   
-  std::ifstream arq(getenv("GRAPH"));
+  std::ifstream arq(getenv("TEMP"));
   std::cin.rdbuf(arq.rdbuf());
   
   int numberOfVertices = 0 ;
@@ -496,8 +497,11 @@ void testCountingPaths (){
     std::cin >> id1;
   }
   
-  planarGraph->addVertexPair(0, 4);
-  std::cout << "Number of paths " << planarGraph->countMinCuts() << std::endl;
+  //planarGraph->addVertexPair(0, 4);// GRAPH
+  //planarGraph->addVertexPair(0, 5); // GRAPH7
+  planarGraph->addVertexPair(356 , 79); // TEMP
+  double cutCount = planarGraph->countMinCuts();
+  std::cout << "Number of paths: " <<  cutCount << std::endl;
 }
 
 void testLinkedList(){
@@ -598,7 +602,7 @@ void testCountingOnSchmidtGraph(){
 
 void testCountingOnGraph(){
   
-  std::ifstream arq(getenv("GRAPH2"));
+  std::ifstream arq(getenv("GRAPH5"));
   std::cin.rdbuf(arq.rdbuf());
   
   int numberOfVertices = 0 ;
@@ -619,8 +623,8 @@ void testCountingOnGraph(){
   
   // find min cut value
   int source = 0 ;
-  //int sink = 7 ;
-  int sink = numberOfVertices-1;
+  int sink = 7 ;
+  //int sink = numberOfVertices-1;
   planarGraph->getMinCut( source , sink );
   planarGraph->printEdges();
   Graph *graphDash = planarGraph->findAndContractSCC( source, sink );
@@ -709,7 +713,21 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   // CutSegment initialize
   //perform segmentation task
   unsigned char *grey = RGBDataToGrey(rgbData, xResolution, yResolution);
+  string name("result_");
   
+  if (picName.rfind("/") == string::npos){
+    
+    name = name + picName.substr(0, picName.rfind("ppm")-1);
+  }else{
+    
+    cout << " " << picName.find("ppm") << endl;
+    name = name + picName.substr(picName.rfind("/")+1, picName.rfind("ppm")-1);
+    
+  }
+  
+  name = name + to_string(sourceRow) + "," + to_string(sourceColumn) + "_" + to_string(sinkRow) + "," + to_string(sinkColumn);
+  name.append(".ppm");
+
   if ( !useSchmidt ){
   
     int *pic = new int[xResolution*yResolution];
@@ -736,19 +754,6 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
       }
     }
     
-    string name("result_");
-    
-    if (picName.rfind("/") == string::npos){
-      
-      name = name + picName.substr(0, picName.rfind(".ppm"));
-    }else{
-    
-      name = name + picName.substr(picName.rfind("/")+1, picName.rfind(".ppm"));
-
-    }
-    
-    name = name + to_string(sourceRow) + "," + to_string(sourceColumn) + "_" + to_string(sinkRow) + "," + to_string(sinkColumn);
-    name.append(".ppm");
 
     unsigned char *rgbNew = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution,yResolution );
     saveSimplePPM(rgbNew, xResolution, yResolution, name);
@@ -783,7 +788,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   //read out segmentation result and save to disk
   unsigned char *rgbNew = SegMaskAndGreyDataToRGB(mask, rgbData, xResolution,yResolution);
 
-  saveSimplePPM(rgbNew, xResolution, yResolution, string("result.ppm"));
+  saveSimplePPM(rgbNew, xResolution, yResolution, name);
   cout << "\nSegmentation result written to result.ppm'\n\n";
   
 //  for (int  i = 0 ; i < xResolution*yResolution ; ++i ){
@@ -886,7 +891,47 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   
-  std::cout << "Number of min cuts: " << dualGraph->countMinCuts() << std::endl;
+  long cutCount = dualGraph->countMinCuts();
+  std::cout << "Number of min cuts: " <<  cutCount  << std::endl;
+  
+  for (int  i = 0 ; i < 5 ; ++i){
+    
+    std::set<int> *minCutSet = dualGraph->sampleAMinCut(i*10);
+    bool *minCut = planarGraph->getMaskingForSet(minCutSet);
+    
+    if (minCut == NULL) {
+      
+      cout << "Could not sample" << endl;
+      return;
+    }
+    
+    int numberOfVertices = graphDash->getNumberOfVertices();
+    CutPlanar::ELabel *mask = new CutPlanar::ELabel[numberOfVertices];
+    
+    for (int i = 0; i < numberOfVertices ; ++i){
+      
+      if ( !minCut[i] ) {
+        
+        // belongs to source
+        mask[i] = CutPlanar::LABEL_SOURCE;
+        
+      }else{
+        
+        // belongs to sink
+        mask[i] = CutPlanar::LABEL_SINK;
+      }
+    }
+    
+    string str("sampledCut");
+    str = str + to_string(i) + "_";
+    string newName = str + name;
+    unsigned char *rgbNew2 = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution, yResolution);
+    saveSimplePPM(rgbNew2, xResolution, yResolution, newName);
+    delete minCut;
+    delete[] mask;
+    delete[] rgbNew2;
+  }
+  
   delete graphDash;
   delete dualGraph;
   delete planarGraph;
@@ -960,15 +1005,15 @@ int main(int argc, const char * argv[]) {
   
     //testCountingCuts();
 //    testPlanarGraphs();
-//    testCountingPaths();
+    //testCountingPaths();
 //    testLinkedList();
-//    testCountingOnGraph();
+   // testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //    countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_Small2.ppm",false);
   // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", 55,70 );
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
-    countCutsWithArguments(argc, argv);
+  countCutsWithArguments(argc, argv);
   //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",false);
 }

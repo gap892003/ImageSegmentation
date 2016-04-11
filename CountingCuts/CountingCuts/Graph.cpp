@@ -129,7 +129,7 @@ void Graph::printEdges(){
   for ( Edge *edge = edgesArray->beginIteration_debug(); edge != NULL ;
        edge = edgesArray->getNextElement_debug()){
     
-    cout << edge->vertex1ID << " " << edge->vertex2ID << "  " << " W: "<< edge->getWeight() << "  RW: " << edge->getResidualWeight() << endl  ;
+    cout << verticesArray[edge->vertex1ID]->id << " " << verticesArray[edge->vertex2ID]->id << " " << edge->getWeight() << " " << edge->getResidualWeight() << endl  ;
   }
   
   cout <<endl;
@@ -698,7 +698,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     //    Edge* edge = edgesArray[i];
     // We need double way adjacency list to find out faces of the graph    
     if ( isgreaterequal (edge->getWeight(),EPSILON) ){
-      Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, edge->getWeight() );
+      Edge* newEdge = newGraph->insertEdgeInGraph( edge->vertex1ID, edge->vertex2ID, 1 );
       newGraph->verticesArray[newEdge->vertex1ID]->boss = verticesArray[edge->vertex1ID]->boss;
       newGraph->verticesArray[newEdge->vertex2ID]->boss = verticesArray[edge->vertex2ID]->boss;
     }
@@ -706,7 +706,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     // if there is residual edge add actual edge
     if ( isgreaterequal (edge->getResidualWeight(),EPSILON) ){
       
-      Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, edge->getResidualWeight());
+      Edge* newEdgeRes = newGraph->insertEdgeInGraph( edge->vertex2ID, edge->vertex1ID, 1);
       newGraph->verticesArray[newEdgeRes->vertex1ID]->boss = verticesArray[edge->vertex2ID]->boss;
       newGraph->verticesArray[newEdgeRes->vertex2ID]->boss = verticesArray[edge->vertex1ID]->boss;
     }
@@ -1026,10 +1026,10 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
     if ((newGraph->verticesArray[edge->vertex1ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
         ||
         (edge->getWeight() == 0 && edge->getResidualWeight()==0 )
-        //||
+        ||
         // also checking if edge is similar to last undeleted edge
         // if it is we dont need that 
-        //(lastEdge != NULL && newGraph->verticesArray[lastEdge->vertex1ID]->id == newGraph->verticesArray[edge->vertex1ID]->id && newGraph->verticesArray[lastEdge->vertex2ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
+        (lastEdge != NULL && newGraph->verticesArray[lastEdge->vertex1ID]->id == newGraph->verticesArray[edge->vertex1ID]->id && newGraph->verticesArray[lastEdge->vertex2ID]->id == newGraph->verticesArray[edge->vertex2ID]->id)
         ) {
       
       // get current node
@@ -1044,15 +1044,19 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
           && edge->nodeInVertex2AdjList != NULL) {
         
         node = edge->nodeInVertex2AdjList;
+        edge->nodeInVertex2AdjList = NULL;
       }else if ( edge->nodeInVertex2AdjList == NULL
                 && edge->nodeInVertex1AdjList != NULL) {
         
         node = edge->nodeInVertex1AdjList;
+        edge->nodeInVertex1AdjList = NULL;
       }else if (edge->nodeInVertex2AdjList != NULL
                 && edge->nodeInVertex1AdjList != NULL){
         
         newGraph->verticesArray[edge->vertex1ID]->deleteEdge(edge->nodeInVertex1AdjList);
         newGraph->verticesArray[edge->vertex2ID]->deleteEdge(edge->nodeInVertex2AdjList);
+        edge->nodeInVertex1AdjList = NULL;
+        edge->nodeInVertex2AdjList = NULL;
       }
       
       newGraph->verticesArray[edge->vertex1ID]->printAdjacencyList();
@@ -1209,10 +1213,10 @@ void Graph::addVertexPair ( int vertex1, int vertex2 ){
 /**
  * THE function of the algorithm which calculates
  */
-long Graph::countMinCuts (){
+double Graph::countMinCuts (){
   
-  long minCutsCount = 0;
-  vertexPairPathCounts = new std::vector<long*>();
+  double minCutsCount = 0;
+  vertexPairPathCounts = new std::vector<double*>();
   
   // if following is the case that means no faces existed
   // which means only one min cut was there
@@ -1239,7 +1243,7 @@ long Graph::countMinCuts (){
     }
     
     vector<Edge*> path;
-    long *countArray =  new long[currentNumberOfVertices];
+    double *countArray =  new double[currentNumberOfVertices];
     
     // intialize to -1
     for (int i = 0 ; i < currentNumberOfVertices ; ++i){
@@ -1248,17 +1252,24 @@ long Graph::countMinCuts (){
     }
     
     // TODO: Remove path after testing
-    minCutsCount += countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path, countArray);
-    countArray[vertexPairArray->at(i)] = minCutsCount;
+    double temp = countPaths( vertexPairArray->at(i), vertexPairArray->at(i+1), seen, path, countArray);
+    minCutsCount += temp;
+    countArray[vertexPairArray->at(i)] = temp;
+    
+//    for (int i = 0 ; i < currentNumberOfVertices ; ++i){
+//      
+//      std::cout <<  i<<": "<< countArray[i] << std::endl;
+//    }
+
     vertexPairPathCounts->push_back(countArray);
     delete [] seen;
-//    delete [] countArray;
+//    delete [] countArray;// will b
   }
   
   return minCutsCount;
 }
 
-long Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path, long *countArray){
+double Graph::countPaths (int source, int destination , bool *seen, std::vector<Edge*> &path, double *countArray){
   
   if (source == destination){
 
@@ -1289,10 +1300,14 @@ long Graph::countPaths (int source, int destination , bool *seen, std::vector<Ed
   // check only forward edges here
   //  Edge** adjList = verticesArray[source]->adjacencyList;
   //  int numberOfEdgesInList = verticesArray[source]->numberOfEdges;
-  long pathCount = 0;
-  
   //  for ( int i = 0 ; i < numberOfEdgesInList ; ++i){
   
+  if (countArray[source] != -1){
+    
+    return countArray[source];
+  }
+  
+  double pathCount = 0;
   for ( Edge *edge = verticesArray[source]->adjacencyList->beginIteration(); edge != NULL ; edge = verticesArray[source]->adjacencyList->getNextElement()){
     
     //    Edge *edge = adjList[i];
@@ -1301,19 +1316,12 @@ long Graph::countPaths (int source, int destination , bool *seen, std::vector<Ed
     // seen check is necessary as we dont want to move backwards
     if ( edge->vertex1ID == source && !seen[edge->vertex2ID] ){
       
-      path.push_back(edge);
-      
-      if (countArray[edge->vertex2ID] > -1){
-      
-        pathCount = pathCount + countArray[edge->vertex2ID];
-      }else {
-        
-        long pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
+      //path.push_back(edge);
+        double pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
+      cout << "Paths from v2: "<< edge->vertex2ID << " " << pathsFromV2 << endl;
         countArray[edge->vertex2ID] = pathsFromV2;
         pathCount = pathCount + pathsFromV2;
-      }
-      
-      path.pop_back();
+      //path.pop_back();
       seen[edge->vertex2ID] = false;
     }
   }
@@ -1375,7 +1383,7 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
   
   int sourceSelected = vertexPairArray->at( pairNumber );
   int destinationSelected = vertexPairArray->at( pairNumber+1 );
-  long *pathCountArray = vertexPairPathCounts->at(pairNumber);
+  double *pathCountArray = vertexPairPathCounts->at(pairNumber);
   std::vector<Edge*> pathChosen;
   
   for (int i = 0 ; i < currentNumberOfVertices; ++i ){
@@ -1409,10 +1417,15 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
           
           // put it in lottery as many times as its count
           // so that it has chance proportional to number of paths to it
+#ifdef WEIGHTED_PROBABILITY
           for (int k = 0; k < pathCountArray[edge->vertex1ID] ; ++k){
             
             edgeLottery.push_back(edge);
           }
+#else
+          
+                 edgeLottery.push_back(edge);
+#endif
         }
       }
     }
@@ -1553,7 +1566,7 @@ Graph::~Graph(){
   
       for (int i = 0 ; i < vertexPairPathCounts->size(); ++i) {
         
-        long *arr = vertexPairPathCounts->at(i);
+        double *arr = vertexPairPathCounts->at(i);
         delete arr;
       }
   }
