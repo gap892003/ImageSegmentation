@@ -1318,7 +1318,6 @@ double Graph::countPaths (int source, int destination , bool *seen, std::vector<
       
       //path.push_back(edge);
         double pathsFromV2 = countPaths(edge->vertex2ID, destination, seen, path, countArray);
-      cout << "Paths from v2: "<< edge->vertex2ID << " " << pathsFromV2 << endl;
         countArray[edge->vertex2ID] = pathsFromV2;
         pathCount = pathCount + pathsFromV2;
       //path.pop_back();
