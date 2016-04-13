@@ -1450,7 +1450,7 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
     minCut->insert(nonDualEdge->vertex1ID);
   }
   
-#ifdef DEBUG_ON_2
+#ifdef DEBUG_ON
   std::cout << "********************************************" << std::endl;
   std::cout << "Sampled Cut:" << std::endl;
   std::set<int>::iterator it;

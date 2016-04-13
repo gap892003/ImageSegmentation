@@ -143,8 +143,14 @@ unsigned char *RGBDataToGrey(unsigned char *rgb, int w, int h) {
   unsigned char *pic = new unsigned char[w*h];
   int i;
   
-  for (i=0; i<w*h; i++)
-    pic[i] = rgb[i*3];
+//  for (i=0; i<w*h; i++)
+//    pic[i] = rgb[i*3];
+
+  for (i=0; i<w*h; i++){
+    
+      double luminance = (0.2126*rgb[i*3] + 0.7152*rgb[i*3+1]+ 0.0722*rgb[i*3+2]);
+      pic[i] = luminance;
+  }
   
   return pic;
   
@@ -172,21 +178,22 @@ unsigned char *SegMaskAndGreyDataToRGB(CutPlanar::ELabel *mask,
   int i;
   
   for (i=0; i<w*h; i++) {
-    
-//    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
-//    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
-//    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
-
+#ifdef PAINT_SOURCE_RED
+    rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : 255;
+    rgb[i*3+1] = (unsigned char)(pic[i*3+1] / 255.f * 200.f);
+    rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : (unsigned char)(pic[i*3+2] / 255.f * 200.f);
+#else
     rgb[i*3] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3] / 255.f * 200.f) : pic[i*3];
     rgb[i*3+1] = (mask[i]==CutPlanar::LABEL_SINK) ? (unsigned char)(pic[i*3+1] / 255.f * 200.f): pic[i*3+1];
     rgb[i*3+2] = (mask[i]==CutPlanar::LABEL_SINK) ? 255 : pic[i*3 + 2];
+#endif
   }
   
   return rgb;
   
 }
 /******************************************************************
- INTEGRATION WITH SCHIMDTSEGMENTATION
+ INTEGRATION WITH SCHIMDT SEGMENTATION
  
  Citation :     [1] Efficient Planar Graph Cuts with Applications in Computer Vision.
  F. R. Schmidt, E. Töppe, D. Cremers,
@@ -293,7 +300,7 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
   dualGraph->printVertexPairArray();
   
-#ifdef DEBUG_ON_2
+#ifdef DEBUG_ON
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
@@ -644,7 +651,7 @@ void testCountingOnGraph(){
   delete planarGraph;
 }
 
-void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction,bool useSchmidt = true,   int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
+void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunction,bool useSchmidt = false,   int sinkRow = 0, int sinkColumn = 0, int sourceRow = 0 , int sourceColumn = 0 ){
   
   unsigned char* rgbData = NULL;
   int xResolution, yResolution;
@@ -873,11 +880,6 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     exit(1);
   }
   
-  delete[] mask;
-  delete[] rgbNew;
-  delete[] grey;
-  delete[] rgbData;
-
   Graph *graphDash = planarGraph->findAndContractSCC( sourceToWrite, sinkToWrite );
   graphDash->printEdges();
   std::cout << "Source: " << ((PlanarGraph*)graphDash)->getSource() << " Sink: " << ((PlanarGraph*)graphDash)->getSink() << std::endl;
@@ -929,8 +931,11 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     unsigned char *rgbNew2 = SegMaskAndGreyDataToRGB( mask, rgbData, xResolution, yResolution);
     saveSimplePPM(rgbNew2, xResolution, yResolution, newName);
     delete minCut;
-    delete[] mask;
     delete[] rgbNew2;
+    delete[] mask;
+    delete[] rgbNew;
+    delete[] grey;
+    delete[] rgbData;
   }
   
   delete graphDash;
@@ -958,7 +963,7 @@ void countCutsWithArguments(int argc, const char * argv[]){
   }
   
   bool useCustomWeightFunction = false;
-  bool useSchmidt = true;
+  bool useSchmidt = false;
 
   int sinkRow = 0;
   int sinkColumn = 0;
@@ -1008,7 +1013,7 @@ int main(int argc, const char * argv[]) {
 //    testPlanarGraphs();
     //testCountingPaths();
 //    testLinkedList();
-   // testCountingOnGraph();
+    //testCountingOnGraph();
   //  testCountingOnSchmidtGraph();
 //    countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/lena_bw_Small2.ppm",false);
   // countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small.ppm", false, 38, 162 , 35,70);
