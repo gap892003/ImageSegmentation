@@ -932,8 +932,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     saveSimplePPM(rgbNew2, xResolution, yResolution, newName);
     delete minCut;
     delete[] rgbNew2;
-    delete[] mask;
-    delete[] rgbNew;
+    delete[] mask;    
     delete[] grey;
     delete[] rgbData;
   }

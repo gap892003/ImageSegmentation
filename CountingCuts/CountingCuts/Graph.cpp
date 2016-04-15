@@ -1351,7 +1351,7 @@ void Graph::printVertexPairArray(){
 /**
  *   Sample a min cut
  */
-std::set<int>* Graph::sampleAMinCut(int seed ){
+/*std::set<int>* Graph::sampleAMinCut(int seed ){
 
 //  bool *sampledMinCut = new bool[currentNumberOfVertices];
 //  
@@ -1393,8 +1393,11 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
     }
     
     Vertex *localDestination = verticesArray[destinationSelected];
-    std::vector<Edge*> edgeLottery;
-    
+    std::vector<Edge*> edgeLottery; // old_implementation
+#ifdef WEIGHTED_PROBABILITY
+    std::vector<double> edgeProbability;
+    double lastProbab = 0.0;
+#endif
     // go through its edge list, where it is the second endpoint
     // and put other points in an array as many times as they have count of
     // path, so that vertices with higher number of paths gets picked
@@ -1417,20 +1420,48 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
           // put it in lottery as many times as its count
           // so that it has chance proportional to number of paths to it
 #ifdef WEIGHTED_PROBABILITY
-          for (int k = 0; k < pathCountArray[edge->vertex1ID] ; ++k){
             
             edgeLottery.push_back(edge);
-          }
+            double probab = lastProbab + pathCountArray[edge->vertex1ID] / pathCountArray[edge->vertex2ID];
+          
+            if (probab > 1.0){
+          
+              cout << "Something went wrong: Probability can not be greater than 1" << endl  ;
+              return NULL;
+            }
+          
+            edgeProbability.push_back(probab);
+            lastProbab = probab;
 #else
           
-                 edgeLottery.push_back(edge);
+           edgeLottery.push_back(edge);
 #endif
         }
       }
     }
     
     // pick a vertex from vertex lottery
-    int indexOfNextChosenEdge = rand()%(edgeLottery.size());
+    int indexOfNextChosenEdge = 0;
+    
+#ifdef WEIGHTED_PROBABILITY
+    
+    double randomGen = rand()%10000; // allows 4 digit precision after decimal pt
+    randomGen = randomGen/10000;
+    
+    for (int i = 0 ; i < edgeProbability.size() ; ++i) {
+      
+      if (isless(randomGen, edgeProbability.at(i))){
+        
+        indexOfNextChosenEdge = i;
+        break;
+      }
+    }
+    
+#else
+    indexOfNextChosenEdge = rand()%(edgeLottery.size());
+#endif
+    
+    
     Edge *selectedEdge = edgeLottery.at(indexOfNextChosenEdge);
     pathChosen.push_back(selectedEdge);
     destinationSelected = selectedEdge->vertex1ID;// because we are going reverse
@@ -1464,7 +1495,158 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
 #endif
   
   return minCut;
+}*/
+
+
+/**
+ *   Sample a min cut
+ */
+std::set<int>* Graph::sampleAMinCut(int seed ){
+  
+  //  bool *sampledMinCut = new bool[currentNumberOfVertices];
+  //
+  //  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+  //
+  //    sampledMinCut[i] = false;
+  //  }
+  //
+  // pick a vertex pair at random
+  // consider path count array for that
+  // start at end vertex pick a path from
+  // destination to source,by going through adjacency list of selected
+  // vertex, while picking vertex make sure its path count is not zero
+  // beacuse in that case it will not be included in the path
+  // aftter picking that vertex traverse back
+  // store selected edges in an array.
+  // go through that list in reverse order, see non dual edge, collect vertices
+  // in a set
+  if (seed == 0) {
+    
+    srand (time(NULL));
+  }else{
+    
+    srand(seed);
+  }
+  
+  int pairNumber  =  rand()%(vertexPairArray->size()/2);
+  
+  int sourceSelected = vertexPairArray->at( pairNumber );
+  int destinationSelected = vertexPairArray->at( pairNumber+1 );
+  double *pathCountArray = vertexPairPathCounts->at(pairNumber);
+  std::vector<Edge*> pathChosen;
+  
+  for (int i = 0 ; i < currentNumberOfVertices; ++i ){
+    
+    if (destinationSelected == sourceSelected) {
+      
+      break;
+    }
+    
+    Vertex *localSource = verticesArray[sourceSelected];
+    std::vector<Edge*> edgeLottery; // old_implementation
+#ifdef WEIGHTED_PROBABILITY
+    std::vector<double> edgeProbability;
+    double lastProbab = 0.0;
+#endif
+    // go through its edge list, where it is the second endpoint
+    // and put other points in an array as many times as they have count of
+    // path, so that vertices with higher number of paths gets picked
+    // with higher probability
+    for ( Edge *edge = localSource->adjacencyList->beginIteration(); edge != NULL ; edge = localSource->adjacencyList->getNextElement()){
+      
+      // edge is incoming to this vertex
+      if ( edge->vertex1ID == localSource->id ){
+        
+        //        if (edge->vertex1ID ==  sourceSelected){
+        //
+        //          // no lottery here , pick this edge
+        //          pathChosen.push_back(edge);
+        //          break;
+        //        }
+        
+        // check if we can actually pick this vertex
+        if (pathCountArray[edge->vertex2ID] != 0){
+          
+          // put it in lottery as many times as its count
+          // so that it has chance proportional to number of paths to it
+#ifdef WEIGHTED_PROBABILITY
+          
+          edgeLottery.push_back(edge);
+          double probab = lastProbab + pathCountArray[edge->vertex2ID] / pathCountArray[edge->vertex1ID];
+          
+          if (probab > 1.0){
+            
+            cout << "Something went wrong: Probability can not be greater than 1" << endl  ;
+            return NULL;
+          }
+          
+          edgeProbability.push_back(probab);
+          lastProbab = probab;
+#else
+          
+          edgeLottery.push_back(edge);
+#endif
+        }
+      }
+    }
+    
+    // pick a vertex from vertex lottery
+    int indexOfNextChosenEdge = 0;
+    
+#ifdef WEIGHTED_PROBABILITY
+    
+    double randomGen = rand()%10000; // allows 4 digit precision after decimal pt
+    randomGen = randomGen/10000;
+    
+    for (int i = 0 ; i < edgeProbability.size() ; ++i) {
+      
+      if (isless(randomGen, edgeProbability.at(i))){
+        
+        indexOfNextChosenEdge = i;
+        break;
+      }
+    }
+    
+#else
+    indexOfNextChosenEdge = rand()%(edgeLottery.size());
+#endif
+    
+    
+    Edge *selectedEdge = edgeLottery.at(indexOfNextChosenEdge);
+    pathChosen.push_back(selectedEdge);
+    sourceSelected = selectedEdge->vertex2ID;// because we are going reverse
+  }
+  
+  // now we have a chosen path. Put all the vertices of non dual edges
+  // of these path edges in a set, vertices above the source is our
+  // sampled min cut, i.e. we have a forward cut in the graph in which
+  // SCCs are contracted. So all verticesArray[edge->vertex1ID]->id are vertices
+  // in our min cut. How to get vertices in SCCs ?
+  set<int> *minCut = new set<int>;
+  
+  for ( int j = 0 ; j < pathChosen.size() ; ++j ){
+    
+    Edge *edge = pathChosen.at(j);
+    Edge* nonDualEdge = edge->getNonDualEdge();
+    minCut->insert(nonDualEdge->vertex1ID);
+  }
+  
+#ifdef DEBUG_ON
+  std::cout << "********************************************" << std::endl;
+  std::cout << "Sampled Cut:" << std::endl;
+  std::set<int>::iterator it;
+  for ( it = minCut->begin(); it != minCut->end(); ++it ){
+    
+    int bossId = *it;
+    std::cout << bossId << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "********************************************" << std::endl;
+#endif
+  
+  return minCut;
 }
+
 
 bool* Graph::getMaskingForSet(std::set<int> *minCut){
 

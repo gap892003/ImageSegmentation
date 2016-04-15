@@ -41,7 +41,7 @@ static WEIGHT_TYPE weightFunction ( double &luminance , int x, int y ){
 //  return newValue;
   
   double diff = luminance;
-  diff = pow(diff, 2);
+  diff = pow(diff, 3);
   double weight;
   weight = exp(-sqrt(diff));// + 0.0035;
   if (weight < EPSILON)

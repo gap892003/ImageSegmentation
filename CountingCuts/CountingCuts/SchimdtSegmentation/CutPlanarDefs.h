@@ -28,7 +28,7 @@
 
 #define CAP_INF std::numeric_limits<double>::max()
 
-#define EPSILON 1e-6       //used for numerical issues
+#define EPSILON 1.43e-39       //used for numerical issues
 
 typedef double CapType;      /* data type for flow capacity */
 typedef unsigned char uchar; /* for convenience             */
