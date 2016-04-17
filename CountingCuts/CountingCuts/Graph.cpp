@@ -1090,7 +1090,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
   newGraph->setSource( source );
   newGraph->setSink ( sink );
   
-//#ifdef DEBUG_ON
+#ifdef DEBUG_ON
   cout << "******************************************" << endl;
   cout << "After Deleting graph edges" << endl;
 //  newGraph->printEdgesBoss();
@@ -1116,7 +1116,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 //
   cout << endl;
   cout << "******************************************" << endl;
-//#endif
+#endif
   
   /***************************APPROACH 3 ONLY ENDS*****************************/
   // clearing memory
@@ -1576,7 +1576,7 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
           
           if (probab > 1.0){
             
-            cout << "Something went wrong: Probability can not be greater than 1" << endl  ;
+            cout << "Something went wrong: Probability can not be greater than 1: " << probab <<  endl  ;
             return NULL;
           }
           

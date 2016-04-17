@@ -35,7 +35,7 @@ void Faces::printEdges(){
     
     std::cout << "Can not print edges " << std::endl;
   }
-//#ifdef DEBUG_ON
+#ifdef DEBUG_ON
   std::cout << "***** Face Starts here " << faceID << " ****" << std::endl;
   for ( std::vector<Edge*>::iterator it = edgesInFace->begin(); it != edgesInFace->end(); ++it ){
     
@@ -46,7 +46,7 @@ void Faces::printEdges(){
 
   }
     std::cout << "***** Face ends here ****" << std::endl;
-//#endif
+#endif
 }
 
 // destructor

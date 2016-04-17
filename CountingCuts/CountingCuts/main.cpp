@@ -17,6 +17,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <ctime>
 
 #include "WeightFunction.h"
 #include "Graph.h"
@@ -27,7 +28,6 @@
 #include "CutPlanar.h"
 #include "CutPlanarDefs.h"
 #include "CCCutSegment.h"
-
 #ifdef OPEN_IMAGE_IO_AVAILABLE
   using namespace OpenImageIO;
 #endif
@@ -293,14 +293,14 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
   
   // contract strongly connected components here
   Graph *graphDash = graph->findAndContractSCC( source, sink );
-  ((PlanarGraph*)graphDash)->printEdges();
+//  ((PlanarGraph*)graphDash)->printEdges();
   ((PlanarGraph*)graphDash)->findFaces();
-  ((PlanarGraph*)graphDash)->printFaces();
+//  ((PlanarGraph*)graphDash)->printFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
   Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
-  dualGraph->printVertexPairArray();
   
 #ifdef DEBUG_ON
+  dualGraph->printVertexPairArray();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
@@ -728,9 +728,7 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
     name = name + picName.substr(0, picName.rfind("ppm")-1);
   }else{
     
-    cout << " " << picName.find("ppm") << endl;
     name = name + picName.substr(picName.rfind("/")+1, picName.rfind("ppm")-1);
-    
   }
   
   name = name + to_string(sourceRow) + "," + to_string(sourceColumn) + "_" + to_string(sinkRow) + "," + to_string(sinkColumn);
@@ -887,12 +885,14 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   ((PlanarGraph*)graphDash)->findFaces();
   ((PlanarGraph*)graphDash)->printFaces();
   ((PlanarGraph*)graphDash)->findAndMarkSTPath();
-  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();  
+  Graph *dualGraph = ((PlanarGraph*)graphDash)->calculateDual();
+
+#ifdef DEBUG_ON
   dualGraph->printVertexPairArray();
-  
   std::cout << "************* DUAL GRAPH **********" << std::endl;
   dualGraph->printEdges();
   std::cout << "************* DUAL GRAPH **********" << std::endl;
+#endif
   
   double cutCount = dualGraph->countMinCuts();
   std::cout << "Number of min cuts: " <<  cutCount  << std::endl;
@@ -1008,6 +1008,8 @@ void countCutsWithArguments(int argc, const char * argv[]){
 
 int main(int argc, const char * argv[]) {
   
+  time_t startTime = time(0);
+  cout << "Start time : " <<  startTime << endl;
     //testCountingCuts();
 //    testPlanarGraphs();
     //testCountingPaths();
@@ -1020,5 +1022,8 @@ int main(int argc, const char * argv[]) {
   
   //  countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/simmons2_small2.ppm",6,21);
   countCutsWithArguments(argc, argv);
+  time_t endTime = time(0);
+  cout << "End time : " <<  endTime << endl;
+  cout << "Total Time : " <<  (endTime -startTime) << endl;
   //countingCutsThroughSchmidt("/Users/Gaurav/Documents/STudies/Capstone/enso1.ppm",false);
 }
