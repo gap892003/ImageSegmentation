@@ -312,6 +312,11 @@ void calculateCuts( Graph *graph, int source, int sink, int xresol, int yresol, 
   for (int  i = 0 ; i < 10 ; ++i){
     
     std::set<int> *minCutSet = dualGraph->sampleAMinCut(i*10);
+    
+    if (minCutSet == NULL ){
+    
+      break;
+    }
     bool *minCut = graph->getMaskingForSet(minCutSet);
     
     if (minCut == NULL) {
@@ -900,6 +905,12 @@ void countingCutsThroughSchmidt ( std::string picName, bool useCustomWeightFunct
   for (int  i = 0 ; i < 5 ; ++i){
     
     std::set<int> *minCutSet = dualGraph->sampleAMinCut(i*10);
+    
+    if (minCutSet == NULL ){
+
+      break;
+    }
+
     bool *minCut = planarGraph->getMaskingForSet(minCutSet);
     
     if (minCut == NULL) {

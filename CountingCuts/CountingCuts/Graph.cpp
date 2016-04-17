@@ -1572,13 +1572,13 @@ std::set<int>* Graph::sampleAMinCut(int seed ){
 #ifdef WEIGHTED_PROBABILITY
           
           edgeLottery.push_back(edge);
-          double probab = lastProbab + pathCountArray[edge->vertex2ID] / pathCountArray[edge->vertex1ID];
+          double probab = lastProbab + (pathCountArray[edge->vertex2ID] / pathCountArray[edge->vertex1ID]);
           
-          if (probab > 1.0){
-            
-            cout << "Something went wrong: Probability can not be greater than 1: " << probab <<  endl  ;
-            return NULL;
-          }
+//          if ( isgreater(probab , 1.0) == 1){
+//            
+//            cout << "Something went wrong: Probability can not be greater than 1: " << probab <<  endl  ;
+//            return NULL;
+//          }
           
           edgeProbability.push_back(probab);
           lastProbab = probab;
