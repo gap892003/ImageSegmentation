@@ -629,12 +629,14 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 #endif
       // settting boss for each component
       // this will be useful while creating new graph
+      int bossID =  verticesArray[verticesCollected->size()-1]->id;
+      
       for (int k = 0 ; k < dummy ; ++k){
         
 #ifdef DEBUG_ON
         cout << verticesCollected->at(k) << " ";
 #endif
-        verticesArray[verticesCollected->at(k)]->boss = verticesCollected->at(0);
+        verticesArray[verticesCollected->at(k)]->boss = bossID;
       }
       
 #ifdef DEBUG_ON
@@ -1667,7 +1669,7 @@ bool* Graph::getMaskingForSet(std::set<int> *minCut){
   
   for ( it = minCut->begin(); it != minCut->end(); ++it ){
     
-    int bossId = *it;
+    int bossId = verticesArray[*it]->boss;
     
     // search this boss in collectedVerticesList
     // assign all of the values to true;

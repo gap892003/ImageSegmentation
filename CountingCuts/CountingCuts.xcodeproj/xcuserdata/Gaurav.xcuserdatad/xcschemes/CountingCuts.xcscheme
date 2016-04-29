@@ -118,6 +118,11 @@
             value = "/Users/Gaurav/Documents/STudies/Capstone/Temp.txt"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "GRAPH8"
+            value = "/Users/Gaurav/Documents/STudies/Capstone/Test8.txt"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
