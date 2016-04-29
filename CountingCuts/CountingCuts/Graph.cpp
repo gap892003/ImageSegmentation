@@ -629,7 +629,7 @@ Graph* Graph::findAndContractSCC ( int &source, int& sink ){
 #endif
       // settting boss for each component
       // this will be useful while creating new graph
-      int bossID =  verticesArray[verticesCollected->size()-1]->id;
+      int bossID =  verticesArray[verticesCollected->at(verticesCollected->size()-1)]->id;
       
       for (int k = 0 ; k < dummy ; ++k){
         
@@ -1677,7 +1677,7 @@ bool* Graph::getMaskingForSet(std::set<int> *minCut){
     for (int i = 0 ; i < collectedVerticesList->size(); ++i ) {
       
       vector<int> *list = collectedVerticesList->at(i);
-      int listBossID = list->at(list->size()-1);
+      int listBossID = verticesArray[list->at(list->size()-1)]->id;
       
       if (listBossID == bossId){
       
